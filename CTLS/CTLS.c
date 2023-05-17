@@ -7574,5 +7574,37 @@ int inCTLS_ExceptionCheck_External(TRANSACTION_OBJECT *pobTran)
 	return (VS_SUCCESS);
 }
 
+/*
+Function        :inCTLS_Mifare_Read_Block
+Date&Time       :2018/10/22 下午 2:49
+Describe        :讀出16byte資料
+*/
+int inCTLS_Mifare_Read_Block(unsigned char usBlockNum, unsigned char *uszBlockContent)
+{
+	char		szDebugMsg[100 + 1] = {0};
+	unsigned short	usRetVal = 0;
+
+	usRetVal = CTOS_MifareREADBLOCK(usBlockNum, uszBlockContent);
+	if (usRetVal == d_OK)
+	{
+		if (ginDebug == VS_TRUE)
+		{
+			inDISP_LogPrintf(AT,"CTOS_MifareREADBLOCK Success");
+		}
+	}
+	else
+	{
+		if (ginDebug == VS_TRUE)
+		{
+			memset(szDebugMsg, 0x00, sizeof(szDebugMsg));
+			sprintf(szDebugMsg, "CTOS_MifareREADBLOCK Err :0x%04X", usRetVal);
+			inDISP_LogPrintf(AT,szDebugMsg);
+		}
+		return (VS_ERROR);
+	}
+	
+	return (VS_SUCCESS);
+}
+
 
 

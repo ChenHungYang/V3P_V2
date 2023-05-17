@@ -17,8 +17,8 @@ RANLIB=ranlib
 CC=arm-brcm-linux-gnueabi-gcc
 CCC=arm-brcm-linux-gnueabi-g++
 CXX=arm-brcm-linux-gnueabi-g++
-FC=gfortran.exe
-AS=as.exe
+FC=gfortran
+AS=as
 
 # Macros
 CND_PLATFORM=Cygwin-Windows

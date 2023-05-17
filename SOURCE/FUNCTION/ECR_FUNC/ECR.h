@@ -229,6 +229,7 @@
 #define _ECR_RESPONSE_CODE_ESVC_RE_TAP_CARD_		35 /* [新增電票悠遊卡功能] 請重新感應卡片 [SAM] 2022/6/8 下午 5:51 */
 
 #define _ECR_RESPONSE_CODE_NODATA			36
+#define _ECR_RESPONSE_CODE_SVC_CARD_NOT_OPEN	37	/*2023/05/15 HungYang 新增未開卡錯誤*/
 
 #define _ECR_RESPONSE_CODE_SUCCESS_				99	/* 成功 */
 

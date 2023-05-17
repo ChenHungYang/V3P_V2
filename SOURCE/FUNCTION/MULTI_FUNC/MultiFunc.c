@@ -40,30 +40,29 @@
 
 #include "MultiFunc.h"
 
-extern	int			ginDebug;
-extern	int			ginISODebug;
-extern	int			ginDisplayDebug;
-extern	int			ginEngineerDebug;
-extern	int			ginFindRunTime;
-extern	int			ginEventCode;	
-extern	CTLS_OBJECT		srCtlsObj;
-extern	EMVCL_RC_DATA_EX	szRCDataEx;
+extern int ginDebug;
+extern int ginISODebug;
+extern int ginDisplayDebug;
+extern int ginEngineerDebug;
+extern int ginFindRunTime;
+extern int ginEventCode;
+extern CTLS_OBJECT srCtlsObj;
+extern EMVCL_RC_DATA_EX szRCDataEx;
 
-int	ginMultiCTLSLen;
-char	gszMultiCTLSData[1024 + 1];
+int ginMultiCTLSLen;
+char gszMultiCTLSData[1024 + 1];
 
-MULTI_TABLE		gstMultiOb;
+MULTI_TABLE gstMultiOb;
 
-MULTI_TRANS_TABLE stMultiSlave[] ={
-    /* 第零組標準 RS232 */
-    {
-        inMultiFunc_SlaveInitial,
-        inMultiFunc_SlaveRecePacket,
-        inMultiFunc_SlaveSendPacket,
-        inMultiFunc_SlaveSendError,
-        inMultiFunc_SlaveEnd
-    },
-    
+MULTI_TRANS_TABLE stMultiSlave[] = {
+	/* 第零組標準 RS232 */
+	{
+		inMultiFunc_SlaveInitial,
+		inMultiFunc_SlaveRecePacket,
+		inMultiFunc_SlaveSendPacket,
+		inMultiFunc_SlaveSendError,
+		inMultiFunc_SlaveEnd},
+
 };
 
 /*
@@ -73,10 +72,10 @@ Describe        :外接設備開機initial
 */
 int inMultiFunc_First_Initial(void)
 {
-	int	inRetVal = VS_ERROR;
-	char	szTMSOK[2 + 1];
-	char	szMulti1Version[2 + 1];
-	char	szComPort[4 + 1];
+	int inRetVal = VS_ERROR;
+	char szTMSOK[2 + 1];
+	char szMulti1Version[2 + 1];
+	char szComPort[4 + 1];
 
 	/* 檢查是否做過【參數下載】 */
 	memset(szTMSOK, 0x00, sizeof(szTMSOK));
@@ -95,30 +94,29 @@ int inMultiFunc_First_Initial(void)
 	{
 		char szDebugMsg[100 + 1];
 
-		memset(szDebugMsg, 0x00, sizeof (szDebugMsg));
+		memset(szDebugMsg, 0x00, sizeof(szDebugMsg));
 		sprintf(szDebugMsg, "MultiVerson :%d", gstMultiOb.srSetting.inVersion);
 		inDISP_LogPrintf(szDebugMsg);
 	}
 
-        /* 根據MultiVersion來決定，COMPORT的設定 */
+	/* 根據MultiVersion來決定，COMPORT的設定 */
 	inRetVal = stMultiSlave[gstMultiOb.srSetting.inVersion].inMultiInitial(&gstMultiOb);
 
 	if (inRetVal != VS_SUCCESS)
 	{
 		inDISP_LogPrintf("inMultiFunc_Initial Not Success");
-                inDISP_ClearAll();
+		inDISP_ClearAll();
 		inDISP_Msg_BMP(_ERR_INIT_, _COORDINATE_Y_LINE_8_6_, _CLEAR_KEY_MSG_, _EDC_TIMEOUT_, "RS232", _LINE_8_5_);
 	}
 	else
 	{
 		/* 代表設定完成 */
-                inDISP_LogPrintf("inMultiFunc_Initial Success");
+		inDISP_LogPrintf("inMultiFunc_Initial Success");
 		gstMultiOb.srSetting.uszSettingOK = VS_TRUE;
 		if (ginDisplayDebug == VS_TRUE)
 		{
 			inDISP_LOGDisplay("MultiInital OK", _FONTSIZE_16X22_, _LINE_16_16_, VS_FALSE);
 		}
-
 	}
 
 	return (VS_SUCCESS);
@@ -131,18 +129,18 @@ Describe        :偵測第一個多接設備
 */
 int inMultiFunc_First_Receive_Check()
 {
-	int		inRetVal = VS_ERROR;
-	char		szComPort[4 + 1];
-	char		szDebugMsg[100 + 1];
-	unsigned short	usReceiveLen = 0;
-	
+	int inRetVal = VS_ERROR;
+	char szComPort[4 + 1];
+	char szDebugMsg[100 + 1];
+	unsigned short usReceiveLen = 0;
+
 	memset(szComPort, 0x00, sizeof(szComPort));
 	inGetMultiComPort1(szComPort);
-	if (memcmp(szComPort, "COM1", strlen("COM1")) == 0	||
-	    memcmp(szComPort, "COM2", strlen("COM2")) == 0	||
-	    memcmp(szComPort, "COM3", strlen("COM3")) == 0	||
-	    memcmp(szComPort, "COM4", strlen("COM4")) == 0      ||
-            memcmp(szComPort, "USB1", strlen("USB1")) == 0)
+	if (memcmp(szComPort, "COM1", strlen("COM1")) == 0 ||
+		memcmp(szComPort, "COM2", strlen("COM2")) == 0 ||
+		memcmp(szComPort, "COM3", strlen("COM3")) == 0 ||
+		memcmp(szComPort, "COM4", strlen("COM4")) == 0 ||
+		memcmp(szComPort, "USB1", strlen("USB1")) == 0)
 	{
 		/* 沒設定完成，不用檢查 */
 		if (gstMultiOb.srSetting.uszSettingOK != VS_TRUE)
@@ -151,8 +149,8 @@ int inMultiFunc_First_Receive_Check()
 		}
 		else
 		{
-			inDISP_LogPrintfWithFlag("-----[%s][%s][%d] START -----",__FILE__, __FUNCTION__, __LINE__);
-			
+			inDISP_LogPrintfWithFlag("-----[%s][%s][%d] START -----", __FILE__, __FUNCTION__, __LINE__);
+
 			inRetVal = inMultiFunc_Data_Receive_Check(gstMultiOb.srSetting.uszComPort, &usReceiveLen);
 			if (inRetVal == VS_SUCCESS)
 			{
@@ -168,12 +166,12 @@ int inMultiFunc_First_Receive_Check()
 	else if (memcmp(szComPort, "WIFI", strlen("WIFI")) == 0)
 	{
 		inDISP_LogPrintfWithFlag("Miyano WIFI");
-                inRetVal = inWiFi_IsAccept();
+		inRetVal = inWiFi_IsAccept();
 	}
 	else
 	{
 		inDISP_LogPrintfWithFlag("Miyano else");
-                inRetVal = VS_ERROR;
+		inRetVal = VS_ERROR;
 	}
 
 	return (inRetVal);
@@ -186,31 +184,31 @@ Describe        :偵測第一個多接設備接收到交易取消
 */
 int inMultiFunc_First_Receive_Cancel()
 {
-	int		inRetVal = VS_ERROR;
-	char		szComPort[4 + 1];
+	int inRetVal = VS_ERROR;
+	char szComPort[4 + 1];
 
 	memset(szComPort, 0x00, sizeof(szComPort));
 	inGetMultiComPort1(szComPort);
-	if (memcmp(szComPort, "COM1", strlen("COM1")) == 0	||
-	    memcmp(szComPort, "COM2", strlen("COM2")) == 0	||
-	    memcmp(szComPort, "COM3", strlen("COM3")) == 0	||
-	    memcmp(szComPort, "COM4", strlen("COM4")) == 0      ||
-            memcmp(szComPort, "USB1", strlen("USB1")) == 0)
+	if (memcmp(szComPort, "COM1", strlen("COM1")) == 0 ||
+		memcmp(szComPort, "COM2", strlen("COM2")) == 0 ||
+		memcmp(szComPort, "COM3", strlen("COM3")) == 0 ||
+		memcmp(szComPort, "COM4", strlen("COM4")) == 0 ||
+		memcmp(szComPort, "USB1", strlen("USB1")) == 0)
 	{
 		/* 沒設定完成，不用檢查 */
 		if (gstMultiOb.srSetting.uszSettingOK != VS_TRUE)
 		{
-                        inRetVal = VS_ERROR;
+			inRetVal = VS_ERROR;
 		}
 		else
 		{
 			inRetVal = inMultiFunc_Slave_GetCancel(gstMultiOb.srSetting.uszComPort, &gstMultiOb);
 		}
 	}
-//	else if (memcmp(szComPort, "USB1", strlen("USB1")) == 0)
-//	{
-//                inRetVal = VS_ERROR;
-//	}
+	//	else if (memcmp(szComPort, "USB1", strlen("USB1")) == 0)
+	//	{
+	//                inRetVal = VS_ERROR;
+	//	}
 	else if (memcmp(szComPort, "WIFI", strlen("WIFI")) == 0)
 	{
 		inRetVal = VS_ERROR;
@@ -230,8 +228,7 @@ Describe        :
 */
 int inMultiFunc_RS232_Initial(void)
 {
-	int	inRetVal = VS_ERROR;
-
+	int inRetVal = VS_ERROR;
 
 	inRetVal = stMultiSlave[gstMultiOb.srSetting.inVersion].inMultiInitial(&gstMultiOb);
 
@@ -244,12 +241,12 @@ Date&Time       :2023/4/11 上午 11:15
 Describe        :
 */
 int inMultiFunc_FlushRxBuffer(unsigned char uszComPort)
-{    
-        int     inRetVal = 0;
-	char	szComPort[4 + 1];
-        char	szDebugMsg[100 + 1];
+{
+	int inRetVal = 0;
+	char szComPort[4 + 1];
+	char szDebugMsg[100 + 1];
 
-        /* 沒設定完成，不用檢查 */
+	/* 沒設定完成，不用檢查 */
 	if (gstMultiOb.srSetting.uszSettingOK != VS_TRUE)
 	{
 		inDISP_DispLogAndWriteFlie(" MultiFunc Setting Not OK [%u] Line[%d]", gstMultiOb.srSetting.uszSettingOK, __LINE__);
@@ -258,36 +255,36 @@ int inMultiFunc_FlushRxBuffer(unsigned char uszComPort)
 
 	memset(szComPort, 0x00, sizeof(szComPort));
 	inGetMultiComPort1(szComPort);
-	if (memcmp(szComPort, "COM1", strlen("COM1")) == 0	||
-	    memcmp(szComPort, "COM2", strlen("COM2")) == 0	||
-	    memcmp(szComPort, "COM3", strlen("COM3")) == 0	||
-	    memcmp(szComPort, "COM4", strlen("COM4")) == 0)
+	if (memcmp(szComPort, "COM1", strlen("COM1")) == 0 ||
+		memcmp(szComPort, "COM2", strlen("COM2")) == 0 ||
+		memcmp(szComPort, "COM3", strlen("COM3")) == 0 ||
+		memcmp(szComPort, "COM4", strlen("COM4")) == 0)
 	{
 		inRetVal = CTOS_RS232FlushRxBuffer(uszComPort);
 	}
 	else if (memcmp(szComPort, "USB1", strlen("USB1")) == 0)
 	{
-                inRetVal = inUSB_FlushRxBuffer();
+		inRetVal = inUSB_FlushRxBuffer();
 	}
 	else if (memcmp(szComPort, "WIFI", strlen("WIFI")) == 0)
 	{
-                inDISP_LogPrintf("WIFI");
+		inDISP_LogPrintf("WIFI");
 	}
 	else
 	{
 		inDISP_LogPrintf("else");
-                inRetVal = VS_ERROR;
+		inRetVal = VS_ERROR;
 	}
 
 	if (inRetVal != d_OK)
 	{
 		inDISP_DispLogAndWriteFlie(" MultiFunc FlashRxBuf *Error* RetVal[0x%04x] Line[%d]", inRetVal, __LINE__);
-                inRetVal = VS_ERROR;
-        }
+		inRetVal = VS_ERROR;
+	}
 	else
 	{
 		inDISP_LogPrintfWithFlag(" MultiFunc FlashRxBuf Successs Com[%d]", uszComPort + 1);
-		inRetVal =  VS_SUCCESS;
+		inRetVal = VS_SUCCESS;
 	}
 
 	return (inRetVal);
@@ -295,18 +292,18 @@ int inMultiFunc_FlushRxBuffer(unsigned char uszComPort)
 
 /*
 Function        : inMultiFunc_FlushTxBuffer
-Date&Time   : 
+Date&Time   :
 Describe        : 清空傳送Txbuffer中的資料
 */
-int inMultiFunc_FlushTxBuffer(MULTI_TABLE* stMultiOb)
+int inMultiFunc_FlushTxBuffer(MULTI_TABLE *stMultiOb)
 {
-	int     inRetVal = 0;
-	char	szComPort[4 + 1];
-        char	szDebugMsg[100 + 1];
-        
-        inDISP_LogPrintf("inMultiFunc_FlushTxBuffer Start");
-        
-        /* 沒設定完成，不用檢查 */
+	int inRetVal = 0;
+	char szComPort[4 + 1];
+	char szDebugMsg[100 + 1];
+
+	inDISP_LogPrintf("inMultiFunc_FlushTxBuffer Start");
+
+	/* 沒設定完成，不用檢查 */
 	if (gstMultiOb.srSetting.uszSettingOK != VS_TRUE)
 	{
 		inDISP_DispLogAndWriteFlie(" MultiFunc_RS232 FlashRxBuf Not OK [%u] Line[%d]", gstMultiOb.srSetting.uszSettingOK, __LINE__);
@@ -315,40 +312,40 @@ int inMultiFunc_FlushTxBuffer(MULTI_TABLE* stMultiOb)
 
 	memset(szComPort, 0x00, sizeof(szComPort));
 	inGetMultiComPort1(szComPort);
-	if (memcmp(szComPort, "COM1", strlen("COM1")) == 0	||
-	    memcmp(szComPort, "COM2", strlen("COM2")) == 0	||
-	    memcmp(szComPort, "COM3", strlen("COM3")) == 0	||
-	    memcmp(szComPort, "COM4", strlen("COM4")) == 0)
+	if (memcmp(szComPort, "COM1", strlen("COM1")) == 0 ||
+		memcmp(szComPort, "COM2", strlen("COM2")) == 0 ||
+		memcmp(szComPort, "COM3", strlen("COM3")) == 0 ||
+		memcmp(szComPort, "COM4", strlen("COM4")) == 0)
 	{
 		inRetVal = CTOS_RS232FlushTxBuffer(stMultiOb->srSetting.uszComPort);
 	}
 	else if (memcmp(szComPort, "USB1", strlen("USB1")) == 0)
 	{
-                inRetVal = inUSB_FlushTxBuffer();
+		inRetVal = inUSB_FlushTxBuffer();
 	}
 	else if (memcmp(szComPort, "WIFI", strlen("WIFI")) == 0)
 	{
-                inDISP_LogPrintf("WIFI");
+		inDISP_LogPrintf("WIFI");
 	}
 	else
 	{
 		inDISP_LogPrintf("else");
-                inRetVal = VS_ERROR;
+		inRetVal = VS_ERROR;
 	}
 
 	if (inRetVal != d_OK)
 	{
 		inDISP_DispLogAndWriteFlie(" MultiFunc FlashRxBuf *Error* RetVal[0x%04x] Line[%d]", inRetVal, __LINE__);
-                inRetVal = VS_ERROR;
-        }
+		inRetVal = VS_ERROR;
+	}
 	else
 	{
 		inDISP_LogPrintfWithFlag(" MultiFunc FlashRxBuf Successs Com[%d]", stMultiOb->srSetting.uszComPort + 1);
-                inRetVal = VS_SUCCESS;
-        }
+		inRetVal = VS_SUCCESS;
+	}
 
 	inDISP_LogPrintf("inMultiFunc_FlushTxBuffer End");
-        return (inRetVal);
+	return (inRetVal);
 }
 
 /*
@@ -356,15 +353,15 @@ Function        :inMultiFunc_Send
 Date&Time       :2017/7/4 上午 10:15
 Describe        :傳送要給收銀機的資料
 */
-int inMultiFunc_Send(TRANSACTION_OBJECT *pobTran, MULTI_TABLE * stMultiOb, char *szDataBuffer, int inDataSize)
+int inMultiFunc_Send(TRANSACTION_OBJECT *pobTran, MULTI_TABLE *stMultiOb, char *szDataBuffer, int inDataSize)
 {
-	int		i;
-	int		inRetVal;
-	int		inRetry = 0;
-	int		inSendLen = 0;
-	char		szDebugMsg[100 +1];
-	unsigned char	uszSendBuf[_ECR_RS232_BUFF_SIZE_];					/* 包含STX、ETX、LRC的電文 */
-	unsigned char	uszLRC = 0;
+	int i;
+	int inRetVal;
+	int inRetry = 0;
+	int inSendLen = 0;
+	char szDebugMsg[100 + 1];
+	unsigned char uszSendBuf[_ECR_RS232_BUFF_SIZE_]; /* 包含STX、ETX、LRC的電文 */
+	unsigned char uszLRC = 0;
 
 	if (ginDisplayDebug == VS_TRUE)
 	{
@@ -374,8 +371,8 @@ int inMultiFunc_Send(TRANSACTION_OBJECT *pobTran, MULTI_TABLE * stMultiOb, char 
 	}
 
 	/* Send之前清Buffer，避免收到錯的回應 */
-        inMultiFunc_FlushRxBuffer(stMultiOb->srSetting.uszComPort);
-        
+	inMultiFunc_FlushRxBuffer(stMultiOb->srSetting.uszComPort);
+
 	/* 將Buffer初始化 */
 	memset(uszSendBuf, 0x00, sizeof(uszSendBuf));
 
@@ -383,13 +380,13 @@ int inMultiFunc_Send(TRANSACTION_OBJECT *pobTran, MULTI_TABLE * stMultiOb, char 
 	{
 		/* 在要傳送Buffer裡放STX */
 		uszSendBuf[inSendLen] = _STX_;
-		inSendLen ++;
+		inSendLen++;
 		/* 在要傳送Buffer裡放要傳送的資料 */
 		memcpy(&uszSendBuf[inSendLen], szDataBuffer, inDataSize);
 		inSendLen += inDataSize;
 		/* 在要傳送Buffer裡放ETX */
 		uszSendBuf[inSendLen] = _ETX_;
-		inSendLen ++;
+		inSendLen++;
 	}
 	else
 	{
@@ -406,11 +403,11 @@ int inMultiFunc_Send(TRANSACTION_OBJECT *pobTran, MULTI_TABLE * stMultiOb, char 
 
 	/* 在要傳送Buffer裡放LRC */
 	uszSendBuf[inSendLen] = uszLRC;
-	inSendLen ++;
+	inSendLen++;
 
 	if (ginDebug == VS_TRUE)
 	{
-		memset(szDebugMsg, 0x00, sizeof (szDebugMsg));
+		memset(szDebugMsg, 0x00, sizeof(szDebugMsg));
 		sprintf(szDebugMsg, "LRC : 0x%02X", uszLRC);
 		inDISP_LogPrintf(szDebugMsg);
 	}
@@ -418,7 +415,8 @@ int inMultiFunc_Send(TRANSACTION_OBJECT *pobTran, MULTI_TABLE * stMultiOb, char 
 	while (1)
 	{
 		/* 檢查port是否已經準備好要送資料 */
-		while (inMultiFunc_Data_Send_Check(stMultiOb->srSetting.uszComPort) != VS_SUCCESS);
+		while (inMultiFunc_Data_Send_Check(stMultiOb->srSetting.uszComPort) != VS_SUCCESS)
+			;
 
 		/* 經由port傳送資料 */
 		inRetVal = inMultiFunc_Data_Send(stMultiOb->srSetting.uszComPort, uszSendBuf, (unsigned short)inSendLen);
@@ -430,13 +428,13 @@ int inMultiFunc_Send(TRANSACTION_OBJECT *pobTran, MULTI_TABLE * stMultiOb, char 
 		else
 		{
 
-		/*---------------------------------- 印Debug 開始---------------------------------------------------------------*/
+			/*---------------------------------- 印Debug 開始---------------------------------------------------------------*/
 			/* 列印紙本電文和顯示電文訊息 */
 			inECR_Print_Send_ISODeBug(szDataBuffer, inSendLen, inDataSize);
-		/*---------------------------------- 印Debug 結束---------------------------------------------------------------*/
+			/*---------------------------------- 印Debug 結束---------------------------------------------------------------*/
 			/* 傳送Retry */
-                        inDISP_LogPrintf("inRetry = %d", inRetry);
-                        inDISP_LogPrintf("inMaxRetries = %d", stMultiOb->stMulti_Optional_Setting.inMaxRetries);
+			inDISP_LogPrintf("inRetry = %d", inRetry);
+			inDISP_LogPrintf("inMaxRetries = %d", stMultiOb->stMulti_Optional_Setting.inMaxRetries);
 			if (inRetry < stMultiOb->stMulti_Optional_Setting.inMaxRetries)
 			{
 				/* 接收ACK OR NAK */
@@ -483,10 +481,9 @@ int inMultiFunc_Send(TRANSACTION_OBJECT *pobTran, MULTI_TABLE * stMultiOb, char 
 				return (VS_SUCCESS);
 			}
 
-		}/* inMultiFunc_Data_Send */
+		} /* inMultiFunc_Data_Send */
 
-	}/* while(1) */
-
+	} /* while(1) */
 }
 
 /*
@@ -496,13 +493,13 @@ Describe        :送ACK OR NAK
 */
 int inMultiFunc_Send_ACKorNAK(MULTI_TABLE *stMultiOb, int inResponse)
 {
-	int		inRetVal;
-	unsigned char	uszSendBuffer[2 + 1];
+	int inRetVal;
+	unsigned char uszSendBuffer[2 + 1];
 
 	memset(uszSendBuffer, 0x00, sizeof(uszSendBuffer));
 
 	/* 檢查port是否已經準備好要送資料 */
-        while (inMultiFunc_Data_Send_Check(stMultiOb->srSetting.uszComPort) != VS_SUCCESS)
+	while (inMultiFunc_Data_Send_Check(stMultiOb->srSetting.uszComPort) != VS_SUCCESS)
 	{
 		/* 等TxReady*/
 	};
@@ -538,9 +535,7 @@ int inMultiFunc_Send_ACKorNAK(MULTI_TABLE *stMultiOb, int inResponse)
 			{
 				inDISP_LOGDisplay("Send ACK ACK", _FONTSIZE_16X22_, _LINE_16_16_, VS_FALSE);
 			}
-
 		}
-
 	}
 	else if (inResponse == _NAK_)
 	{
@@ -573,9 +568,7 @@ int inMultiFunc_Send_ACKorNAK(MULTI_TABLE *stMultiOb, int inResponse)
 			{
 				inDISP_LOGDisplay("Send NAK NAK", _FONTSIZE_16X22_, _LINE_16_16_, VS_FALSE);
 			}
-
 		}
-
 	}
 	else if (inResponse == _FS_)
 	{
@@ -608,9 +601,7 @@ int inMultiFunc_Send_ACKorNAK(MULTI_TABLE *stMultiOb, int inResponse)
 			{
 				inDISP_LOGDisplay("Send FS FS", _FONTSIZE_16X22_, _LINE_16_16_, VS_FALSE);
 			}
-
 		}
-
 	}
 	else
 	{
@@ -627,7 +618,7 @@ int inMultiFunc_Send_ACKorNAK(MULTI_TABLE *stMultiOb, int inResponse)
 		return (VS_ERROR);
 	}
 
-        return (VS_SUCCESS);
+	return (VS_SUCCESS);
 }
 
 /*
@@ -637,11 +628,11 @@ Describe        :20230410 Miyano fix for USB
 */
 int inMultiFunc_Receive_ACKandNAK(MULTI_TABLE *stMultiOb)
 {
-	int		inRetVal;
-	char		szDebugMsg[100 + 1];
-	unsigned char	uszBuf[_ECR_RS232_BUFF_SIZE_];
-	unsigned short	usTwoSize = 2;
-	unsigned short	usReceiveLen = 0;
+	int inRetVal;
+	char szDebugMsg[100 + 1];
+	unsigned char uszBuf[_ECR_RS232_BUFF_SIZE_];
+	unsigned short usTwoSize = 2;
+	unsigned short usReceiveLen = 0;
 
 	/* 設定Timeout */
 	if (stMultiOb->stMulti_Optional_Setting.uszWaitForAck == VS_TRUE)
@@ -656,7 +647,7 @@ int inMultiFunc_Receive_ACKandNAK(MULTI_TABLE *stMultiOb)
 		while (usReceiveLen == 0)
 		{
 			/* 20230410 Miyano fix */
-                        inMultiFunc_Data_Receive_Check(stMultiOb->srSetting.uszComPort, &usReceiveLen);
+			inMultiFunc_Data_Receive_Check(stMultiOb->srSetting.uszComPort, &usReceiveLen);
 
 			if (stMultiOb->stMulti_Optional_Setting.uszWaitForAck == VS_TRUE)
 			{
@@ -670,7 +661,7 @@ int inMultiFunc_Receive_ACKandNAK(MULTI_TABLE *stMultiOb)
 
 		if (ginDebug == VS_TRUE)
 		{
-			memset(szDebugMsg, 0x00, sizeof (szDebugMsg));
+			memset(szDebugMsg, 0x00, sizeof(szDebugMsg));
 			sprintf(szDebugMsg, "Len : %d", usReceiveLen);
 			inDISP_LogPrintf(szDebugMsg);
 		}
@@ -720,7 +711,7 @@ int inMultiFunc_Receive_ACKandNAK(MULTI_TABLE *stMultiOb)
 					if (ginDebug == VS_TRUE)
 					{
 						inDISP_LogPrintf("Receive Not Ack Neither NAK!");
-						memset(szDebugMsg, 0x00, sizeof (szDebugMsg));
+						memset(szDebugMsg, 0x00, sizeof(szDebugMsg));
 						inFunc_BCD_to_ASCII(szDebugMsg, uszBuf, usTwoSize);
 						inDISP_LogPrintf(szDebugMsg);
 					}
@@ -728,12 +719,11 @@ int inMultiFunc_Receive_ACKandNAK(MULTI_TABLE *stMultiOb)
 					continue;
 				}
 
-			}/* inMultiFunc_Data_Receive */
+			} /* inMultiFunc_Data_Receive */
 
-		}/* while (usReceiveLen > 0) (有收到資料) */
+		} /* while (usReceiveLen > 0) (有收到資料) */
 
-	}/* while(1)...... */
-
+	} /* while(1)...... */
 }
 
 /*
@@ -741,25 +731,25 @@ Function        :inMultiFunc_Slave_GetCancel
 Date&Time       :2017/7/10 下午 4:52
 Describe        :用來看Host是否發送停止交易
 */
-int inMultiFunc_Slave_GetCancel(unsigned char inHandle, MULTI_TABLE* stMultiFuncOb)
+int inMultiFunc_Slave_GetCancel(unsigned char inHandle, MULTI_TABLE *stMultiFuncOb)
 {
-   	int		i = 0;
-	int		inSize = 0;
-	int		inExpectedSize = 0;
-	int		inRespTimeOut = 5;
-	char		szTemplate[42 + 1];
-	char		szGetMultiData[_MULTI_MAX_SIZES_ + 4];
-	char		szDebugMsg[100 + 1];
-	unsigned short	usOneSize = 1;
-	unsigned char	uszSTX[2 + 1];
-	unsigned char	uszLRCData = 0x00;
-	unsigned char	uszLRC = VS_FALSE;
-	unsigned char	uszRecBuf[_MULTI_MAX_SIZES_ + 4];
+	int i = 0;
+	int inSize = 0;
+	int inExpectedSize = 0;
+	int inRespTimeOut = 5;
+	char szTemplate[42 + 1];
+	char szGetMultiData[_MULTI_MAX_SIZES_ + 4];
+	char szDebugMsg[100 + 1];
+	unsigned short usOneSize = 1;
+	unsigned char uszSTX[2 + 1];
+	unsigned char uszLRCData = 0x00;
+	unsigned char uszLRC = VS_FALSE;
+	unsigned char uszRecBuf[_MULTI_MAX_SIZES_ + 4];
 
 	if (ginDisplayDebug == VS_TRUE)
 	{
 		memset(szDebugMsg, 0x00, sizeof(szDebugMsg));
-                sprintf(szDebugMsg, "inMultiFunc_Slave_GetCancel(%d)_START", inHandle);
+		sprintf(szDebugMsg, "inMultiFunc_Slave_GetCancel(%d)_START", inHandle);
 		inDISP_LOGDisplay(szDebugMsg, _FONTSIZE_16X22_, _LINE_16_16_, VS_FALSE);
 	}
 
@@ -767,29 +757,29 @@ int inMultiFunc_Slave_GetCancel(unsigned char inHandle, MULTI_TABLE* stMultiFunc
 	while (1)
 	{
 		usOneSize = 1;
-    		if (inMultiFunc_Data_Receive(inHandle, &uszSTX[0], &usOneSize) == VS_SUCCESS)
-    		{
-    			if (uszSTX[0] == _STX_)
-    			{
+		if (inMultiFunc_Data_Receive(inHandle, &uszSTX[0], &usOneSize) == VS_SUCCESS)
+		{
+			if (uszSTX[0] == _STX_)
+			{
 				if (ginDisplayDebug == VS_TRUE)
 				{
 					memset(szDebugMsg, 0x00, sizeof(szDebugMsg));
 					sprintf(szDebugMsg, "Receive STX");
 					inDISP_LOGDisplay(szDebugMsg, _FONTSIZE_16X22_, _LINE_16_16_, VS_FALSE);
 				}
-    				uszRecBuf[inSize ++] = _STX_;
+				uszRecBuf[inSize++] = _STX_;
 				break;
-    			}
-    		}
-    		else
-    		{
+			}
+		}
+		else
+		{
 			if (ginDebug == VS_TRUE)
 			{
 				inDISP_LogPrintf(("inMultiFunc_SlaveData_Recv()_STX_ERROR"));
 			}
 
-    			return (VS_ESCAPE);
-    		}
+			return (VS_ESCAPE);
+		}
 	}
 
 	/* 預計長度 */
@@ -811,9 +801,9 @@ int inMultiFunc_Slave_GetCancel(unsigned char inHandle, MULTI_TABLE* stMultiFunc
 		}
 
 		usOneSize = 1;
-		if (inMultiFunc_Data_Receive(inHandle, &uszRecBuf[inSize], &usOneSize) ==  VS_SUCCESS)
+		if (inMultiFunc_Data_Receive(inHandle, &uszRecBuf[inSize], &usOneSize) == VS_SUCCESS)
 		{
-			inSize ++;
+			inSize++;
 		}
 
 		/* 讀完該功能別的Subdata */
@@ -826,9 +816,8 @@ int inMultiFunc_Slave_GetCancel(unsigned char inHandle, MULTI_TABLE* stMultiFunc
 		}
 	} /* End while () .... */
 
-
 	/* 算LRC */
-	for ( i = 1; i < (inSize-1); i++)
+	for (i = 1; i < (inSize - 1); i++)
 	{
 		uszLRCData ^= uszRecBuf[i];
 	}
@@ -840,7 +829,6 @@ int inMultiFunc_Slave_GetCancel(unsigned char inHandle, MULTI_TABLE* stMultiFunc
 	}
 	else
 	{
-
 	}
 
 	if (ginDisplayDebug == VS_TRUE)
@@ -865,11 +853,11 @@ int inMultiFunc_Slave_GetCancel(unsigned char inHandle, MULTI_TABLE* stMultiFunc
 		return (VS_ERROR);
 	}
 
-        memcpy(szGetMultiData, &uszRecBuf[1], inSize - 3);
+	memcpy(szGetMultiData, &uszRecBuf[1], inSize - 3);
 	szGetMultiData[inSize - 3] = 0x00;
 
-        /* 檢核功能別 */
-        memset(szTemplate, 0x00, sizeof(szTemplate));
+	/* 檢核功能別 */
+	memset(szTemplate, 0x00, sizeof(szTemplate));
 	memcpy(szTemplate, &szGetMultiData[14], 2);
 
 	if (!memcmp(szTemplate, _MULTI_CTLS_, 2))
@@ -891,7 +879,6 @@ int inMultiFunc_Slave_GetCancel(unsigned char inHandle, MULTI_TABLE* stMultiFunc
 	{
 		return (VS_ERROR);
 	}
-
 }
 
 /*
@@ -901,7 +888,7 @@ Describe        :收命令
 */
 int inMultiFunc_Receive_Command(TRANSACTION_OBJECT *pobTran)
 {
-	int		inRetVal;
+	int inRetVal;
 
 	/* 清空上次交易的資料 */
 	memset(&gstMultiOb.stMulti_TransData, 0x00, sizeof(MULTIFUC_SLAVE_TRANSACTION_DATA));
@@ -923,7 +910,7 @@ int inMultiFunc_Receive_Command(TRANSACTION_OBJECT *pobTran)
 		{
 			inDISP_LogPrintf("inMultifuc_Receive_Command Timeout");
 		}
-                
+
 		return (VS_TIMEOUT);
 	}
 	else
@@ -934,7 +921,6 @@ int inMultiFunc_Receive_Command(TRANSACTION_OBJECT *pobTran)
 		}
 		return (VS_SUCCESS);
 	}
-
 }
 
 /*
@@ -944,7 +930,7 @@ Describe        :回傳結果
 */
 int inMultiFunc_SendResult(TRANSACTION_OBJECT *pobTran)
 {
-	int	inRetVal;
+	int inRetVal;
 
 	/* 送資料 */
 	inRetVal = stMultiSlave[gstMultiOb.srSetting.inVersion].inMultiSend(pobTran, &gstMultiOb);
@@ -975,7 +961,6 @@ int inMultiFunc_SendResult(TRANSACTION_OBJECT *pobTran)
 		}
 		return (VS_SUCCESS);
 	}
-
 }
 
 /*
@@ -983,7 +968,7 @@ Function        :inMultiFunc_SendError
 Date&Time       :2017/7/3 下午 5:03
 Describe        :送錯誤訊息給Master
 */
-int inMultiFunc_SendError(TRANSACTION_OBJECT * pobTran, int inErrorType)
+int inMultiFunc_SendError(TRANSACTION_OBJECT *pobTran, int inErrorType)
 {
 	if (pobTran->uszMultiFuncSlaveBit != VS_TRUE)
 		return (VS_SUCCESS);
@@ -1005,87 +990,87 @@ Describe        :initial COM PORT
  */
 int inMultiFunc_SlaveInitial(MULTI_TABLE *stMultiOb)
 {
-    char		szDebugMsg[100 + 1];
-    char		szMultiComPort1[4 + 1];
-    unsigned char	uszParity;
-    unsigned char	uszDataBits;
-    unsigned char	uszStopBits;
-    unsigned long	ulBaudRate;
-    unsigned short	usRetVal;
+	char szDebugMsg[100 + 1];
+	char szMultiComPort1[4 + 1];
+	unsigned char uszParity;
+	unsigned char uszDataBits;
+	unsigned char uszStopBits;
+	unsigned long ulBaudRate;
+	unsigned short usRetVal;
 
-    memset(&uszParity, 0x00, sizeof (uszParity));
-    memset(&uszDataBits, 0x00, sizeof (uszDataBits));
-    memset(&uszStopBits, 0x00, sizeof (uszStopBits));
-    memset(&ulBaudRate, 0x00, sizeof (ulBaudRate));
+	memset(&uszParity, 0x00, sizeof(uszParity));
+	memset(&uszDataBits, 0x00, sizeof(uszDataBits));
+	memset(&uszStopBits, 0x00, sizeof(uszStopBits));
+	memset(&ulBaudRate, 0x00, sizeof(ulBaudRate));
 
-    /* 從EDC.Dat抓出哪一個Comport，這裡先HardCode */
-    /* inGetMultiComPort1 */
-    memset(szMultiComPort1, 0x00, sizeof (szMultiComPort1));
+	/* 從EDC.Dat抓出哪一個Comport，這裡先HardCode */
+	/* inGetMultiComPort1 */
+	memset(szMultiComPort1, 0x00, sizeof(szMultiComPort1));
 
-    inGetMultiComPort1(szMultiComPort1);
-    /* Verifone用handle紀錄，Castle用Port紀錄 */
-    if (!memcmp(szMultiComPort1, "COM1", 4))
-        stMultiOb->srSetting.uszComPort = d_COM1;
-    else if (!memcmp(szMultiComPort1, "COM2", 4))
-        stMultiOb->srSetting.uszComPort = d_COM2;
-    else if (!memcmp(szMultiComPort1, "COM3", 4))
-        stMultiOb->srSetting.uszComPort = d_COM3;
-    else if (!memcmp(szMultiComPort1, "COM4", 4))
-        stMultiOb->srSetting.uszComPort = d_COM4;
-    else if (!memcmp(szMultiComPort1, "USB1", 4))  /* 20230328 Miyano add for USB */
-    {
-            usRetVal = inMultiFunc_USB_Initial();
-            return usRetVal;
-    }
-    else
-    {
-            usRetVal = VS_ERROR;
-            return usRetVal;
-    }
+	inGetMultiComPort1(szMultiComPort1);
+	/* Verifone用handle紀錄，Castle用Port紀錄 */
+	if (!memcmp(szMultiComPort1, "COM1", 4))
+		stMultiOb->srSetting.uszComPort = d_COM1;
+	else if (!memcmp(szMultiComPort1, "COM2", 4))
+		stMultiOb->srSetting.uszComPort = d_COM2;
+	else if (!memcmp(szMultiComPort1, "COM3", 4))
+		stMultiOb->srSetting.uszComPort = d_COM3;
+	else if (!memcmp(szMultiComPort1, "COM4", 4))
+		stMultiOb->srSetting.uszComPort = d_COM4;
+	else if (!memcmp(szMultiComPort1, "USB1", 4)) /* 20230328 Miyano add for USB */
+	{
+		usRetVal = inMultiFunc_USB_Initial();
+		return usRetVal;
+	}
+	else
+	{
+		usRetVal = VS_ERROR;
+		return usRetVal;
+	}
 
-    /* BaudRate = 115200 */
-    ulBaudRate = 115200;
+	/* BaudRate = 115200 */
+	ulBaudRate = 115200;
 
-    /* Parity */
-    uszParity = 'N';
+	/* Parity */
+	uszParity = 'N';
 
-    /* Data Bits */
-    uszDataBits = 8;
+	/* Data Bits */
+	uszDataBits = 8;
 
-    /* Stop Bits */
-    uszStopBits = 1;
+	/* Stop Bits */
+	uszStopBits = 1;
 
-    /* 開port */
-    usRetVal = inRS232_Open(stMultiOb->srSetting.uszComPort, ulBaudRate, uszParity, uszDataBits, uszStopBits);
+	/* 開port */
+	usRetVal = inRS232_Open(stMultiOb->srSetting.uszComPort, ulBaudRate, uszParity, uszDataBits, uszStopBits);
 
-    if (usRetVal != VS_SUCCESS)
-    {
-	    if (ginDebug == VS_TRUE)
-	    {
-		    memset(szDebugMsg, 0x00, sizeof (szDebugMsg));
-		    sprintf(szDebugMsg, "inRS232_Open Error: 0x%04x", usRetVal);
-		    inDISP_LogPrintf(szDebugMsg);
-		    memset(szDebugMsg, 0x00, sizeof (szDebugMsg));
-		    sprintf(szDebugMsg, "COM%d BaudRate:%lu %d%c%d", stMultiOb->srSetting.uszComPort + 1, ulBaudRate, uszDataBits, uszParity, uszStopBits);
-		    inDISP_LogPrintf(szDebugMsg);
-	    }
-	    return (VS_ERROR);
-    }
-    else
-    {
-	    if (ginDebug == VS_TRUE)
-	    {
-		inPRINT_ChineseFont("inRS232_Open OK", _PRT_NORMAL_);
-		memset(szDebugMsg, 0x00, sizeof (szDebugMsg));
-		sprintf(szDebugMsg, "COM%d BaudRate:%lu %d%c%d", stMultiOb->srSetting.uszComPort, ulBaudRate, uszDataBits, uszParity, uszStopBits);
-		inPRINT_ChineseFont(szDebugMsg, _PRT_NORMAL_);
-	    }
-    }
+	if (usRetVal != VS_SUCCESS)
+	{
+		if (ginDebug == VS_TRUE)
+		{
+			memset(szDebugMsg, 0x00, sizeof(szDebugMsg));
+			sprintf(szDebugMsg, "inRS232_Open Error: 0x%04x", usRetVal);
+			inDISP_LogPrintf(szDebugMsg);
+			memset(szDebugMsg, 0x00, sizeof(szDebugMsg));
+			sprintf(szDebugMsg, "COM%d BaudRate:%lu %d%c%d", stMultiOb->srSetting.uszComPort + 1, ulBaudRate, uszDataBits, uszParity, uszStopBits);
+			inDISP_LogPrintf(szDebugMsg);
+		}
+		return (VS_ERROR);
+	}
+	else
+	{
+		if (ginDebug == VS_TRUE)
+		{
+			inPRINT_ChineseFont("inRS232_Open OK", _PRT_NORMAL_);
+			memset(szDebugMsg, 0x00, sizeof(szDebugMsg));
+			sprintf(szDebugMsg, "COM%d BaudRate:%lu %d%c%d", stMultiOb->srSetting.uszComPort, ulBaudRate, uszDataBits, uszParity, uszStopBits);
+			inPRINT_ChineseFont(szDebugMsg, _PRT_NORMAL_);
+		}
+	}
 
-    /* 清空接收的buffer */
-    inMultiFunc_FlushRxBuffer(stMultiOb->srSetting.uszComPort);
+	/* 清空接收的buffer */
+	inMultiFunc_FlushRxBuffer(stMultiOb->srSetting.uszComPort);
 
-    return (VS_SUCCESS);
+	return (VS_SUCCESS);
 }
 
 /*
@@ -1095,14 +1080,14 @@ Describe        :處理外接Host傳來的資料
  */
 int inMultiFunc_SlaveRecePacket(TRANSACTION_OBJECT *pobTran, MULTI_TABLE *stMultiOb)
 {
-	int	i = 0;
-	int	inRetVal;
-	char	szTemplate[50];
-	char	szGetDate[8 + 1], szGetTime[6 + 1];
-	char	szDebugMsg[100 + 1];
-	char	szPinTemp[16 + 1];
+	int i = 0;
+	int inRetVal;
+	char szTemplate[50];
+	char szGetDate[8 + 1], szGetTime[6 + 1];
+	char szDebugMsg[100 + 1];
+	char szPinTemp[16 + 1];
 
-	memset(stMultiOb->stMulti_TransData.szReceData, 0x00, sizeof (stMultiOb->stMulti_TransData.szReceData));
+	memset(stMultiOb->stMulti_TransData.szReceData, 0x00, sizeof(stMultiOb->stMulti_TransData.szReceData));
 
 	/* 測試Flag*/
 	if (ginEngineerDebug == VS_TRUE)
@@ -1118,10 +1103,10 @@ int inMultiFunc_SlaveRecePacket(TRANSACTION_OBJECT *pobTran, MULTI_TABLE *stMult
 		}
 		/* -----------------------開始接收資料------------------------------------------ */
 		inRetVal = inMultiFunc_SlaveData_Recv(stMultiOb->srSetting.uszComPort,
-						  2,
-						  stMultiOb->stMulti_TransData.szReceData,
-						  VS_FALSE,
-						  stMultiOb);
+											  2,
+											  stMultiOb->stMulti_TransData.szReceData,
+											  VS_FALSE,
+											  stMultiOb);
 
 		{
 			inDISP_BEEP(1, 0);
@@ -1163,7 +1148,6 @@ int inMultiFunc_SlaveRecePacket(TRANSACTION_OBJECT *pobTran, MULTI_TABLE *stMult
 		}
 	}
 
-
 	/* -----------------------開始分析資料------------------------------------------ */
 	/* 解封包流程 */
 	inRetVal = inMultiFunc_SlaveData_Unpack_Header(pobTran, stMultiOb->stMulti_TransData.szReceData, stMultiOb);
@@ -1171,7 +1155,7 @@ int inMultiFunc_SlaveRecePacket(TRANSACTION_OBJECT *pobTran, MULTI_TABLE *stMult
 	/* 如果是Polling不回idle直接做 */
 	if (!memcmp(stMultiOb->stMulti_TransData.szTransType, _MULTI_POLL_, 2))
 	{
-		memset(&stMultiOb->stMulti_TransData, 0x00, sizeof (stMultiOb->stMulti_TransData));
+		memset(&stMultiOb->stMulti_TransData, 0x00, sizeof(stMultiOb->stMulti_TransData));
 		/* -----------------------開始接收資料------------------------------------------ */
 
 		{
@@ -1187,10 +1171,10 @@ int inMultiFunc_SlaveRecePacket(TRANSACTION_OBJECT *pobTran, MULTI_TABLE *stMult
 		else
 		{
 			inRetVal = inMultiFunc_SlaveData_Recv(stMultiOb->srSetting.uszComPort,
-							  2,
-							  stMultiOb->stMulti_TransData.szReceData,
-							  VS_FALSE,
-							  stMultiOb);
+												  2,
+												  stMultiOb->stMulti_TransData.szReceData,
+												  VS_FALSE,
+												  stMultiOb);
 
 			if (inRetVal != VS_SUCCESS)
 			{
@@ -1222,16 +1206,16 @@ int inMultiFunc_SlaveRecePacket(TRANSACTION_OBJECT *pobTran, MULTI_TABLE *stMult
 	if (!memcmp(stMultiOb->stMulti_TransData.szTransType, _MULTI_PIN_, 2))
 	{
 		/* Amount (12 Bytes) */
-		memset(szTemplate, 0x00, sizeof (szTemplate));
+		memset(szTemplate, 0x00, sizeof(szTemplate));
 		memcpy(&szTemplate[0], &stMultiOb->stMulti_TransData.szReceData[46], 10);
 		pobTran->srBRec.lnTxnAmount = atol(szTemplate);
 
 		/* 卡號長度 (2 Bytes) */
-		memset(szTemplate, 0x00, sizeof (szTemplate));
+		memset(szTemplate, 0x00, sizeof(szTemplate));
 		memcpy(&szTemplate[0], &stMultiOb->stMulti_TransData.szReceData[58], 2);
 
 		/* 卡號 (20 Bytes) */
-		memset(pobTran->srBRec.szPAN, 0x00, sizeof (pobTran->srBRec.szPAN));
+		memset(pobTran->srBRec.szPAN, 0x00, sizeof(pobTran->srBRec.szPAN));
 		memcpy(&pobTran->srBRec.szPAN[0], &stMultiOb->stMulti_TransData.szReceData[60], atoi(szTemplate));
 
 		/* 這邊輸入PIN */
@@ -1294,24 +1278,24 @@ int inMultiFunc_SlaveRecePacket(TRANSACTION_OBJECT *pobTran, MULTI_TABLE *stMult
 	else if (!memcmp(stMultiOb->stMulti_TransData.szTransType, _MULTI_CTLS_, 2))
 	{
 		/* Amount */
-		memset(szTemplate, 0x00, sizeof (szTemplate));
+		memset(szTemplate, 0x00, sizeof(szTemplate));
 		memcpy(&szTemplate[0], &stMultiOb->stMulti_TransData.szReceData[30], 10);
 		pobTran->srBRec.lnOrgTxnAmount = atol(szTemplate);
 		pobTran->srBRec.lnTxnAmount = pobTran->srBRec.lnOrgTxnAmount;
 		pobTran->srBRec.lnTotalTxnAmount = pobTran->srBRec.lnOrgTxnAmount;
 
 		/* Timeout */
-		memset(szTemplate, 0x00, sizeof (szTemplate));
+		memset(szTemplate, 0x00, sizeof(szTemplate));
 		memcpy(&szTemplate[0], &stMultiOb->stMulti_TransData.szReceData[42], 3);
 		stMultiOb->stMulti_TransData.inCTLS_Timeout = atoi(szTemplate);
 
 		/* EDC TIME */
-		memset(szGetDate, 0x00, sizeof (szGetDate));
+		memset(szGetDate, 0x00, sizeof(szGetDate));
 		memcpy(&szGetDate[0], &stMultiOb->stMulti_TransData.szReceData[45], 8);
 		memset(pobTran->srBRec.szDate, 0x00, sizeof(pobTran->srBRec.szDate));
 		memcpy(pobTran->srBRec.szDate, szGetDate, 8);
 
-		memset(szGetTime, 0x00, sizeof (szGetTime));
+		memset(szGetTime, 0x00, sizeof(szGetTime));
 		memcpy(&szGetTime[0], &stMultiOb->stMulti_TransData.szReceData[53], 6);
 		memset(pobTran->srBRec.szTime, 0x00, sizeof(pobTran->srBRec.szTime));
 		memcpy(pobTran->srBRec.szTime, szGetTime, 6);
@@ -1324,34 +1308,34 @@ int inMultiFunc_SlaveRecePacket(TRANSACTION_OBJECT *pobTran, MULTI_TABLE *stMult
 		memcpy(pobTran->srBRec.szTime, &stMultiOb->stMulti_TransData.szReceData[53], 6);
 
 		/* TID (10 Bytes) */
-		memset(szTemplate, 0x00, sizeof (szTemplate));
+		memset(szTemplate, 0x00, sizeof(szTemplate));
 		memcpy(&szTemplate[0], &stMultiOb->stMulti_TransData.szReceData[59], 8);
-		memset(pobTran->szMultiFuncTID, 0x00, sizeof (pobTran->szMultiFuncTID));
+		memset(pobTran->szMultiFuncTID, 0x00, sizeof(pobTran->szMultiFuncTID));
 		memcpy(pobTran->szMultiFuncTID, szTemplate, 8);
 
 		/* MID (15 Bytes) */
-		memset(szTemplate, 0x00, sizeof (szTemplate));
+		memset(szTemplate, 0x00, sizeof(szTemplate));
 		memcpy(&szTemplate[0], &stMultiOb->stMulti_TransData.szReceData[69], 15);
-		memset(pobTran->szMultiFuncMID, 0x00, sizeof (pobTran->szMultiFuncMID));
+		memset(pobTran->szMultiFuncMID, 0x00, sizeof(pobTran->szMultiFuncMID));
 		memcpy(pobTran->szMultiFuncMID, szTemplate, 15);
 
 		/* CUP MAC KEY (32 Bytes) */
 		/* MAC key目前用不到 */
-		memset(szTemplate, 0x00, sizeof (szTemplate));
+		memset(szTemplate, 0x00, sizeof(szTemplate));
 		memcpy(&szTemplate[0], &stMultiOb->stMulti_TransData.szReceData[86], 32);
 
 		/* MCC CODE */
-		memset(pobTran->srBRec.szFiscMCC, 0x00, sizeof (pobTran->srBRec.szFiscMCC));
+		memset(pobTran->srBRec.szFiscMCC, 0x00, sizeof(pobTran->srBRec.szFiscMCC));
 		memcpy(pobTran->srBRec.szFiscMCC, &stMultiOb->stMulti_TransData.szReceData[130], 4);
 
 		/* 端末機查核碼(8 Bytes)*/
-		memset(pobTran->srBRec.szFiscTCC, 0x00, sizeof (pobTran->srBRec.szFiscTCC));
+		memset(pobTran->srBRec.szFiscTCC, 0x00, sizeof(pobTran->srBRec.szFiscTCC));
 		memcpy(pobTran->srBRec.szFiscTCC, &stMultiOb->stMulti_TransData.szReceData[134], 8);
 
 		/* inTransactionCode (3 Bytes) */
-                memset(szTemplate, 0x00, sizeof(szTemplate));
-                memcpy(&szTemplate[0], &stMultiOb->stMulti_TransData.szReceData[142], 3);
-                pobTran->inMultiTransactionCode = atoi(szTemplate);
+		memset(szTemplate, 0x00, sizeof(szTemplate));
+		memcpy(&szTemplate[0], &stMultiOb->stMulti_TransData.szReceData[142], 3);
+		pobTran->inMultiTransactionCode = atoi(szTemplate);
 		if (pobTran->inMultiTransactionCode == _520_MULTIFUNC_REFUND_)
 		{
 			pobTran->srBRec.inCode = _REFUND_;
@@ -1362,34 +1346,34 @@ int inMultiFunc_SlaveRecePacket(TRANSACTION_OBJECT *pobTran, MULTI_TABLE *stMult
 		}
 
 		/* Nationalpay(全國繳) */
-                memset(szTemplate, 0x00, sizeof(szTemplate));
-	        memcpy(&szTemplate[0],&stMultiOb->stMulti_TransData.szReceData[145],1);
+		memset(szTemplate, 0x00, sizeof(szTemplate));
+		memcpy(&szTemplate[0], &stMultiOb->stMulti_TransData.szReceData[145], 1);
 		memset(pobTran->szMultiNaitionalPay, 0x00, sizeof(pobTran->szMultiNaitionalPay));
-	        if (!memcmp(szTemplate, "1", 1))
+		if (!memcmp(szTemplate, "1", 1))
 		{
-			memcpy(pobTran->szMultiNaitionalPay, "10", 2);		/* 設定有全國性繳費*/
+			memcpy(pobTran->szMultiNaitionalPay, "10", 2); /* 設定有全國性繳費*/
 		}
-	        else
+		else
 		{
-			memcpy(pobTran->szMultiNaitionalPay, "00", 2);		/* 設定無全國性繳費*/
+			memcpy(pobTran->szMultiNaitionalPay, "00", 2); /* 設定無全國性繳費*/
 		}
 
 		/* 端末機IssuerId，TAC產生時要比對 */
 		memset(pobTran->szMultiEdcFiscIssuerId, 0x00, sizeof(pobTran->szMultiEdcFiscIssuerId));
-	        memcpy(pobTran->szMultiEdcFiscIssuerId, &stMultiOb->stMulti_TransData.szReceData[146], 8);
+		memcpy(pobTran->szMultiEdcFiscIssuerId, &stMultiOb->stMulti_TransData.szReceData[146], 8);
 
 		/* FdtFeeFlag "Y" or "N"*/
 		memset(pobTran->szMultiEdcFdtFeeFlag, 0x00, sizeof(pobTran->szMultiEdcFdtFeeFlag));
-	        memcpy(pobTran->szMultiEdcFdtFeeFlag, &stMultiOb->stMulti_TransData.szReceData[154], 1);
+		memcpy(pobTran->szMultiEdcFdtFeeFlag, &stMultiOb->stMulti_TransData.szReceData[154], 1);
 
 		/* lnFdtFeeAmt */
-                memset(szTemplate, 0x00, sizeof(szTemplate));
-	        memcpy(&szTemplate[0], &stMultiOb->stMulti_TransData.szReceData[155],4);
-	        pobTran->lnMultiFdtFeeAmt = atol(szTemplate);
+		memset(szTemplate, 0x00, sizeof(szTemplate));
+		memcpy(&szTemplate[0], &stMultiOb->stMulti_TransData.szReceData[155], 4);
+		pobTran->lnMultiFdtFeeAmt = atol(szTemplate);
 
 		/* TCC Code for NP */
 		memset(pobTran->szMultiEdcTccCode, 0x00, sizeof(pobTran->szMultiEdcTccCode));
-	        memcpy(pobTran->szMultiEdcTccCode, &stMultiOb->stMulti_TransData.szReceData[159], 8);
+		memcpy(pobTran->szMultiEdcTccCode, &stMultiOb->stMulti_TransData.szReceData[159], 8);
 
 		/* uszECRPreferCreditBit(信用卡優先) */
 		memset(&pobTran->uszECRPreferCreditBit, 0x00, sizeof(pobTran->uszECRPreferCreditBit));
@@ -1404,7 +1388,7 @@ int inMultiFunc_SlaveRecePacket(TRANSACTION_OBJECT *pobTran, MULTI_TABLE *stMult
 
 		/* uszECRPreferFiscBit(金融卡優先) */
 		memset(&pobTran->uszECRPreferFiscBit, 0x00, sizeof(pobTran->uszECRPreferFiscBit));
-	        if (stMultiOb->stMulti_TransData.szReceData[168] == '1')
+		if (stMultiOb->stMulti_TransData.szReceData[168] == '1')
 		{
 			pobTran->uszECRPreferFiscBit = VS_TRUE;
 		}
@@ -1487,9 +1471,9 @@ int inMultiFunc_SlaveRecePacket(TRANSACTION_OBJECT *pobTran, MULTI_TABLE *stMult
 
 		if (inRetVal == VS_SUCCESS)
 		{
-#if 1 //20230310 Miyano open
+#if 1 // 20230310 Miyano open
 			if (pobTran->srBRec.uszFiscTransBit == VS_TRUE)
-//                                ||			    memcmp(pobTran->srBRec.szFiscPayDevice, _FISC_PAY_DEVICE_MOBILE_, strlen(_FISC_PAY_DEVICE_MOBILE_)) == 0)
+			//                                ||			    memcmp(pobTran->srBRec.szFiscPayDevice, _FISC_PAY_DEVICE_MOBILE_, strlen(_FISC_PAY_DEVICE_MOBILE_)) == 0)
 			{
 				stMultiOb->stMulti_TransData.inErrorType = _ECR_RESPONSE_CODE_SMARTPAY_ERROR_;
 			}
@@ -1515,25 +1499,24 @@ int inMultiFunc_SlaveRecePacket(TRANSACTION_OBJECT *pobTran, MULTI_TABLE *stMult
 		else if (inRetVal == VS_WAVE_AMOUNT_ERR)
 		{
 			stMultiOb->stMulti_TransData.inErrorType = _ECR_RESPONSE_CODE_AMOUNT_ERROR_;
-#if 0 //先刪除
+#if 0 // 先刪除
 			if (pobTran->srBRec.uszFiscTransBit == VS_TRUE ||
 			    memcmp(pobTran->srBRec.szFiscPayDevice, _FISC_PAY_DEVICE_MOBILE_, strlen(_FISC_PAY_DEVICE_MOBILE_)) == 0)
 			{
 //				inDISP_ChineseFont("    請移除卡片", _FONESIZE_16X22_, _LINE_16_4_, _DISP_LEFT_);
 			}
-#endif			
+#endif
 		}
 		else
 		{
 			stMultiOb->stMulti_TransData.inErrorType = _ECR_RESPONSE_CODE_CTLS_ERROR_;
 		}
-
 	}
-	else if (!memcmp(stMultiOb->stMulti_TransData.szTransType, _MULTI_TMS_CAPK_, 2)	||
-		 !memcmp(stMultiOb->stMulti_TransData.szTransType, _MULTI_TMS_MASTER_, 2)	||
-		 !memcmp(stMultiOb->stMulti_TransData.szTransType, _MULTI_TMS_VISA_, 2)	||
-		 !memcmp(stMultiOb->stMulti_TransData.szTransType, _MULTI_TMS_JCB_, 2)	||
-		 !memcmp(stMultiOb->stMulti_TransData.szTransType, _MULTI_TMS_CUP_, 2))
+	else if (!memcmp(stMultiOb->stMulti_TransData.szTransType, _MULTI_TMS_CAPK_, 2) ||
+			 !memcmp(stMultiOb->stMulti_TransData.szTransType, _MULTI_TMS_MASTER_, 2) ||
+			 !memcmp(stMultiOb->stMulti_TransData.szTransType, _MULTI_TMS_VISA_, 2) ||
+			 !memcmp(stMultiOb->stMulti_TransData.szTransType, _MULTI_TMS_JCB_, 2) ||
+			 !memcmp(stMultiOb->stMulti_TransData.szTransType, _MULTI_TMS_CUP_, 2))
 	{
 		inRetVal = VS_SUCCESS;
 	}
@@ -1545,6 +1528,61 @@ int inMultiFunc_SlaveRecePacket(TRANSACTION_OBJECT *pobTran, MULTI_TABLE *stMult
 	{
 		stMultiOb->stMulti_TransData.inErrorType = _ECR_RESPONSE_CODE_END_INQUIRY_SUCCESS_;
 		inRetVal = VS_SUCCESS;
+	}
+	// 2023/05/12 HungYang 新增SVC讀卡功能
+	else if (!memcmp(stMultiOb->stMulti_TransData.szTransType, _MULTI_SVC_, 2))
+	{
+		inDISP_LogPrintf(AT, "stMultiOb->stMulti_TransData.szTransType -> _MULTI_SVC_ !");
+
+		/* 讀購物卡只要TIMEOUT就好 */
+		/* Timeout */
+		memset(szTemplate, 0x00, sizeof(szTemplate));
+		memcpy(&szTemplate[0], &stMultiOb->stMulti_TransData.szReceData[42], 3);
+		stMultiOb->stMulti_TransData.inCTLS_Timeout = atoi(szTemplate);
+
+		if (inRetVal == VS_SUCCESS)
+		{
+
+			inRetVal = inMultiFunc_Get_SVC_CardFields_CTLS(pobTran, stMultiOb); /* 2023/05/12 HungYang 新增SVC讀卡功能 */
+
+			if (inRetVal == VS_SUCCESS)
+			{
+				/* 成功往下走 */
+				inDISP_LogPrintf(AT, "The_SVC_CARD_READ_SUCCESS!");
+			}
+			else
+			{
+				inDISP_LogPrintf(AT, "The_SVC_CARD_READ_ERROR!");
+			}
+		}
+
+		/*----------其他判斷---------*/
+		if (inRetVal == VS_SUCCESS)
+		{
+			stMultiOb->stMulti_TransData.inErrorType = _ECR_RESPONSE_CODE_SUCCESS_;
+		}
+		else if (inRetVal == VS_USER_CANCEL)
+		{
+			stMultiOb->stMulti_TransData.inErrorType = _ECR_RESPONSE_CODE_USER_TERMINATE_ERROR_;
+			pobTran->inErrorMsg = _ERROR_CODE_V3_USER_CANCEL_;
+		}
+		else if (inRetVal == VS_TIMEOUT)
+		{
+			stMultiOb->stMulti_TransData.inErrorType = _ECR_RESPONSE_CODE_TIMEOUT_;
+		}
+		else if (inRetVal == VS_ESCAPE)
+		{
+			stMultiOb->stMulti_TransData.inErrorType = _ECR_RESPONSE_CODE_CTLS_HOST_CANCEL_;
+		}
+		
+		else if (inRetVal == _ERRORMSG_SVC_CARD_NOT_OPEN_)
+		{
+			stMultiOb->stMulti_TransData.inErrorType = _ERRORMSG_SVC_CARD_NOT_OPEN_;
+		}
+		else
+		{
+			stMultiOb->stMulti_TransData.inErrorType = _ECR_RESPONSE_CODE_CTLS_ERROR_;
+		}
 	}
 	else
 	{
@@ -1578,17 +1616,16 @@ int inMultiFunc_SlaveRecePacket(TRANSACTION_OBJECT *pobTran, MULTI_TABLE *stMult
 		return (VS_ERROR);
 }
 
-
 /*
 Function        :inMultiFunc_SlaveSendPacket
 Date&Time       :2016/7/11 下午 3:29
 Describe        :處理要送給Host的資料
  */
-int inMultiFunc_SlaveSendPacket(TRANSACTION_OBJECT *pobTran, MULTI_TABLE * stMultiSlave)
+int inMultiFunc_SlaveSendPacket(TRANSACTION_OBJECT *pobTran, MULTI_TABLE *stMultiSlave)
 {
-	int	inRetVal = VS_SUCCESS;
-	int	inSendPacketSizes;
-	char	szDebugMsg[100 + 1];
+	int inRetVal = VS_SUCCESS;
+	int inSendPacketSizes;
+	char szDebugMsg[100 + 1];
 
 	if (ginDisplayDebug == VS_TRUE)
 	{
@@ -1597,9 +1634,9 @@ int inMultiFunc_SlaveSendPacket(TRANSACTION_OBJECT *pobTran, MULTI_TABLE * stMul
 		inDISP_LOGDisplay(szDebugMsg, _FONTSIZE_16X22_, _LINE_16_16_, VS_FALSE);
 	}
 
-	if (memcmp(stMultiSlave->stMulti_TransData.szTransType, _MULTI_PIN_, sizeof(_MULTI_PIN_)) == 0				||
-	    memcmp(stMultiSlave->stMulti_TransData.szTransType, _MULTI_CTLS_, sizeof(_MULTI_CTLS_)) == 0			||
-	    memcmp(stMultiSlave->stMulti_TransData.szTransType, _MULTI_EXCHANGE_, sizeof(_MULTI_EXCHANGE_NO_)) == 0)
+	if (memcmp(stMultiSlave->stMulti_TransData.szTransType, _MULTI_PIN_, sizeof(_MULTI_PIN_)) == 0 ||
+		memcmp(stMultiSlave->stMulti_TransData.szTransType, _MULTI_CTLS_, sizeof(_MULTI_CTLS_)) == 0 ||
+		memcmp(stMultiSlave->stMulti_TransData.szTransType, _MULTI_EXCHANGE_, sizeof(_MULTI_EXCHANGE_NO_)) == 0)
 	{
 		/* 交易取消不回傳 */
 		if (stMultiSlave->stMulti_TransData.inErrorType == _ECR_RESPONSE_CODE_CTLS_HOST_CANCEL_)
@@ -1613,7 +1650,7 @@ int inMultiFunc_SlaveSendPacket(TRANSACTION_OBJECT *pobTran, MULTI_TABLE * stMul
 	}
 
 	/* 清空資料 */
-        memset(stMultiSlave->stMulti_TransData.szSendData, 0x20, sizeof(stMultiSlave->stMulti_TransData.szSendData));
+	memset(stMultiSlave->stMulti_TransData.szSendData, 0x20, sizeof(stMultiSlave->stMulti_TransData.szSendData));
 
 	/* 包裝封包 */
 	inSendPacketSizes = inMultiFunc_SlavePackResult(pobTran, stMultiSlave->stMulti_TransData.szSendData, stMultiSlave);
@@ -1679,13 +1716,13 @@ Describe        :傳送錯誤訊息ECR
  */
 int inMultiFunc_SlaveSendError(TRANSACTION_OBJECT *pobTran, MULTI_TABLE *stMultiOb)
 {
-	int	inRetVal = VS_SUCCESS;
-	int	inTotalSize = 0;
-	int	inSubSize = 0;
-	int	inLenlocation = 0;
-	char	szTemplate[128 + 1];
-	char	szPackData[_MULTI_MAX_SIZES_ + 1];
-	char	szDebugMsg[100 + 1];
+	int inRetVal = VS_SUCCESS;
+	int inTotalSize = 0;
+	int inSubSize = 0;
+	int inLenlocation = 0;
+	char szTemplate[128 + 1];
+	char szPackData[_MULTI_MAX_SIZES_ + 1];
+	char szDebugMsg[100 + 1];
 
 	if (ginDebug == VS_TRUE)
 	{
@@ -1795,7 +1832,7 @@ int inMultiFunc_SlaveSendError(TRANSACTION_OBJECT *pobTran, MULTI_TABLE *stMulti
 	}
 
 	/* Sub Packet Size (4 Bytes) */
-	memset(szTemplate, 0x00, sizeof (szTemplate));
+	memset(szTemplate, 0x00, sizeof(szTemplate));
 	sprintf(szTemplate, "%04d", inSubSize);
 	memcpy(&szPackData[inLenlocation], &szTemplate[0], 4);
 
@@ -1830,46 +1867,46 @@ Function        :inMultiFunc_SlaveEnd
 Date&Time       :2016/7/11 下午 3:34
 Describe        :關閉Comport
  */
-int inMultiFunc_SlaveEnd(MULTI_TABLE* stMultiOb)
+int inMultiFunc_SlaveEnd(MULTI_TABLE *stMultiOb)
 {
-	int     inRetVal = 0;
-	char	szComPort[4 + 1];
-        char	szDebugMsg[100 + 1];
-        
-        inDISP_LogPrintf("inMultiFunc_SlaveEnd Start");
-        
-        /*清空接收的buffer*/
-        inMultiFunc_FlushRxBuffer(stMultiOb->srSetting.uszComPort);
-        
+	int inRetVal = 0;
+	char szComPort[4 + 1];
+	char szDebugMsg[100 + 1];
+
+	inDISP_LogPrintf("inMultiFunc_SlaveEnd Start");
+
+	/*清空接收的buffer*/
+	inMultiFunc_FlushRxBuffer(stMultiOb->srSetting.uszComPort);
+
 	memset(szComPort, 0x00, sizeof(szComPort));
 	inGetMultiComPort1(szComPort);
-	if (memcmp(szComPort, "COM1", strlen("COM1")) == 0	||
-	    memcmp(szComPort, "COM2", strlen("COM2")) == 0	||
-	    memcmp(szComPort, "COM3", strlen("COM3")) == 0	||
-	    memcmp(szComPort, "COM4", strlen("COM4")) == 0)
+	if (memcmp(szComPort, "COM1", strlen("COM1")) == 0 ||
+		memcmp(szComPort, "COM2", strlen("COM2")) == 0 ||
+		memcmp(szComPort, "COM3", strlen("COM3")) == 0 ||
+		memcmp(szComPort, "COM4", strlen("COM4")) == 0)
 	{
-                if (inRS232_Close(stMultiOb->srSetting.uszComPort) != VS_SUCCESS)
-                {
-                    return (VS_ERROR);
-                }
+		if (inRS232_Close(stMultiOb->srSetting.uszComPort) != VS_SUCCESS)
+		{
+			return (VS_ERROR);
+		}
 	}
 	else if (memcmp(szComPort, "USB1", strlen("USB1")) == 0)
 	{
-                if (inUSB_Close() != VS_SUCCESS)
-                {
-                    return (VS_ERROR);
-                }
+		if (inUSB_Close() != VS_SUCCESS)
+		{
+			return (VS_ERROR);
+		}
 	}
 	else if (memcmp(szComPort, "WIFI", strlen("WIFI")) == 0)
 	{
-                inDISP_LogPrintf("WIFI");
+		inDISP_LogPrintf("WIFI");
 	}
 	else
 	{
 		inDISP_LogPrintf("else");
-                return (VS_ERROR);
+		return (VS_ERROR);
 	}
-        inDISP_LogPrintf("inMultiFunc_SlaveEnd End");
+	inDISP_LogPrintf("inMultiFunc_SlaveEnd End");
 
 	return (VS_SUCCESS);
 }
@@ -1878,19 +1915,19 @@ Function        :inMultiFunc_SlaveData_Recv
 Date&Time       :2016/7/6 下午 4:05
 Describe        :接收外接設備傳來的資料
 */
-int inMultiFunc_SlaveData_Recv(unsigned char inHandle, int inRespTimeOut, char *szGetMultiData, unsigned char uszSendAck, MULTI_TABLE* stMultiFuncOb)
+int inMultiFunc_SlaveData_Recv(unsigned char inHandle, int inRespTimeOut, char *szGetMultiData, unsigned char uszSendAck, MULTI_TABLE *stMultiFuncOb)
 {
-	int		inSize, i = 0;
-	int		inExpectedSize = 0;
-	char		szDebugMsg[100 + 1];
-	char		szTemplate[30 + 1];
-	unsigned char	uszSTX[2 + 1];
-	unsigned char	uszRecBuf[_MULTI_MAX_SIZES_ + 4];
-	unsigned char	uszLRCData = 0x00;
-	unsigned short	usOneSize = 1;
-	unsigned char	uszLRC = VS_FALSE, uszSN = VS_FALSE, uszReStart = VS_FALSE;
-        
-        char szKey = 0x00;
+	int inSize, i = 0;
+	int inExpectedSize = 0;
+	char szDebugMsg[100 + 1];
+	char szTemplate[30 + 1];
+	unsigned char uszSTX[2 + 1];
+	unsigned char uszRecBuf[_MULTI_MAX_SIZES_ + 4];
+	unsigned char uszLRCData = 0x00;
+	unsigned short usOneSize = 1;
+	unsigned char uszLRC = VS_FALSE, uszSN = VS_FALSE, uszReStart = VS_FALSE;
+
+	char szKey = 0x00;
 
 	if (ginDisplayDebug == VS_TRUE)
 	{
@@ -1917,7 +1954,7 @@ int inMultiFunc_SlaveData_Recv(unsigned char inHandle, int inRespTimeOut, char *
 	while (1)
 	{
 		/* Comport有東西 */
-                /* 20230410 Miyano fix for USB */
+		/* 20230410 Miyano fix for USB */
 		while (inMultiFunc_Data_Receive_Check(inHandle, &usOneSize) != VS_SUCCESS)
 		{
 			/* Timeout */
@@ -1925,54 +1962,53 @@ int inMultiFunc_SlaveData_Recv(unsigned char inHandle, int inRespTimeOut, char *
 			{
 				return (VS_TIMEOUT);
 			}
-                        
-                        szKey = 0x00;
-                        szKey = uszKBD_Key();
 
-                        if (szKey == _KEY_CANCEL_) {
-                                break;
-                        }
+			szKey = 0x00;
+			szKey = uszKBD_Key();
+
+			if (szKey == _KEY_CANCEL_)
+			{
+				break;
+			}
 		}
-                
 
 		/* 這是Buffer的大小，若沒收到則該值會轉為0，所以需重置 */
 		usOneSize = 1;
-                /* 20230410 Miyano fix for USB */
-    		if (inMultiFunc_Data_Receive(inHandle, &uszSTX[0], &usOneSize) == VS_SUCCESS)
-    		{
-                        /* Timeout */
+		/* 20230410 Miyano fix for USB */
+		if (inMultiFunc_Data_Receive(inHandle, &uszSTX[0], &usOneSize) == VS_SUCCESS)
+		{
+			/* Timeout */
 			if (inTimerGet(_TIMER_NEXSYS_1_) == 0)
 			{
 				return (VS_TIMEOUT);
 			}
 
-    			if (uszSTX[0] == _STX_)
-    			{
-                                if (ginDisplayDebug == VS_TRUE)
+			if (uszSTX[0] == _STX_)
+			{
+				if (ginDisplayDebug == VS_TRUE)
 				{
 					memset(szDebugMsg, 0x00, sizeof(szDebugMsg));
 					sprintf(szDebugMsg, "Receive STX");
 					inDISP_LOGDisplay(szDebugMsg, _FONTSIZE_16X22_, _LINE_16_16_, VS_FALSE);
 				}
-    				uszRecBuf[inSize ++] = _STX_;
+				uszRecBuf[inSize++] = _STX_;
 
-			        i = 16;
+				i = 16;
 
-			        while (i > 0)
-			        {
-                                        /* 銀行別 + 回應碼 + 功能別 */
+				while (i > 0)
+				{
+					/* 銀行別 + 回應碼 + 功能別 */
 					usOneSize = 100;
-                                        /* 20230410 Miyano fix for USB */
+					/* 20230410 Miyano fix for USB */
 					if (inMultiFunc_Data_Receive(inHandle, &uszRecBuf[inSize], &usOneSize) == VS_SUCCESS)
 					{
-                                                inSize += usOneSize;
+						inSize += usOneSize;
 						i -= usOneSize;
 					}
-
 				}
 
 				break;
-    			}
+			}
 			else
 			{
 				if (ginDisplayDebug == VS_TRUE)
@@ -1982,9 +2018,9 @@ int inMultiFunc_SlaveData_Recv(unsigned char inHandle, int inRespTimeOut, char *
 					inDISP_LOGDisplay(szDebugMsg, _FONTSIZE_16X22_, _LINE_16_16_, VS_FALSE);
 				}
 			}
-    		}
-    		else
-    		{
+		}
+		else
+		{
 			if (ginDisplayDebug == VS_TRUE)
 			{
 				memset(szDebugMsg, 0x00, sizeof(szDebugMsg));
@@ -1992,14 +2028,13 @@ int inMultiFunc_SlaveData_Recv(unsigned char inHandle, int inRespTimeOut, char *
 				inDISP_LOGDisplay(szDebugMsg, _FONTSIZE_16X22_, _LINE_16_16_, VS_FALSE);
 			}
 
-    			return (VS_ESCAPE);
-    		}
+			return (VS_ESCAPE);
+		}
 	}
 	if (ginFindRunTime == VS_TRUE)
 	{
 		inFunc_SaveRecordTime(2);
 	}
-
 
 	/* 前16Byte OK*/
 	if (ginDisplayDebug == VS_TRUE)
@@ -2013,17 +2048,17 @@ int inMultiFunc_SlaveData_Recv(unsigned char inHandle, int inRespTimeOut, char *
 	memcpy(&szTemplate[0], &uszRecBuf[15], 2);
 
 	/* 下TMS參數 */
-	if (!memcmp(szTemplate, _MULTI_TMS_CAPK_, 2)	||
-	    !memcmp(szTemplate, _MULTI_TMS_MASTER_, 2)	||
-	    !memcmp(szTemplate, _MULTI_TMS_VISA_, 2)	||
-	    !memcmp(szTemplate, _MULTI_TMS_JCB_, 2)	||
-	    !memcmp(szTemplate, _MULTI_TMS_CUP_, 2))/*20151014浩瑋新增*/
+	if (!memcmp(szTemplate, _MULTI_TMS_CAPK_, 2) ||
+		!memcmp(szTemplate, _MULTI_TMS_MASTER_, 2) ||
+		!memcmp(szTemplate, _MULTI_TMS_VISA_, 2) ||
+		!memcmp(szTemplate, _MULTI_TMS_JCB_, 2) ||
+		!memcmp(szTemplate, _MULTI_TMS_CUP_, 2)) /*20151014浩瑋新增*/
 	{
-                memset(stMultiFuncOb->stMulti_TransData.szTransType, 0x00, sizeof(stMultiFuncOb->stMulti_TransData.szTransType));
-                memcpy(&stMultiFuncOb->stMulti_TransData.szTransType[0], &szTemplate[0], 2);
+		memset(stMultiFuncOb->stMulti_TransData.szTransType, 0x00, sizeof(stMultiFuncOb->stMulti_TransData.szTransType));
+		memcpy(&stMultiFuncOb->stMulti_TransData.szTransType[0], &szTemplate[0], 2);
 
-                memset(stMultiFuncOb->stMulti_TransData.szTranHost, 0x00, sizeof(stMultiFuncOb->stMulti_TransData.szTranHost));
-                memcpy(&stMultiFuncOb->stMulti_TransData.szTranHost[0], &uszRecBuf[1], 4);
+		memset(stMultiFuncOb->stMulti_TransData.szTranHost, 0x00, sizeof(stMultiFuncOb->stMulti_TransData.szTranHost));
+		memcpy(&stMultiFuncOb->stMulti_TransData.szTranHost[0], &uszRecBuf[1], 4);
 
 		return (VS_SUCCESS);
 	}
@@ -2034,7 +2069,7 @@ int inMultiFunc_SlaveData_Recv(unsigned char inHandle, int inRespTimeOut, char *
 	}
 	else if (!memcmp(szTemplate, _MULTI_POLL_, 2))
 	{
-                memset(szTemplate, 0x00, sizeof(szTemplate));
+		memset(szTemplate, 0x00, sizeof(szTemplate));
 		memcpy(&szTemplate[0], &uszRecBuf[5], 6);
 
 		/* 不核對SN */
@@ -2048,20 +2083,21 @@ int inMultiFunc_SlaveData_Recv(unsigned char inHandle, int inRespTimeOut, char *
 
 	/* +30是header +3表示STX ETX LRC */
 	/* 根據功能別，決定要收的SubData長度 */
-	if (!memcmp(szTemplate, _MULTI_POLL_, 2)		||
-	    !memcmp(szTemplate, _MULTI_SLAVE_REBOOT_, 2)	||
-	    !memcmp(szTemplate, _MULTI_EXCHANGE_, 2))
+	if (!memcmp(szTemplate, _MULTI_POLL_, 2) ||
+		!memcmp(szTemplate, _MULTI_SLAVE_REBOOT_, 2) ||
+		!memcmp(szTemplate, _MULTI_EXCHANGE_, 2))
 	{
-                inExpectedSize = _MULTI_SUB_SIZE_NONE_ + 30 + 3;
+		inExpectedSize = _MULTI_SUB_SIZE_NONE_ + 30 + 3;
 	}
-	else if (!memcmp(szTemplate, _MULTI_PIN_, 2)		||
-		 !memcmp(szTemplate, _MULTI_SIGNPAD_, 2)	||
-		 !memcmp(szTemplate, _MULTI_SIGN_CONFIRM_, 2)	||
-		 !memcmp(szTemplate, _MULTI_NOSIGN_, 2))
+	else if (!memcmp(szTemplate, _MULTI_PIN_, 2) ||
+			 !memcmp(szTemplate, _MULTI_SIGNPAD_, 2) ||
+			 !memcmp(szTemplate, _MULTI_SIGN_CONFIRM_, 2) ||
+			 !memcmp(szTemplate, _MULTI_NOSIGN_, 2))
 	{
 		inExpectedSize = _MULTI_SUB_SIZE_SMALL_ + 30 + 3;
 	}
-	else if (!memcmp(szTemplate, _MULTI_CTLS_, 2))
+	else if (!memcmp(szTemplate, _MULTI_CTLS_, 2) ||
+			 !memcmp(szTemplate, _MULTI_SVC_, 2)) // 2023/05/12 HungYang 新增SVC交易別
 	{
 		inExpectedSize = _MULTI_SUB_SIZE_MIDDLE_ + 30 + 3;
 	}
@@ -2090,8 +2126,8 @@ int inMultiFunc_SlaveData_Recv(unsigned char inHandle, int inRespTimeOut, char *
 		}
 
 		usOneSize = 100;
-                /* 20230410 Miyano fix for USB */
-		if (inMultiFunc_Data_Receive(inHandle, &uszRecBuf[inSize], &usOneSize) ==  VS_SUCCESS)
+		/* 20230410 Miyano fix for USB */
+		if (inMultiFunc_Data_Receive(inHandle, &uszRecBuf[inSize], &usOneSize) == VS_SUCCESS)
 		{
 			inSize += usOneSize;
 		}
@@ -2112,7 +2148,7 @@ int inMultiFunc_SlaveData_Recv(unsigned char inHandle, int inRespTimeOut, char *
 	}
 
 	/* 算LRC */
-	for (i = 1; i < (inSize-1); i++)
+	for (i = 1; i < (inSize - 1); i++)
 	{
 		uszLRCData ^= uszRecBuf[i];
 	}
@@ -2152,7 +2188,7 @@ int inMultiFunc_SlaveData_Recv(unsigned char inHandle, int inRespTimeOut, char *
 		{
 			if (uszLRC == VS_TRUE)
 			{
-                                inMultiFunc_Send_ACKorNAK(&gstMultiOb, _ACK_);
+				inMultiFunc_Send_ACKorNAK(&gstMultiOb, _ACK_);
 			}
 			else
 			{
@@ -2170,7 +2206,6 @@ int inMultiFunc_SlaveData_Recv(unsigned char inHandle, int inRespTimeOut, char *
 	}
 	else
 	{
-
 	}
 
 	/* 執行重新開機命令 */
@@ -2191,27 +2226,27 @@ Describe        :分析前30Bytes
  */
 int inMultiFunc_SlaveData_Unpack_Header(TRANSACTION_OBJECT *pobTran, char *szDataBuffer, MULTI_TABLE *stMultiOb)
 {
-	int	inTotalSize = 0;
-	char	szTemplate[6 + 1];
-	char	szDebugMsg[100 + 1];
+	int inTotalSize = 0;
+	char szTemplate[6 + 1];
+	char szDebugMsg[100 + 1];
 
 	/* Bank (4 Bytes) */
-	memset(stMultiOb->stMulti_TransData.szTranHost, 0x00, sizeof (stMultiOb->stMulti_TransData.szTranHost));
+	memset(stMultiOb->stMulti_TransData.szTranHost, 0x00, sizeof(stMultiOb->stMulti_TransData.szTranHost));
 	memcpy(stMultiOb->stMulti_TransData.szTranHost, &szDataBuffer[inTotalSize], 4);
 	inTotalSize += 4;
 
 	/* EDC SN (6 Bytes) */
-	memset(stMultiOb->stMulti_TransData.szTermSN, 0x00, sizeof (stMultiOb->stMulti_TransData.szTermSN));
+	memset(stMultiOb->stMulti_TransData.szTermSN, 0x00, sizeof(stMultiOb->stMulti_TransData.szTermSN));
 	memcpy(stMultiOb->stMulti_TransData.szTermSN, &szDataBuffer[inTotalSize], 6);
 	inTotalSize += 6;
 
 	/* Response Code (4 Bytes) */
-	memset(stMultiOb->stMulti_TransData.szErrorCode, 0x00, sizeof (stMultiOb->stMulti_TransData.szErrorCode));
+	memset(stMultiOb->stMulti_TransData.szErrorCode, 0x00, sizeof(stMultiOb->stMulti_TransData.szErrorCode));
 	memcpy(stMultiOb->stMulti_TransData.szErrorCode, &szDataBuffer[inTotalSize], 4);
 	inTotalSize += 4;
 
 	/* Trans Type(功能別)(2 Bytes) */
-	memset(stMultiOb->stMulti_TransData.szTransType, 0x00, sizeof (stMultiOb->stMulti_TransData.szTransType));
+	memset(stMultiOb->stMulti_TransData.szTransType, 0x00, sizeof(stMultiOb->stMulti_TransData.szTransType));
 	memcpy(stMultiOb->stMulti_TransData.szTransType, &szDataBuffer[inTotalSize], 2);
 	inTotalSize += 2;
 
@@ -2262,10 +2297,10 @@ Function        :inMultiFunc_SlavePackResult
 Date&Time       :2017/7/3 下午 5:20
 Describe        :
 */
-int inMultiFunc_SlavePackResult(TRANSACTION_OBJECT *pobTran, char *szPackData, MULTI_TABLE * stMultiFuncOb)
+int inMultiFunc_SlavePackResult(TRANSACTION_OBJECT *pobTran, char *szPackData, MULTI_TABLE *stMultiFuncOb)
 {
-	int	inTotalSize = 0, inSubIndex = 0, inSubSize = 0, inLenlocation = 26;
-	char	szTemplate[50];
+	int inTotalSize = 0, inSubIndex = 0, inSubSize = 0, inLenlocation = 26;
+	char szTemplate[50];
 
 	if (ginDebug == VS_TRUE)
 	{
@@ -2278,7 +2313,7 @@ int inMultiFunc_SlavePackResult(TRANSACTION_OBJECT *pobTran, char *szPackData, M
 	inTotalSize += 4;
 
 	/* EDC SN (6 Bytes) */
-	memset(szTemplate, 0x00, sizeof (szTemplate));
+	memset(szTemplate, 0x00, sizeof(szTemplate));
 	memcpy(szTemplate, stMultiFuncOb->stMulti_TransData.szTermSN, 6);
 	memcpy(&szPackData[inTotalSize], szTemplate, 6);
 	inTotalSize += 6;
@@ -2315,6 +2350,11 @@ int inMultiFunc_SlavePackResult(TRANSACTION_OBJECT *pobTran, char *szPackData, M
 	{
 		memcpy(&szPackData[inTotalSize], "0000", 4);
 	}
+	/* 2023/05/15 HungYang 新增未開卡錯誤 */
+	else if (stMultiFuncOb->stMulti_TransData.inErrorType == _ECR_RESPONSE_CODE_SVC_CARD_NOT_OPEN)
+	{
+		memcpy(&szPackData[inTotalSize], "0032", 4);
+	}
 	else
 	{
 		memcpy(&szPackData[inTotalSize], "0001", 4);
@@ -2327,19 +2367,19 @@ int inMultiFunc_SlavePackResult(TRANSACTION_OBJECT *pobTran, char *szPackData, M
 	inTotalSize += 2;
 
 	/* Total Packet (2 Bytes) */
-	memset(szTemplate, 0x00, sizeof (szTemplate));
+	memset(szTemplate, 0x00, sizeof(szTemplate));
 	sprintf(szTemplate, "%02d", stMultiFuncOb->stMulti_TransData.inTotalPacketNum);
 	memcpy(&szPackData[inTotalSize], &szTemplate[0], 2);
 	inTotalSize += 2;
 
 	/* Sub Packet Index (2 Bytes) */
-	memset(szTemplate, 0x00, sizeof (szTemplate));
+	memset(szTemplate, 0x00, sizeof(szTemplate));
 	sprintf(szTemplate, "%02d", stMultiFuncOb->stMulti_TransData.inSubPacketNum);
 	memcpy(&szPackData[inTotalSize], &szTemplate[0], 2);
 	inTotalSize += 2;
 
 	/* Total Packet Size (6 Bytes) */
-	memset(szTemplate, 0x00, sizeof (szTemplate));
+	memset(szTemplate, 0x00, sizeof(szTemplate));
 	sprintf(szTemplate, "%06ld", stMultiFuncOb->stMulti_TransData.lnTotalPacketSize);
 	memcpy(&szPackData[inTotalSize], &szTemplate[0], 6);
 	inTotalSize += 6;
@@ -2392,9 +2432,57 @@ int inMultiFunc_SlavePackResult(TRANSACTION_OBJECT *pobTran, char *szPackData, M
 	{
 		inTotalSize += _MULTI_SUB_SIZE_NONE_;
 	}
+	// 2023/05/15 HungYang 新增SVC卡片資料回傳
+	else if (!memcmp(stMultiFuncOb->stMulti_TransData.szTransType, _MULTI_SVC_, 2))
+	{
+		/* pobTran */
+		// 帶個卡片資料
+
+		memset(szTemplate, 0x00, sizeof(szTemplate));
+		sprintf(szTemplate, pobTran->szSVC_UID, strlen(&pobTran->szSVC_UID));
+		memcpy(&szPackData[inSubIndex], &szTemplate[0], 14);
+		inSubIndex += 14;
+		inSubSize += 14;
+
+		memset(szTemplate, 0x00, sizeof(szTemplate));
+		sprintf(szTemplate, pobTran->szSVC_CardNum, strlen(&pobTran->szSVC_CardNum));
+		memcpy(&szPackData[inSubIndex], &szTemplate[0], 20);
+		inSubIndex += 20;
+		inSubSize += 20;
+
+		memset(szTemplate, 0x00, sizeof(szTemplate));
+		sprintf(szTemplate, pobTran->szSVC_CardExp, strlen(&pobTran->szSVC_CardExp));
+		memcpy(&szPackData[inSubIndex], &szTemplate[0], 8);
+		inSubIndex += 8;
+		inSubSize += 8;
+
+		memset(szTemplate, 0x00, sizeof(szTemplate));
+		sprintf(szTemplate, pobTran->szSVC_CardIssuerID, strlen(&pobTran->szSVC_CardIssuerID));
+		memcpy(&szPackData[inSubIndex], &szTemplate[0], 8);
+		inSubIndex += 8;
+		inSubSize += 8;
+
+		memset(szTemplate, 0x00, sizeof(szTemplate));
+		sprintf(szTemplate, pobTran->szSVC_CardATID, strlen(&pobTran->szSVC_CardATID));
+		memcpy(&szPackData[inSubIndex], &szTemplate[0], 8);
+		inSubIndex += 8;
+		inSubSize += 8;
+
+		memset(szTemplate, 0x00, sizeof(szTemplate));
+		sprintf(szTemplate, pobTran->szSVC_CardOtherData, strlen(&pobTran->szSVC_CardOtherData));
+		memcpy(&szPackData[inSubIndex], &szTemplate[0], 8);
+		inSubIndex += 8;
+		inSubSize += 8;
+
+		inTotalSize += _MULTI_SUB_SIZE_MIDDLE_;
+	}
+	else
+	{
+		;
+	}
 
 	/* Sub Packet Size (4 Bytes) */
-	memset(szTemplate, 0x00, sizeof (szTemplate));
+	memset(szTemplate, 0x00, sizeof(szTemplate));
 	sprintf(szTemplate, "%04d", inSubSize);
 	memcpy(&szPackData[inLenlocation], &szTemplate[0], 4);
 
@@ -2406,20 +2494,20 @@ Function        :inMultiFunc_TimeCheck
 Date&Time       :2017/7/10 下午 2:35
 Describe        :
 */
-int inMultiFunc_TimeCheck(char* szDate, char* szTime)
+int inMultiFunc_TimeCheck(char *szDate, char *szTime)
 {
-        char	szVaildDateTime[14 + 1];
-        char	szDebugMsg[100 + 1];
+	char szVaildDateTime[14 + 1];
+	char szDebugMsg[100 + 1];
 
-        if (inMultiFunc_ValidDate(szDate) != VS_SUCCESS)
-        {
-                return (VS_ERROR);
-        }
+	if (inMultiFunc_ValidDate(szDate) != VS_SUCCESS)
+	{
+		return (VS_ERROR);
+	}
 
-        if (inMultiFunc_ValidTime(szTime) != VS_SUCCESS)
-        {
-               return (VS_ERROR);
-        }
+	if (inMultiFunc_ValidTime(szTime) != VS_SUCCESS)
+	{
+		return (VS_ERROR);
+	}
 
 	if (ginDisplayDebug == VS_TRUE)
 	{
@@ -2428,8 +2516,7 @@ int inMultiFunc_TimeCheck(char* szDate, char* szTime)
 		inDISP_LOGDisplay(szDebugMsg, _FONTSIZE_16X22_, _LINE_16_16_, VS_FALSE);
 	}
 
-
-        return (VS_SUCCESS);
+	return (VS_SUCCESS);
 }
 
 /*
@@ -2439,11 +2526,11 @@ Describe        :不檢查閏年、和大小月
 */
 int inMultiFunc_ValidDate(char *szDate)
 {
-	int		inMaxDay[12] = {/* 一月 */31, /* 二月 */28, /* 三月 */31, /* 四月 */30, /* 五月 */31, /* 六月 */30, /* 七月 */31, /* 八月 */31, /* 九月 */30, /* 十月 */31, /* 十一月 */30, /* 十二月 */31};
-	int		inFinalMaxDay = 0;
-	int		inDay = 0, inMon = 0, inYear = 0;
-	char		szTemplate[14 + 1];
-	unsigned char	uszLeapYear = VS_FALSE;
+	int inMaxDay[12] = {/* 一月 */ 31, /* 二月 */ 28, /* 三月 */ 31, /* 四月 */ 30, /* 五月 */ 31, /* 六月 */ 30, /* 七月 */ 31, /* 八月 */ 31, /* 九月 */ 30, /* 十月 */ 31, /* 十一月 */ 30, /* 十二月 */ 31};
+	int inFinalMaxDay = 0;
+	int inDay = 0, inMon = 0, inYear = 0;
+	char szTemplate[14 + 1];
+	unsigned char uszLeapYear = VS_FALSE;
 
 	/* 判斷閏年 */
 	if (inYear % 4 == 0)
@@ -2492,7 +2579,7 @@ int inMultiFunc_ValidDate(char *szDate)
 		return (VS_ERROR);
 	}
 
-	return(VS_SUCCESS);
+	return (VS_SUCCESS);
 }
 
 /*
@@ -2502,14 +2589,14 @@ Describe        :
 */
 int inMultiFunc_ValidTime(char *szTime)
 {
-	char	szTemplate[4 + 1];
-	int 	inMins = 0, inHours = 0, inSecs = 0;
+	char szTemplate[4 + 1];
+	int inMins = 0, inHours = 0, inSecs = 0;
 
 	/*  Get 2-Digit Hours */
 	memset(szTemplate, 0x00, sizeof(szTemplate));
 	memcpy(&szTemplate[0], &szTime[0], 2);
 	inHours = atoi(szTemplate);
-    	/*  Get 2-Digit Minutes */
+	/*  Get 2-Digit Minutes */
 	memset(szTemplate, 0x00, sizeof(szTemplate));
 	memcpy(&szTemplate[0], &szTime[2], 2);
 	inMins = atoi(szTemplate);
@@ -2544,10 +2631,10 @@ Function        :inMultiFunc_Response_Host
 Date&Time       :2017/7/10 下午 4:18
 Describe        :在這裡決定Timeout和封包長度
 */
-int inMultiFunc_Response_Host(TRANSACTION_OBJECT *pobTran, MULTI_TABLE* stMultiTable)
+int inMultiFunc_Response_Host(TRANSACTION_OBJECT *pobTran, MULTI_TABLE *stMultiTable)
 {
-	int	inTimeout = 0;
-	int	inTranCode = 0;
+	int inTimeout = 0;
+	int inTranCode = 0;
 
 	inTranCode = atoi(stMultiTable->stMulti_TransData.szTransType);
 
@@ -2556,43 +2643,43 @@ int inMultiFunc_Response_Host(TRANSACTION_OBJECT *pobTran, MULTI_TABLE* stMultiT
 
 	switch (inTranCode)
 	{
-		case _MULTI_PIN_NO_ :
-			memcpy(&stMultiTable->stMulti_TransData.szTransType[0], _MULTI_PIN_, 2);
-			stMultiTable->stMulti_TransData.lnTotalPacketSize = _MULTI_SUB_SIZE_SMALL_;  /* Sub Size 100 */
-			inTimeout = 200;
-			break;
-		case _MULTI_CTLS_NO_ :
-			memcpy(&stMultiTable->stMulti_TransData.szTransType[0], _MULTI_CTLS_, 2);
-			stMultiTable->stMulti_TransData.lnTotalPacketSize = _MULTI_SUB_SIZE_MAX_;    /* Sub Size 990 */
-			inTimeout = 100;
-			break;
-		case _MULTI_EXCHANGE_NO_ :
-			memcpy(&stMultiTable->stMulti_TransData.szTransType[0], _MULTI_EXCHANGE_, 2);
-			stMultiTable->stMulti_TransData.lnTotalPacketSize = _MULTI_SUB_SIZE_NONE_;   /* Sub Size 0 */
-			inTimeout = 100;
-			break;
-		case _MULTI_SIGNPAD_NO_ :
-			memcpy(&stMultiTable->stMulti_TransData.szTransType[0], _MULTI_SIGNPAD_, 2);
-			inTimeout = 1000;
-			break;
-		case _MULTI_SIGN_CONFIRM_NO_ :
-                        memcpy(&stMultiTable->stMulti_TransData.szTransType[0], _MULTI_SIGN_CONFIRM_, 2);
-			stMultiTable->stMulti_TransData.lnTotalPacketSize = _MULTI_SUB_SIZE_NONE_;   /* Sub Size 0 */
-			inTimeout = 200;
-			break;
-		case _MULTI_SLAVE_REBOOT_NO_ :
-		case _MULTI_NOSIGN_NO_ :
-		case _MULTI_TMS_CAPK_NO_ :
-		case _MULTI_TMS_MASTER_NO_ :
-		case _MULTI_TMS_VISA_NO_ :
-		case _MULTI_TMS_JCB_NO_ :
-		case _MULTI_TMS_CUP_NO_ :    /*20151014浩瑋新增*/    /* 【需求單 - 104094】銀聯閃付需求 by Wei Hsiu - 2015/8/13 下午 10:12:06 */
-		case _MULTI_POLL_NO_ :
-			break;
-		default :
-			return (VS_ERROR);
+	case _MULTI_PIN_NO_:
+		memcpy(&stMultiTable->stMulti_TransData.szTransType[0], _MULTI_PIN_, 2);
+		stMultiTable->stMulti_TransData.lnTotalPacketSize = _MULTI_SUB_SIZE_SMALL_; /* Sub Size 100 */
+		inTimeout = 200;
+		break;
+	case _MULTI_CTLS_NO_:
+		memcpy(&stMultiTable->stMulti_TransData.szTransType[0], _MULTI_CTLS_, 2);
+		stMultiTable->stMulti_TransData.lnTotalPacketSize = _MULTI_SUB_SIZE_MAX_; /* Sub Size 990 */
+		inTimeout = 100;
+		break;
+	case _MULTI_EXCHANGE_NO_:
+		memcpy(&stMultiTable->stMulti_TransData.szTransType[0], _MULTI_EXCHANGE_, 2);
+		stMultiTable->stMulti_TransData.lnTotalPacketSize = _MULTI_SUB_SIZE_NONE_; /* Sub Size 0 */
+		inTimeout = 100;
+		break;
+	case _MULTI_SIGNPAD_NO_:
+		memcpy(&stMultiTable->stMulti_TransData.szTransType[0], _MULTI_SIGNPAD_, 2);
+		inTimeout = 1000;
+		break;
+	case _MULTI_SIGN_CONFIRM_NO_:
+		memcpy(&stMultiTable->stMulti_TransData.szTransType[0], _MULTI_SIGN_CONFIRM_, 2);
+		stMultiTable->stMulti_TransData.lnTotalPacketSize = _MULTI_SUB_SIZE_NONE_; /* Sub Size 0 */
+		inTimeout = 200;
+		break;
+	case _MULTI_SLAVE_REBOOT_NO_:
+	case _MULTI_NOSIGN_NO_:
+	case _MULTI_TMS_CAPK_NO_:
+	case _MULTI_TMS_MASTER_NO_:
+	case _MULTI_TMS_VISA_NO_:
+	case _MULTI_TMS_JCB_NO_:
+	case _MULTI_TMS_CUP_NO_: /*20151014浩瑋新增*/ /* 【需求單 - 104094】銀聯閃付需求 by Wei Hsiu - 2015/8/13 下午 10:12:06 */
+	case _MULTI_POLL_NO_:
+		break;
+	default:
+		return (VS_ERROR);
 	}
-        
+
 	return (VS_SUCCESS);
 }
 
@@ -2603,14 +2690,14 @@ Describe        :For 外接設備的感應流程
 */
 int inMultiFunc_GetCardFields_CTLS(TRANSACTION_OBJECT *pobTran, MULTI_TABLE *stMultiOb)
 {
-	int		inRetVal;
-	int		inCTLS_RetVal = -1;	/* 感應卡事件的反應，怕和其他用到inRetVal的搞混所以獨立出來*/
-	int		inMultiFunc_RetVal = -1;
-	char		szKey = -1;
-	char		szTemplate[_DISP_MSG_SIZE_ + 1];
-	char		szDebugMsg[100 + 1];
-	long		lnTimeout;
-	unsigned long   ulCTLS_RetVal;
+	int inRetVal;
+	int inCTLS_RetVal = -1; /* 感應卡事件的反應，怕和其他用到inRetVal的搞混所以獨立出來*/
+	int inMultiFunc_RetVal = -1;
+	char szKey = -1;
+	char szTemplate[_DISP_MSG_SIZE_ + 1];
+	char szDebugMsg[100 + 1];
+	long lnTimeout;
+	unsigned long ulCTLS_RetVal;
 
 	if (ginDebug == VS_TRUE)
 	{
@@ -2640,16 +2727,16 @@ int inMultiFunc_GetCardFields_CTLS(TRANSACTION_OBJECT *pobTran, MULTI_TABLE *stM
 		inFunc_SaveRecordTime(6);
 	}
 
-        /* 進入畫面時先顯示金額 */
+	/* 進入畫面時先顯示金額 */
 	if (pobTran->srBRec.lnTxnAmount > 0)
 	{
 		memset(szTemplate, 0x00, sizeof(szTemplate));
-		sprintf(szTemplate, "%ld",  pobTran->srBRec.lnTxnAmount);
-		inFunc_Amount_Comma(szTemplate, "NT$ " , ' ', _SIGNED_NONE_, 16, VS_TRUE);
+		sprintf(szTemplate, "%ld", pobTran->srBRec.lnTxnAmount);
+		inFunc_Amount_Comma(szTemplate, "NT$ ", ' ', _SIGNED_NONE_, 16, VS_TRUE);
 		inDISP_EnglishFont_Color(szTemplate, _FONTSIZE_8X16_, _LINE_8_3_, _COLOR_RED_, _DISP_LEFT_);
 	}
 
-        /* 設定Timeout */
+	/* 設定Timeout */
 	if (pobTran->uszECRBit == VS_TRUE)
 	{
 		lnTimeout = _ECR_RS232_GET_CARD_TIMEOUT_;
@@ -2681,7 +2768,7 @@ int inMultiFunc_GetCardFields_CTLS(TRANSACTION_OBJECT *pobTran, MULTI_TABLE *stM
 	}
 
 	while (1)
-        {
+	{
 
 		/* 感應事件 */
 		if (ginEventCode == _SENSOR_EVENT_)
@@ -2690,7 +2777,7 @@ int inMultiFunc_GetCardFields_CTLS(TRANSACTION_OBJECT *pobTran, MULTI_TABLE *stM
 			ulCTLS_RetVal = ulMultiFunc_CheckResponseCode_SALE(pobTran);
 
 			if (ulCTLS_RetVal == d_EMVCL_RC_NO_CARD)
-                        {
+			{
 				/* Timeout沒卡 */
 				return (VS_ERROR);
 			}
@@ -2700,20 +2787,19 @@ int inMultiFunc_GetCardFields_CTLS(TRANSACTION_OBJECT *pobTran, MULTI_TABLE *stM
 
 				return (VS_WAVE_ERROR);
 			}
-                        /* 這邊要切SmartPay */
-                        else if (ulCTLS_RetVal == d_EMVCL_NON_EMV_CARD)
-                        {
+			/* 這邊要切SmartPay */
+			else if (ulCTLS_RetVal == d_EMVCL_NON_EMV_CARD)
+			{
 				if (pobTran->srBRec.inTxnResult != VS_SUCCESS)
-					 return (VS_ERROR);
+					return (VS_ERROR);
 
 				/* 轉 FISC_SALE */
 				/* FISC incode 在 inFISC_CTLSProcess內設定 */
-                        }
-                        /* 走信用卡流程 */
-                        else if (ulCTLS_RetVal == d_EMVCL_RC_DATA)
-                        {
-
-                        }
+			}
+			/* 走信用卡流程 */
+			else if (ulCTLS_RetVal == d_EMVCL_RC_DATA)
+			{
+			}
 			/*  Two Tap 流程 */
 			else if (ulCTLS_RetVal == d_EMVCL_RC_SEE_PHONE)
 			{
@@ -2742,7 +2828,7 @@ int inMultiFunc_GetCardFields_CTLS(TRANSACTION_OBJECT *pobTran, MULTI_TABLE *stM
 
 		if (ginEventCode == _MULTIFUNC_SLAVE_EVENT_)
 		{
-                        if (ginDisplayDebug == VS_TRUE)
+			if (ginDisplayDebug == VS_TRUE)
 			{
 				memset(szDebugMsg, 0x00, sizeof(szDebugMsg));
 				sprintf(szDebugMsg, "_MULTIFUNC_SLAVE_EVENT_");
@@ -2754,7 +2840,7 @@ int inMultiFunc_GetCardFields_CTLS(TRANSACTION_OBJECT *pobTran, MULTI_TABLE *stM
 			{
 				return (VS_ESCAPE);
 			}
-                        else
+			else
 			{
 				/* 判斷為雜值要清空，再等待下一次 */
 				inMultiFunc_FlushRxBuffer(stMultiOb->srSetting.uszComPort);
@@ -2767,18 +2853,18 @@ int inMultiFunc_GetCardFields_CTLS(TRANSACTION_OBJECT *pobTran, MULTI_TABLE *stM
 
 			/* ------------偵測感應卡------------------ */
 			inCTLS_RetVal = inCTLS_ReceiveReadyForSales_Flow(pobTran);
-                        if (pobTran->uszMenuSelectCancelBit == VS_TRUE)
+			if (pobTran->uszMenuSelectCancelBit == VS_TRUE)
 			{
 				/* 被按取消了 */
 				return (VS_ESCAPE);
 			}
 			else
-                        {
-                                if(inCTLS_RetVal == VS_SUCCESS)
-                                {
-                                        /* 感應卡事件 */
-                                        ginEventCode = _SENSOR_EVENT_;
-                                }
+			{
+				if (inCTLS_RetVal == VS_SUCCESS)
+				{
+					/* 感應卡事件 */
+					ginEventCode = _SENSOR_EVENT_;
+				}
 			}
 
 			/* ------------MasterTerminal---------------*/
@@ -2820,12 +2906,11 @@ int inMultiFunc_GetCardFields_CTLS(TRANSACTION_OBJECT *pobTran, MULTI_TABLE *stM
 				break;
 			}
 
-		}/* while (1) 偵測事件迴圈...*/
-
+		} /* while (1) 偵測事件迴圈...*/
 
 	} /* while (1) 對事件做回應迴圈...*/
 
-        return (VS_SUCCESS);
+	return (VS_SUCCESS);
 }
 
 /*
@@ -2835,37 +2920,37 @@ Describe        :For外接設備的感應退貨流程
 */
 int inMultiFunc_GetCardFields_Refund_CTLS(TRANSACTION_OBJECT *pobTran, MULTI_TABLE *stMultiOb)
 {
-	int		inRetVal;
-	int		inCTLS_RetVal = -1;	/* 感應卡事件的反應，怕和其他用到inRetVal的搞混所以獨立出來*/
-	int		inMultiFunc_RetVal = -1;
-        char		szKey = -1;
-        char		szTemplate[_DISP_MSG_SIZE_ + 1];
-	char		szDebugMsg[100 + 1];
-	long		lnTimeout;
-        unsigned long   ulCTLS_RetVal;
+	int inRetVal;
+	int inCTLS_RetVal = -1; /* 感應卡事件的反應，怕和其他用到inRetVal的搞混所以獨立出來*/
+	int inMultiFunc_RetVal = -1;
+	char szKey = -1;
+	char szTemplate[_DISP_MSG_SIZE_ + 1];
+	char szDebugMsg[100 + 1];
+	long lnTimeout;
+	unsigned long ulCTLS_RetVal;
 
-        /* 過卡方式參數初始化  */
-        pobTran->srBRec.uszManualBit = VS_FALSE;
+	/* 過卡方式參數初始化  */
+	pobTran->srBRec.uszManualBit = VS_FALSE;
 	/* 初始化 ginEventCode */
-        ginEventCode = -1;
+	ginEventCode = -1;
 
 	/* Send CTLS Readly for Refund Command */
 	if (inCTLS_SendReadyForRefund_Flow(pobTran) != VS_SUCCESS)
 		return (VS_ERROR);
 
-        /* 顯示 請感應卡片 */
+	/* 顯示 請感應卡片 */
 	inDISP_PutGraphic(_CTLS_LOGO_2_, 0, _COORDINATE_Y_LINE_8_1_);
 
-        /* 進入畫面時先顯示金額 */
+	/* 進入畫面時先顯示金額 */
 	if (pobTran->srBRec.lnTxnAmount > 0)
 	{
 		memset(szTemplate, 0x00, sizeof(szTemplate));
-		sprintf(szTemplate, "%ld",  pobTran->srBRec.lnTxnAmount);
-		inFunc_Amount_Comma(szTemplate, "NT$ " , ' ', _SIGNED_NONE_, 16, VS_TRUE);
+		sprintf(szTemplate, "%ld", pobTran->srBRec.lnTxnAmount);
+		inFunc_Amount_Comma(szTemplate, "NT$ ", ' ', _SIGNED_NONE_, 16, VS_TRUE);
 		inDISP_EnglishFont_Color(szTemplate, _FONTSIZE_8X16_, _LINE_8_3_, _COLOR_RED_, _DISP_LEFT_);
 	}
 
-        /* 設定Timeout */
+	/* 設定Timeout */
 	if (pobTran->uszECRBit == VS_TRUE)
 	{
 		lnTimeout = _ECR_RS232_GET_CARD_TIMEOUT_;
@@ -2882,7 +2967,7 @@ int inMultiFunc_GetCardFields_Refund_CTLS(TRANSACTION_OBJECT *pobTran, MULTI_TAB
 	inDISP_TimeoutStart(lnTimeout);
 
 	while (1)
-        {
+	{
 		/* 感應事件 */
 		if (ginEventCode == _SENSOR_EVENT_)
 		{
@@ -2890,7 +2975,7 @@ int inMultiFunc_GetCardFields_Refund_CTLS(TRANSACTION_OBJECT *pobTran, MULTI_TAB
 			ulCTLS_RetVal = ulMultiFunc_CheckResponseCode_REFUND(pobTran);
 
 			if (ulCTLS_RetVal == d_EMVCL_RC_NO_CARD)
-                        {
+			{
 				/* Timeout沒卡 */
 				return (VS_ERROR);
 			}
@@ -2900,20 +2985,19 @@ int inMultiFunc_GetCardFields_Refund_CTLS(TRANSACTION_OBJECT *pobTran, MULTI_TAB
 
 				return (VS_WAVE_ERROR);
 			}
-                        /* 這邊要切SmartPay */
-                        else if (ulCTLS_RetVal == d_EMVCL_NON_EMV_CARD)
-                        {
+			/* 這邊要切SmartPay */
+			else if (ulCTLS_RetVal == d_EMVCL_NON_EMV_CARD)
+			{
 				if (pobTran->srBRec.inTxnResult != VS_SUCCESS)
-					 return (VS_ERROR);
+					return (VS_ERROR);
 
 				/* 轉 FISC_REFUND */
 				/* FISC incode 在 inFISC_CTLSProcess內設定 */
-                        }
-                        /* 走信用卡流程 */
-                        else if (ulCTLS_RetVal == d_EMVCL_RC_DATA)
-                        {
-
-                        }
+			}
+			/* 走信用卡流程 */
+			else if (ulCTLS_RetVal == d_EMVCL_RC_DATA)
+			{
+			}
 			/*  Two Tap 流程 */
 			else if (ulCTLS_RetVal == d_EMVCL_RC_SEE_PHONE)
 			{
@@ -2973,12 +3057,11 @@ int inMultiFunc_GetCardFields_Refund_CTLS(TRANSACTION_OBJECT *pobTran, MULTI_TAB
 			if (inMultiFunc_RetVal == VS_SUCCESS)
 			{
 				if (ginDisplayDebug == VS_TRUE)
-                                {
-                                        inDISP_LOGDisplay("Slave Event 1", _FONTSIZE_16X22_, _LINE_16_16_, VS_TRUE);
-                                }
-                                ginEventCode = _MULTIFUNC_SLAVE_EVENT_;
+				{
+					inDISP_LOGDisplay("Slave Event 1", _FONTSIZE_16X22_, _LINE_16_16_, VS_TRUE);
+				}
+				ginEventCode = _MULTIFUNC_SLAVE_EVENT_;
 			}
-
 
 			/* ------------偵測key in------------------ */
 			szKey = -1;
@@ -3011,178 +3094,177 @@ int inMultiFunc_GetCardFields_Refund_CTLS(TRANSACTION_OBJECT *pobTran, MULTI_TAB
 				break;
 			}
 
-		}/* while (1) 偵測事件迴圈...*/
-
+		} /* while (1) 偵測事件迴圈...*/
 
 	} /* while (1) 對事件做回應迴圈...*/
 
-        return (VS_SUCCESS);
+	return (VS_SUCCESS);
 }
 
 unsigned long ulMultiFunc_CheckResponseCode_SALE(TRANSACTION_OBJECT *pobTran)
 {
-	char		szDebugMsg[100 + 1];
-        unsigned long	ulRetVal;
+	char szDebugMsg[100 + 1];
+	unsigned long ulRetVal;
 
-        switch (srCtlsObj.lnSaleRespCode)
+	switch (srCtlsObj.lnSaleRespCode)
 	{
 		/* d_EMVCL_RC_DATA 和 d_EMVCL_NON_EMV_CARD 為有收到資料的狀況 */
-                case d_EMVCL_RC_DATA :
-                        pobTran->srBRec.uszContactlessBit = VS_TRUE;
-			ulRetVal = srCtlsObj.lnSaleRespCode;
-                        break;
-                case d_EMVCL_NON_EMV_CARD :
-                        /* SmartPay會跑這個case */
-                        pobTran->srBRec.uszContactlessBit = VS_TRUE;
-                        ulRetVal = srCtlsObj.lnSaleRespCode;
-                        break;
+	case d_EMVCL_RC_DATA:
+		pobTran->srBRec.uszContactlessBit = VS_TRUE;
+		ulRetVal = srCtlsObj.lnSaleRespCode;
+		break;
+	case d_EMVCL_NON_EMV_CARD:
+		/* SmartPay會跑這個case */
+		pobTran->srBRec.uszContactlessBit = VS_TRUE;
+		ulRetVal = srCtlsObj.lnSaleRespCode;
+		break;
 		/* 感應無效 */
-                case d_EMVCL_RC_FAILURE :
-                        if (ginDebug == VS_TRUE)
-			{
-                                inDISP_LogPrintf("CTLS Resp Code = d_EMVCL_RC_FAILURE");
-			}
-			if (ginDisplayDebug == VS_TRUE)
-			{
-				inDISP_LOGDisplay("CTLS d_EMVCL_RC_FAILURE", _FONTSIZE_16X22_, _LINE_16_16_, VS_TRUE);
-			}
+	case d_EMVCL_RC_FAILURE:
+		if (ginDebug == VS_TRUE)
+		{
+			inDISP_LogPrintf("CTLS Resp Code = d_EMVCL_RC_FAILURE");
+		}
+		if (ginDisplayDebug == VS_TRUE)
+		{
+			inDISP_LOGDisplay("CTLS d_EMVCL_RC_FAILURE", _FONTSIZE_16X22_, _LINE_16_16_, VS_TRUE);
+		}
 
-			pobTran->inErrorMsg = _ERROR_CODE_V3_MULTI_FUNC_CTLS_;
-                        ulRetVal = srCtlsObj.lnSaleRespCode;
-                        break;
+		pobTran->inErrorMsg = _ERROR_CODE_V3_MULTI_FUNC_CTLS_;
+		ulRetVal = srCtlsObj.lnSaleRespCode;
+		break;
 		/* 請問d_EMVCL_RC_FAILURE和d_EMVCL_RC_FALLBACK的差別在哪？
 		   [Ans] : 這兩個 Return code 都是表示交易的過程中發生了問題而交易終止了。差別在於 Kernel 是否要求要換另一個介面的交易 (例如 : CL 交易失敗，同一張卡改成 CT 或是 MSR 的介面交易)，當然這個轉換介面的要求是根據各個 payment 的規格而定的。
 			   d_EMVCL_RC_FAILURE : 交易中止
 			   d_EMVCL_RC_FALLBACK : 交易中止，但嘗試別的介面交易。
 		 */
 		/* 感應中止，改插卡或刷卡 */
-                case d_EMVCL_RC_FALLBACK :
-                        if (ginDebug == VS_TRUE)
-			{
-                                inDISP_LogPrintf("CTLS Resp Code = d_EMVCL_RC_FALLBACK");
-			}
-			if (ginDisplayDebug == VS_TRUE)
-			{
-				inDISP_LOGDisplay("CTLS d_EMVCL_RC_FALLBACK", _FONTSIZE_16X22_, _LINE_16_16_, VS_TRUE);
-			}
+	case d_EMVCL_RC_FALLBACK:
+		if (ginDebug == VS_TRUE)
+		{
+			inDISP_LogPrintf("CTLS Resp Code = d_EMVCL_RC_FALLBACK");
+		}
+		if (ginDisplayDebug == VS_TRUE)
+		{
+			inDISP_LOGDisplay("CTLS d_EMVCL_RC_FALLBACK", _FONTSIZE_16X22_, _LINE_16_16_, VS_TRUE);
+		}
 
-                        ulRetVal = srCtlsObj.lnSaleRespCode;
-			pobTran->inErrorMsg = _ERROR_CODE_V3_MULTI_FUNC_CTLS_;
-                        break;
-		/* 請重試 */
-		case d_EMVCL_TRY_AGAIN :
-                        if (ginDebug == VS_TRUE)
-			{
-                                inDISP_LogPrintf("CTLS Resp Code = d_EMVCL_RC_MORE_CARDS");
-			}
-			if (ginDisplayDebug == VS_TRUE)
-			{
-				inDISP_LOGDisplay("CTLS d_EMVCL_RC_MORE_CARDS", _FONTSIZE_16X22_, _LINE_16_16_, VS_TRUE);
-			}
+		ulRetVal = srCtlsObj.lnSaleRespCode;
+		pobTran->inErrorMsg = _ERROR_CODE_V3_MULTI_FUNC_CTLS_;
+		break;
+	/* 請重試 */
+	case d_EMVCL_TRY_AGAIN:
+		if (ginDebug == VS_TRUE)
+		{
+			inDISP_LogPrintf("CTLS Resp Code = d_EMVCL_RC_MORE_CARDS");
+		}
+		if (ginDisplayDebug == VS_TRUE)
+		{
+			inDISP_LOGDisplay("CTLS d_EMVCL_RC_MORE_CARDS", _FONTSIZE_16X22_, _LINE_16_16_, VS_TRUE);
+		}
 
-			/* 依目前聯合線上機器，只要一失敗就跳感應失敗，請改刷卡或插卡 */
-			pobTran->inErrorMsg = _ERROR_CODE_V3_MULTI_FUNC_CTLS_;
-                        ulRetVal = srCtlsObj.lnSaleRespCode;
-                        break;
+		/* 依目前聯合線上機器，只要一失敗就跳感應失敗，請改刷卡或插卡 */
+		pobTran->inErrorMsg = _ERROR_CODE_V3_MULTI_FUNC_CTLS_;
+		ulRetVal = srCtlsObj.lnSaleRespCode;
+		break;
 		/* 取消的話，基本上會直接跳出迴圈，所以也不會進這裡 */
-                case d_EMVCL_TX_CANCEL :
-                        if (ginDebug == VS_TRUE)
-			{
-                                inDISP_LogPrintf("CTLS Resp Code = d_EMVCL_TX_CANCEL");
-			}
-			if (ginDisplayDebug == VS_TRUE)
-			{
-				inDISP_LOGDisplay("CTLS d_EMVCL_TX_CANCEL", _FONTSIZE_16X22_, _LINE_16_16_, VS_TRUE);
-			}
+	case d_EMVCL_TX_CANCEL:
+		if (ginDebug == VS_TRUE)
+		{
+			inDISP_LogPrintf("CTLS Resp Code = d_EMVCL_TX_CANCEL");
+		}
+		if (ginDisplayDebug == VS_TRUE)
+		{
+			inDISP_LOGDisplay("CTLS d_EMVCL_TX_CANCEL", _FONTSIZE_16X22_, _LINE_16_16_, VS_TRUE);
+		}
 
-			pobTran->inErrorMsg = _ERROR_CODE_V3_USER_CANCEL_;
-                        ulRetVal = srCtlsObj.lnSaleRespCode;
-                        break;
+		pobTran->inErrorMsg = _ERROR_CODE_V3_USER_CANCEL_;
+		ulRetVal = srCtlsObj.lnSaleRespCode;
+		break;
 		/* 多卡重疊 */
-                case d_EMVCL_RC_MORE_CARDS :
-                        if (ginDebug == VS_TRUE)
-			{
-                                inDISP_LogPrintf("CTLS Resp Code = d_EMVCL_RC_MORE_CARDS");
-			}
-			if (ginDisplayDebug == VS_TRUE)
-			{
-				inDISP_LOGDisplay("CTLS d_EMVCL_RC_MORE_CARDS", _FONTSIZE_16X22_, _LINE_16_16_, VS_TRUE);
-			}
+	case d_EMVCL_RC_MORE_CARDS:
+		if (ginDebug == VS_TRUE)
+		{
+			inDISP_LogPrintf("CTLS Resp Code = d_EMVCL_RC_MORE_CARDS");
+		}
+		if (ginDisplayDebug == VS_TRUE)
+		{
+			inDISP_LOGDisplay("CTLS d_EMVCL_RC_MORE_CARDS", _FONTSIZE_16X22_, _LINE_16_16_, VS_TRUE);
+		}
 
-			/* 依目前聯合線上機器，只要一失敗就跳感應失敗，請改刷卡或插卡 */
-			pobTran->inErrorMsg = _ERROR_CODE_V3_MULTI_FUNC_CTLS_;
-                        ulRetVal = srCtlsObj.lnSaleRespCode;
-                        break;
+		/* 依目前聯合線上機器，只要一失敗就跳感應失敗，請改刷卡或插卡 */
+		pobTran->inErrorMsg = _ERROR_CODE_V3_MULTI_FUNC_CTLS_;
+		ulRetVal = srCtlsObj.lnSaleRespCode;
+		break;
 		/* Timeout 沒感應到卡，這個Timeout指的是xml檔內設定，目前設定到最大，理論上不會出現此回應 */
-                case d_EMVCL_RC_NO_CARD :
-                        if (ginDebug == VS_TRUE)
-			{
-                                inDISP_LogPrintf("CTLS Resp Code = d_EMVCL_RC_NO_CARD");
-			}
-			if (ginDisplayDebug == VS_TRUE)
-			{
-				inDISP_LOGDisplay("CTLS d_EMVCL_RC_NO_CARD", _FONTSIZE_16X22_, _LINE_16_16_, VS_TRUE);
-			}
+	case d_EMVCL_RC_NO_CARD:
+		if (ginDebug == VS_TRUE)
+		{
+			inDISP_LogPrintf("CTLS Resp Code = d_EMVCL_RC_NO_CARD");
+		}
+		if (ginDisplayDebug == VS_TRUE)
+		{
+			inDISP_LOGDisplay("CTLS d_EMVCL_RC_NO_CARD", _FONTSIZE_16X22_, _LINE_16_16_, VS_TRUE);
+		}
 
-                        ulRetVal = srCtlsObj.lnSaleRespCode;
-                        break;
+		ulRetVal = srCtlsObj.lnSaleRespCode;
+		break;
 		/* 基本上pending不會進這裡，而會繼續感應 */
-                case d_EMVCL_PENDING :
-                        if (ginDebug == VS_TRUE)
-			{
-                                inDISP_LogPrintf("CTLS Resp Code = d_EMVCL_PENDING");
-			}
-			if (ginDisplayDebug == VS_TRUE)
-			{
-				inDISP_LOGDisplay("CTLS d_EMVCL_PENDING", _FONTSIZE_16X22_, _LINE_16_16_, VS_TRUE);
-			}
+	case d_EMVCL_PENDING:
+		if (ginDebug == VS_TRUE)
+		{
+			inDISP_LogPrintf("CTLS Resp Code = d_EMVCL_PENDING");
+		}
+		if (ginDisplayDebug == VS_TRUE)
+		{
+			inDISP_LOGDisplay("CTLS d_EMVCL_PENDING", _FONTSIZE_16X22_, _LINE_16_16_, VS_TRUE);
+		}
 
-                        ulRetVal = srCtlsObj.lnSaleRespCode;
-                        break;
-		/* 請問d_EMVCL_RC_DEK_SIGNAL這個回應碼是什麼意思？
-		   [Ans] : 收到 d_EMVCL_RC_DEK_SIGNAL 表示交易中間 kernel 有訊息要帶出外面給 Application，交易尚未結束，仍須等待 EMVCL_PerformTransactionEx 給出真正的交易結果。
-		 */
-		case d_EMVCL_RC_DEK_SIGNAL :
-                        if (ginDebug == VS_TRUE)
-			{
-                                inDISP_LogPrintf("CTLS Resp Code = d_EMVCL_RC_DEK_SIGNAL");
-			}
-			if (ginDisplayDebug == VS_TRUE)
-			{
-				inDISP_LOGDisplay("CTLS d_EMVCL_RC_DEK_SIGNAL", _FONTSIZE_16X22_, _LINE_16_16_, VS_TRUE);
-			}
+		ulRetVal = srCtlsObj.lnSaleRespCode;
+		break;
+	/* 請問d_EMVCL_RC_DEK_SIGNAL這個回應碼是什麼意思？
+	   [Ans] : 收到 d_EMVCL_RC_DEK_SIGNAL 表示交易中間 kernel 有訊息要帶出外面給 Application，交易尚未結束，仍須等待 EMVCL_PerformTransactionEx 給出真正的交易結果。
+	 */
+	case d_EMVCL_RC_DEK_SIGNAL:
+		if (ginDebug == VS_TRUE)
+		{
+			inDISP_LogPrintf("CTLS Resp Code = d_EMVCL_RC_DEK_SIGNAL");
+		}
+		if (ginDisplayDebug == VS_TRUE)
+		{
+			inDISP_LOGDisplay("CTLS d_EMVCL_RC_DEK_SIGNAL", _FONTSIZE_16X22_, _LINE_16_16_, VS_TRUE);
+		}
 
-			/* 依目前聯合線上機器，只要一失敗就跳感應失敗，請改刷卡或插卡 */
-			pobTran->inErrorMsg = _ERROR_CODE_V3_MULTI_FUNC_CTLS_;
-                        ulRetVal = srCtlsObj.lnSaleRespCode;
-                        break;
-		/* Two Tap流程 */
-		case d_EMVCL_RC_SEE_PHONE :
-                        if (ginDebug == VS_TRUE)
-                                inDISP_LogPrintf("CTLS Resp Code = d_EMVCL_RC_SEE_PHONE");
-			/* 請輸密碼或指紋 並再感應一次 */
-			inDISP_Clear_Line(_LINE_8_7_, _LINE_8_8_);
-			inDISP_PutGraphic(_CTLS_TWO_TAP_, 0, _COORDINATE_Y_LINE_8_7_);
-			pobTran->uszTwoTapBit = VS_TRUE;
+		/* 依目前聯合線上機器，只要一失敗就跳感應失敗，請改刷卡或插卡 */
+		pobTran->inErrorMsg = _ERROR_CODE_V3_MULTI_FUNC_CTLS_;
+		ulRetVal = srCtlsObj.lnSaleRespCode;
+		break;
+	/* Two Tap流程 */
+	case d_EMVCL_RC_SEE_PHONE:
+		if (ginDebug == VS_TRUE)
+			inDISP_LogPrintf("CTLS Resp Code = d_EMVCL_RC_SEE_PHONE");
+		/* 請輸密碼或指紋 並再感應一次 */
+		inDISP_Clear_Line(_LINE_8_7_, _LINE_8_8_);
+		inDISP_PutGraphic(_CTLS_TWO_TAP_, 0, _COORDINATE_Y_LINE_8_7_);
+		pobTran->uszTwoTapBit = VS_TRUE;
 
-			ulRetVal = srCtlsObj.lnSaleRespCode;
-                        break;
-                default :
-			if (ginDebug == VS_TRUE)
-			{
-				memset(szDebugMsg, 0x00, sizeof(szDebugMsg));
-				sprintf(szDebugMsg, "CTLS Res: %08lX", srCtlsObj.lnSaleRespCode);
-				inDISP_LogPrintf(szDebugMsg);
-			}
-			if (ginDisplayDebug == VS_TRUE)
-			{
-				memset(szDebugMsg, 0x00, sizeof(szDebugMsg));
-				sprintf(szDebugMsg, "CTLS Res: %08lX", srCtlsObj.lnSaleRespCode);
-				inDISP_LOGDisplay(szDebugMsg, _FONTSIZE_16X22_, _LINE_16_16_, VS_FALSE);
-			}
-			ulRetVal = d_EMVCL_RC_FAILURE;
-			break;
-        }
+		ulRetVal = srCtlsObj.lnSaleRespCode;
+		break;
+	default:
+		if (ginDebug == VS_TRUE)
+		{
+			memset(szDebugMsg, 0x00, sizeof(szDebugMsg));
+			sprintf(szDebugMsg, "CTLS Res: %08lX", srCtlsObj.lnSaleRespCode);
+			inDISP_LogPrintf(szDebugMsg);
+		}
+		if (ginDisplayDebug == VS_TRUE)
+		{
+			memset(szDebugMsg, 0x00, sizeof(szDebugMsg));
+			sprintf(szDebugMsg, "CTLS Res: %08lX", srCtlsObj.lnSaleRespCode);
+			inDISP_LOGDisplay(szDebugMsg, _FONTSIZE_16X22_, _LINE_16_16_, VS_FALSE);
+		}
+		ulRetVal = d_EMVCL_RC_FAILURE;
+		break;
+	}
 
 	if (srCtlsObj.lnSaleRespCode == d_EMVCL_NON_EMV_CARD)
 	{
@@ -3206,173 +3288,173 @@ unsigned long ulMultiFunc_CheckResponseCode_SALE(TRANSACTION_OBJECT *pobTran)
 		inMultiFunc_Process_CTLS_ERROR_DATA();
 	}
 
-        return (ulRetVal);
+	return (ulRetVal);
 }
 
 unsigned long ulMultiFunc_CheckResponseCode_REFUND(TRANSACTION_OBJECT *pobTran)
 {
-	char		szDebugMsg[100 + 1];
-        unsigned long	ulRetVal;
+	char szDebugMsg[100 + 1];
+	unsigned long ulRetVal;
 
-        switch (srCtlsObj.lnSaleRespCode)
+	switch (srCtlsObj.lnSaleRespCode)
 	{
 		/* d_EMVCL_RC_DATA 和 d_EMVCL_NON_EMV_CARD 為有收到資料的狀況 */
-                case d_EMVCL_RC_DATA :
-                        pobTran->srBRec.uszContactlessBit = VS_TRUE;
-			ulRetVal = srCtlsObj.lnSaleRespCode;
-                        break;
-                case d_EMVCL_NON_EMV_CARD :
-                        /* SmartPay會跑這個case */
-                        pobTran->srBRec.uszContactlessBit = VS_TRUE;
-                        ulRetVal = srCtlsObj.lnSaleRespCode;
-                        break;
+	case d_EMVCL_RC_DATA:
+		pobTran->srBRec.uszContactlessBit = VS_TRUE;
+		ulRetVal = srCtlsObj.lnSaleRespCode;
+		break;
+	case d_EMVCL_NON_EMV_CARD:
+		/* SmartPay會跑這個case */
+		pobTran->srBRec.uszContactlessBit = VS_TRUE;
+		ulRetVal = srCtlsObj.lnSaleRespCode;
+		break;
 		/* 感應無效 */
-                case d_EMVCL_RC_FAILURE :
-                        if (ginDebug == VS_TRUE)
-			{
-                                inDISP_LogPrintf("CTLS Resp Code = d_EMVCL_RC_FAILURE");
-			}
-			if (ginDisplayDebug == VS_TRUE)
-			{
-				inDISP_LOGDisplay("CTLS d_EMVCL_RC_FAILURE", _FONTSIZE_16X22_, _LINE_16_16_, VS_TRUE);
-			}
+	case d_EMVCL_RC_FAILURE:
+		if (ginDebug == VS_TRUE)
+		{
+			inDISP_LogPrintf("CTLS Resp Code = d_EMVCL_RC_FAILURE");
+		}
+		if (ginDisplayDebug == VS_TRUE)
+		{
+			inDISP_LOGDisplay("CTLS d_EMVCL_RC_FAILURE", _FONTSIZE_16X22_, _LINE_16_16_, VS_TRUE);
+		}
 
-			pobTran->inErrorMsg = _ERROR_CODE_V3_MULTI_FUNC_CTLS_;
-                        ulRetVal = srCtlsObj.lnSaleRespCode;
-                        break;
+		pobTran->inErrorMsg = _ERROR_CODE_V3_MULTI_FUNC_CTLS_;
+		ulRetVal = srCtlsObj.lnSaleRespCode;
+		break;
 		/* 請問d_EMVCL_RC_FAILURE和d_EMVCL_RC_FALLBACK的差別在哪？
 		   [Ans] : 這兩個 Return code 都是表示交易的過程中發生了問題而交易終止了。差別在於 Kernel 是否要求要換另一個介面的交易 (例如 : CL 交易失敗，同一張卡改成 CT 或是 MSR 的介面交易)，當然這個轉換介面的要求是根據各個 payment 的規格而定的。
 			   d_EMVCL_RC_FAILURE : 交易中止
 			   d_EMVCL_RC_FALLBACK : 交易中止，但嘗試別的介面交易。
 		 */
 		/* 感應中止，改插卡或刷卡 */
-                case d_EMVCL_RC_FALLBACK :
-                        if (ginDebug == VS_TRUE)
-			{
-                                inDISP_LogPrintf("CTLS Resp Code = d_EMVCL_RC_FALLBACK");
-			}
-			if (ginDisplayDebug == VS_TRUE)
-			{
-				inDISP_LOGDisplay("CTLS d_EMVCL_RC_FALLBACK", _FONTSIZE_16X22_, _LINE_16_16_, VS_TRUE);
-			}
+	case d_EMVCL_RC_FALLBACK:
+		if (ginDebug == VS_TRUE)
+		{
+			inDISP_LogPrintf("CTLS Resp Code = d_EMVCL_RC_FALLBACK");
+		}
+		if (ginDisplayDebug == VS_TRUE)
+		{
+			inDISP_LOGDisplay("CTLS d_EMVCL_RC_FALLBACK", _FONTSIZE_16X22_, _LINE_16_16_, VS_TRUE);
+		}
 
-                        ulRetVal = srCtlsObj.lnSaleRespCode;
-			pobTran->inErrorMsg = _ERROR_CODE_V3_MULTI_FUNC_CTLS_;
-                        break;
-		/* 請重試 */
-		case d_EMVCL_TRY_AGAIN :
-                        if (ginDebug == VS_TRUE)
-			{
-                                inDISP_LogPrintf("CTLS Resp Code = d_EMVCL_RC_MORE_CARDS");
-			}
-			if (ginDisplayDebug == VS_TRUE)
-			{
-				inDISP_LOGDisplay("CTLS d_EMVCL_RC_MORE_CARDS", _FONTSIZE_16X22_, _LINE_16_16_, VS_TRUE);
-			}
+		ulRetVal = srCtlsObj.lnSaleRespCode;
+		pobTran->inErrorMsg = _ERROR_CODE_V3_MULTI_FUNC_CTLS_;
+		break;
+	/* 請重試 */
+	case d_EMVCL_TRY_AGAIN:
+		if (ginDebug == VS_TRUE)
+		{
+			inDISP_LogPrintf("CTLS Resp Code = d_EMVCL_RC_MORE_CARDS");
+		}
+		if (ginDisplayDebug == VS_TRUE)
+		{
+			inDISP_LOGDisplay("CTLS d_EMVCL_RC_MORE_CARDS", _FONTSIZE_16X22_, _LINE_16_16_, VS_TRUE);
+		}
 
-			/* 依目前聯合線上機器，只要一失敗就跳感應失敗，請改刷卡或插卡 */
-			pobTran->inErrorMsg = _ERROR_CODE_V3_MULTI_FUNC_CTLS_;
-                        ulRetVal = srCtlsObj.lnSaleRespCode;
-                        break;
+		/* 依目前聯合線上機器，只要一失敗就跳感應失敗，請改刷卡或插卡 */
+		pobTran->inErrorMsg = _ERROR_CODE_V3_MULTI_FUNC_CTLS_;
+		ulRetVal = srCtlsObj.lnSaleRespCode;
+		break;
 		/* 取消的話，基本上會直接跳出迴圈，所以也不會進這裡 */
-                case d_EMVCL_TX_CANCEL :
-                        if (ginDebug == VS_TRUE)
-			{
-                                inDISP_LogPrintf("CTLS Resp Code = d_EMVCL_TX_CANCEL");
-			}
-			if (ginDisplayDebug == VS_TRUE)
-			{
-				inDISP_LOGDisplay("CTLS d_EMVCL_TX_CANCEL", _FONTSIZE_16X22_, _LINE_16_16_, VS_TRUE);
-			}
+	case d_EMVCL_TX_CANCEL:
+		if (ginDebug == VS_TRUE)
+		{
+			inDISP_LogPrintf("CTLS Resp Code = d_EMVCL_TX_CANCEL");
+		}
+		if (ginDisplayDebug == VS_TRUE)
+		{
+			inDISP_LOGDisplay("CTLS d_EMVCL_TX_CANCEL", _FONTSIZE_16X22_, _LINE_16_16_, VS_TRUE);
+		}
 
-			pobTran->inErrorMsg = _ERROR_CODE_V3_USER_CANCEL_;
-                        ulRetVal = srCtlsObj.lnSaleRespCode;
-                        break;
+		pobTran->inErrorMsg = _ERROR_CODE_V3_USER_CANCEL_;
+		ulRetVal = srCtlsObj.lnSaleRespCode;
+		break;
 		/* 多卡重疊 */
-                case d_EMVCL_RC_MORE_CARDS :
-                        if (ginDebug == VS_TRUE)
-			{
-                                inDISP_LogPrintf("CTLS Resp Code = d_EMVCL_RC_MORE_CARDS");
-			}
-			if (ginDisplayDebug == VS_TRUE)
-			{
-				inDISP_LOGDisplay("CTLS d_EMVCL_RC_MORE_CARDS", _FONTSIZE_16X22_, _LINE_16_16_, VS_TRUE);
-			}
+	case d_EMVCL_RC_MORE_CARDS:
+		if (ginDebug == VS_TRUE)
+		{
+			inDISP_LogPrintf("CTLS Resp Code = d_EMVCL_RC_MORE_CARDS");
+		}
+		if (ginDisplayDebug == VS_TRUE)
+		{
+			inDISP_LOGDisplay("CTLS d_EMVCL_RC_MORE_CARDS", _FONTSIZE_16X22_, _LINE_16_16_, VS_TRUE);
+		}
 
-			/* 依目前聯合線上機器，只要一失敗就跳感應失敗，請改刷卡或插卡 */
-			pobTran->inErrorMsg = _ERROR_CODE_V3_MULTI_FUNC_CTLS_;
-                        ulRetVal = srCtlsObj.lnSaleRespCode;
-                        break;
+		/* 依目前聯合線上機器，只要一失敗就跳感應失敗，請改刷卡或插卡 */
+		pobTran->inErrorMsg = _ERROR_CODE_V3_MULTI_FUNC_CTLS_;
+		ulRetVal = srCtlsObj.lnSaleRespCode;
+		break;
 		/* Timeout 沒感應到卡，這個Timeout指的是xml檔內設定，目前設定到最大，理論上不會出現此回應 */
-                case d_EMVCL_RC_NO_CARD :
-                        if (ginDebug == VS_TRUE)
-			{
-                                inDISP_LogPrintf("CTLS Resp Code = d_EMVCL_RC_NO_CARD");
-			}
-			if (ginDisplayDebug == VS_TRUE)
-			{
-				inDISP_LOGDisplay("CTLS d_EMVCL_RC_NO_CARD", _FONTSIZE_16X22_, _LINE_16_16_, VS_TRUE);
-			}
+	case d_EMVCL_RC_NO_CARD:
+		if (ginDebug == VS_TRUE)
+		{
+			inDISP_LogPrintf("CTLS Resp Code = d_EMVCL_RC_NO_CARD");
+		}
+		if (ginDisplayDebug == VS_TRUE)
+		{
+			inDISP_LOGDisplay("CTLS d_EMVCL_RC_NO_CARD", _FONTSIZE_16X22_, _LINE_16_16_, VS_TRUE);
+		}
 
-                        ulRetVal = srCtlsObj.lnSaleRespCode;
-                        break;
+		ulRetVal = srCtlsObj.lnSaleRespCode;
+		break;
 		/* 基本上pending不會進這裡，而會繼續感應 */
-                case d_EMVCL_PENDING :
-                        if (ginDebug == VS_TRUE)
-			{
-                                inDISP_LogPrintf("CTLS Resp Code = d_EMVCL_PENDING");
-			}
-			if (ginDisplayDebug == VS_TRUE)
-			{
-				inDISP_LOGDisplay("CTLS d_EMVCL_PENDING", _FONTSIZE_16X22_, _LINE_16_16_, VS_TRUE);
-			}
+	case d_EMVCL_PENDING:
+		if (ginDebug == VS_TRUE)
+		{
+			inDISP_LogPrintf("CTLS Resp Code = d_EMVCL_PENDING");
+		}
+		if (ginDisplayDebug == VS_TRUE)
+		{
+			inDISP_LOGDisplay("CTLS d_EMVCL_PENDING", _FONTSIZE_16X22_, _LINE_16_16_, VS_TRUE);
+		}
 
-                        ulRetVal = srCtlsObj.lnSaleRespCode;
-                        break;
-		/* 請問d_EMVCL_RC_DEK_SIGNAL這個回應碼是什麼意思？
-		   [Ans] : 收到 d_EMVCL_RC_DEK_SIGNAL 表示交易中間 kernel 有訊息要帶出外面給 Application，交易尚未結束，仍須等待 EMVCL_PerformTransactionEx 給出真正的交易結果。
-		 */
-		case d_EMVCL_RC_DEK_SIGNAL :
-                        if (ginDebug == VS_TRUE)
-			{
-                                inDISP_LogPrintf("CTLS Resp Code = d_EMVCL_RC_DEK_SIGNAL");
-			}
-			if (ginDisplayDebug == VS_TRUE)
-			{
-				inDISP_LOGDisplay("CTLS d_EMVCL_RC_DEK_SIGNAL", _FONTSIZE_16X22_, _LINE_16_16_, VS_TRUE);
-			}
+		ulRetVal = srCtlsObj.lnSaleRespCode;
+		break;
+	/* 請問d_EMVCL_RC_DEK_SIGNAL這個回應碼是什麼意思？
+	   [Ans] : 收到 d_EMVCL_RC_DEK_SIGNAL 表示交易中間 kernel 有訊息要帶出外面給 Application，交易尚未結束，仍須等待 EMVCL_PerformTransactionEx 給出真正的交易結果。
+	 */
+	case d_EMVCL_RC_DEK_SIGNAL:
+		if (ginDebug == VS_TRUE)
+		{
+			inDISP_LogPrintf("CTLS Resp Code = d_EMVCL_RC_DEK_SIGNAL");
+		}
+		if (ginDisplayDebug == VS_TRUE)
+		{
+			inDISP_LOGDisplay("CTLS d_EMVCL_RC_DEK_SIGNAL", _FONTSIZE_16X22_, _LINE_16_16_, VS_TRUE);
+		}
 
-			/* 依目前聯合線上機器，只要一失敗就跳感應失敗，請改刷卡或插卡 */
-			pobTran->inErrorMsg = _ERROR_CODE_V3_MULTI_FUNC_CTLS_;
-                        ulRetVal = srCtlsObj.lnSaleRespCode;
-                        break;
-		/* Two Tap流程 */
-		case d_EMVCL_RC_SEE_PHONE :
-                        if (ginDebug == VS_TRUE)
-                                inDISP_LogPrintf("CTLS Resp Code = d_EMVCL_RC_SEE_PHONE");
-			/* 請輸密碼或指紋 並再感應一次 */
-			inDISP_Clear_Line(_LINE_8_7_, _LINE_8_8_);
-			inDISP_PutGraphic(_CTLS_TWO_TAP_, 0, _COORDINATE_Y_LINE_8_7_);
-			pobTran->uszTwoTapBit = VS_TRUE;
+		/* 依目前聯合線上機器，只要一失敗就跳感應失敗，請改刷卡或插卡 */
+		pobTran->inErrorMsg = _ERROR_CODE_V3_MULTI_FUNC_CTLS_;
+		ulRetVal = srCtlsObj.lnSaleRespCode;
+		break;
+	/* Two Tap流程 */
+	case d_EMVCL_RC_SEE_PHONE:
+		if (ginDebug == VS_TRUE)
+			inDISP_LogPrintf("CTLS Resp Code = d_EMVCL_RC_SEE_PHONE");
+		/* 請輸密碼或指紋 並再感應一次 */
+		inDISP_Clear_Line(_LINE_8_7_, _LINE_8_8_);
+		inDISP_PutGraphic(_CTLS_TWO_TAP_, 0, _COORDINATE_Y_LINE_8_7_);
+		pobTran->uszTwoTapBit = VS_TRUE;
 
-			ulRetVal = srCtlsObj.lnSaleRespCode;
-                        break;
-                default :
-			if (ginDebug == VS_TRUE)
-			{
-				memset(szDebugMsg, 0x00, sizeof(szDebugMsg));
-				sprintf(szDebugMsg, "CTLS Res: %08lX", srCtlsObj.lnSaleRespCode);
-				inDISP_LogPrintf(szDebugMsg);
-			}
-			if (ginDisplayDebug == VS_TRUE)
-			{
-				memset(szDebugMsg, 0x00, sizeof(szDebugMsg));
-				sprintf(szDebugMsg, "CTLS Res: %08lX", srCtlsObj.lnSaleRespCode);
-				inDISP_LOGDisplay(szDebugMsg, _FONTSIZE_16X22_, _LINE_16_16_, VS_FALSE);
-			}
-			ulRetVal = d_EMVCL_RC_FAILURE;
-			break;
-        }
+		ulRetVal = srCtlsObj.lnSaleRespCode;
+		break;
+	default:
+		if (ginDebug == VS_TRUE)
+		{
+			memset(szDebugMsg, 0x00, sizeof(szDebugMsg));
+			sprintf(szDebugMsg, "CTLS Res: %08lX", srCtlsObj.lnSaleRespCode);
+			inDISP_LogPrintf(szDebugMsg);
+		}
+		if (ginDisplayDebug == VS_TRUE)
+		{
+			memset(szDebugMsg, 0x00, sizeof(szDebugMsg));
+			sprintf(szDebugMsg, "CTLS Res: %08lX", srCtlsObj.lnSaleRespCode);
+			inDISP_LOGDisplay(szDebugMsg, _FONTSIZE_16X22_, _LINE_16_16_, VS_FALSE);
+		}
+		ulRetVal = d_EMVCL_RC_FAILURE;
+		break;
+	}
 
 	if (srCtlsObj.lnSaleRespCode == d_EMVCL_NON_EMV_CARD)
 	{
@@ -3396,7 +3478,7 @@ unsigned long ulMultiFunc_CheckResponseCode_REFUND(TRANSACTION_OBJECT *pobTran)
 		inMultiFunc_Process_CTLS_ERROR_DATA();
 	}
 
-        return (ulRetVal);
+	return (ulRetVal);
 }
 
 /*
@@ -3404,68 +3486,68 @@ Function        :inMultiFunc_Process_VIVO_Header
 Date&Time       :2017/7/5 上午 11:45
 Describe        :塞入前綴並回傳塞入的長度
 */
-int inMultiFunc_Process_VIVO_Header(char* szData)
+int inMultiFunc_Process_VIVO_Header(char *szData)
 {
-	int	inCnt = 0;
-	int	inReadLen = 0;
+	int inCnt = 0;
+	int inReadLen = 0;
 
 	memcpy(&szData[inCnt], _VIVO_HEADER_, _VIVO_HEADER_LEN_);
 	inCnt += _VIVO_HEADER_LEN_;
 
 	switch (srCtlsObj.lnSaleRespCode)
 	{
-		case d_EMVCL_RC_DATA :
-			memcpy(&szData[inCnt], _VIVO_STATUS_CODES_ONLINE_, _VIVO_STATUS_CODES_LEN_);
-			inCnt += _VIVO_STATUS_CODES_LEN_;
+	case d_EMVCL_RC_DATA:
+		memcpy(&szData[inCnt], _VIVO_STATUS_CODES_ONLINE_, _VIVO_STATUS_CODES_LEN_);
+		inCnt += _VIVO_STATUS_CODES_LEN_;
 
-			/* Chip data 加上 additional data 的長度 */
-			inReadLen = szRCDataEx.usChipDataLen + szRCDataEx.usAdditionalDataLen;
-			szData[inCnt] = inReadLen / 256;
-			inCnt ++;
-			szData[inCnt] = inReadLen % 256;
-			inCnt ++;
-			break;
-		case d_EMVCL_NON_EMV_CARD :
-			memcpy(&szData[inCnt], _VIVO_STATUS_CODES_SMARTPAY_, _VIVO_STATUS_CODES_LEN_);
-			inCnt += _VIVO_STATUS_CODES_LEN_;
+		/* Chip data 加上 additional data 的長度 */
+		inReadLen = szRCDataEx.usChipDataLen + szRCDataEx.usAdditionalDataLen;
+		szData[inCnt] = inReadLen / 256;
+		inCnt++;
+		szData[inCnt] = inReadLen % 256;
+		inCnt++;
+		break;
+	case d_EMVCL_NON_EMV_CARD:
+		memcpy(&szData[inCnt], _VIVO_STATUS_CODES_SMARTPAY_, _VIVO_STATUS_CODES_LEN_);
+		inCnt += _VIVO_STATUS_CODES_LEN_;
 
-			/* Chip data 加上 additional data 的長度 */
-			inReadLen = szRCDataEx.usChipDataLen + szRCDataEx.usAdditionalDataLen;
-			szData[inCnt] = inReadLen / 256;
-			inCnt ++;
-			szData[inCnt] = inReadLen % 256;
-			inCnt ++;
-			break;
-                case d_EMVCL_RC_FAILURE :
-		case d_EMVCL_RC_FALLBACK :
-                case d_EMVCL_TRY_AGAIN :
-		case d_EMVCL_TX_CANCEL :
-		case d_EMVCL_RC_MORE_CARDS :
-		case d_EMVCL_RC_NO_CARD :
-		case d_EMVCL_PENDING :
-                case d_EMVCL_RC_DEK_SIGNAL :
-		case d_EMVCL_RC_SEE_PHONE :
-		default :
-			memcpy(&szData[inCnt], _VIVO_STATUS_CODES_FAIL_, _VIVO_STATUS_CODES_LEN_);
-			inCnt += _VIVO_STATUS_CODES_LEN_;
+		/* Chip data 加上 additional data 的長度 */
+		inReadLen = szRCDataEx.usChipDataLen + szRCDataEx.usAdditionalDataLen;
+		szData[inCnt] = inReadLen / 256;
+		inCnt++;
+		szData[inCnt] = inReadLen % 256;
+		inCnt++;
+		break;
+	case d_EMVCL_RC_FAILURE:
+	case d_EMVCL_RC_FALLBACK:
+	case d_EMVCL_TRY_AGAIN:
+	case d_EMVCL_TX_CANCEL:
+	case d_EMVCL_RC_MORE_CARDS:
+	case d_EMVCL_RC_NO_CARD:
+	case d_EMVCL_PENDING:
+	case d_EMVCL_RC_DEK_SIGNAL:
+	case d_EMVCL_RC_SEE_PHONE:
+	default:
+		memcpy(&szData[inCnt], _VIVO_STATUS_CODES_FAIL_, _VIVO_STATUS_CODES_LEN_);
+		inCnt += _VIVO_STATUS_CODES_LEN_;
 
-			/* Chip data 加上 additional data 的長度 */
-			inReadLen = szRCDataEx.usChipDataLen + szRCDataEx.usAdditionalDataLen;
-			szData[inCnt] = inReadLen / 256;
-			inCnt ++;
-			szData[inCnt] = inReadLen % 256;
-			inCnt ++;
+		/* Chip data 加上 additional data 的長度 */
+		inReadLen = szRCDataEx.usChipDataLen + szRCDataEx.usAdditionalDataLen;
+		szData[inCnt] = inReadLen / 256;
+		inCnt++;
+		szData[inCnt] = inReadLen % 256;
+		inCnt++;
 
-			memcpy(&szData[inCnt], _VIVO_ERROR_CODES_CTLS_INTERFACE_, _VIVO_ERROR_CODES_LEN_);
-			inCnt += _VIVO_ERROR_CODES_LEN_;
+		memcpy(&szData[inCnt], _VIVO_ERROR_CODES_CTLS_INTERFACE_, _VIVO_ERROR_CODES_LEN_);
+		inCnt += _VIVO_ERROR_CODES_LEN_;
 
-			memcpy(&szData[inCnt], _VIVO_SW1SW2_, _VIVO_SW1SW2_LEN_);
-			inCnt += _VIVO_SW1SW2_LEN_;
+		memcpy(&szData[inCnt], _VIVO_SW1SW2_, _VIVO_SW1SW2_LEN_);
+		inCnt += _VIVO_SW1SW2_LEN_;
 
-			memcpy(&szData[inCnt], _VIVO_RF_STATE_CODES_NONE_, _VIVO_RF_STATE_CODES_LEN_);
-			inCnt += _VIVO_RF_STATE_CODES_LEN_;
+		memcpy(&szData[inCnt], _VIVO_RF_STATE_CODES_NONE_, _VIVO_RF_STATE_CODES_LEN_);
+		inCnt += _VIVO_RF_STATE_CODES_LEN_;
 
-			break;
+		break;
 	}
 
 	return (inCnt);
@@ -3478,13 +3560,13 @@ Describe        :用來處理要送到Master Terminal(VX520)的CTLS DATA
 */
 int inMultiFunc_Process_CTLS_DATA()
 {
-	int	i;
-	int	inTempCnt = 0;
-	int	inCnt = 0;
-	int	inReadLen = 0;
-	int	inAsciiLen = 0;
-	char	szAscii[100 + 1];
-	char	szDebugMsg[100 + 1];
+	int i;
+	int inTempCnt = 0;
+	int inCnt = 0;
+	int inReadLen = 0;
+	int inAsciiLen = 0;
+	char szAscii[100 + 1];
+	char szDebugMsg[100 + 1];
 
 	memset(gszMultiCTLSData, 0x00, sizeof(gszMultiCTLSData));
 	ginMultiCTLSLen = 0;
@@ -3520,7 +3602,7 @@ int inMultiFunc_Process_CTLS_DATA()
 		}
 	}
 	gszMultiCTLSData[inCnt] = inAsciiLen;
-	inCnt ++;
+	inCnt++;
 	memcpy(&gszMultiCTLSData[inCnt], szAscii, inAsciiLen);
 	inCnt += inAsciiLen;
 
@@ -3558,15 +3640,15 @@ int inMultiFunc_Process_CTLS_DATA()
 	}
 
 	gszMultiCTLSData[inCnt] = inAsciiLen;
-	inCnt ++;
+	inCnt++;
 	memcpy(&gszMultiCTLSData[inCnt], szAscii, inAsciiLen);
 	inCnt += inAsciiLen;
 
 	/* DE 055 data (if available) as a TLV data object
-  	   encoded with Tag ‘E1’. The DE 055 data is the
-  	   same data as is included in the Clearing Record.
-  	   Details given in next Table.
-  	   Tag: E1 Format: b1..126 variable. */
+	   encoded with Tag ‘E1’. The DE 055 data is the
+	   same data as is included in the Clearing Record.
+	   Details given in next Table.
+	   Tag: E1 Format: b1..126 variable. */
 	/* 前面要塞 0x01 0xE1 不知原因 */
 	memcpy(&gszMultiCTLSData[inCnt], "\x01\xE1", 2);
 	inCnt += 2;
@@ -3574,20 +3656,20 @@ int inMultiFunc_Process_CTLS_DATA()
 	if (szRCDataEx.bSID == d_EMVCL_SID_CUP_QPBOC)
 	{
 		gszMultiCTLSData[inCnt] = 0x67;
-		inCnt ++;
+		inCnt++;
 	}
 	else
 	{
 		gszMultiCTLSData[inCnt] = 0x82;
-		inCnt ++;
+		inCnt++;
 
 		/* Chip data 加上 additional data 的長度 */
 		inReadLen = szRCDataEx.usChipDataLen + szRCDataEx.usAdditionalDataLen;
 
 		gszMultiCTLSData[inCnt] = inReadLen / 256;
-		inCnt ++;
+		inCnt++;
 		gszMultiCTLSData[inCnt] = inReadLen % 256;
-		inCnt ++;
+		inCnt++;
 	}
 
 	/* chip data */
@@ -3612,7 +3694,6 @@ int inMultiFunc_Process_CTLS_DATA()
 		inDISP_LOGDisplay(szDebugMsg, _FONTSIZE_16X22_, _LINE_16_16_, VS_TRUE);
 	}
 
-
 	ginMultiCTLSLen += inCnt;
 
 	return (VS_SUCCESS);
@@ -3625,13 +3706,13 @@ Describe        :用來處理要送到Master Terminal(VX520)的CTLS ERROR DATA
 */
 int inMultiFunc_Process_CTLS_ERROR_DATA()
 {
-	int	inTempCnt = 0;
-	int	inCnt = 0;
-	char	szDebugMsg[100 + 1];
+	int inTempCnt = 0;
+	int inCnt = 0;
+	char szDebugMsg[100 + 1];
 
 	if (ginDisplayDebug == VS_TRUE)
 	{
-		char	szDebugMsg[100 + 1];
+		char szDebugMsg[100 + 1];
 
 		memset(szDebugMsg, 0x00, sizeof(szDebugMsg));
 		sprintf(szDebugMsg, "Process ctls error data");
@@ -3665,7 +3746,6 @@ int inMultiFunc_Process_CTLS_ERROR_DATA()
 		inDISP_LOGDisplay(szDebugMsg, _FONTSIZE_16X22_, _LINE_16_16_, VS_TRUE);
 	}
 
-
 	ginMultiCTLSLen += inCnt;
 
 	return (VS_SUCCESS);
@@ -3678,14 +3758,13 @@ Describe        :
 */
 int inMultiFunc_Process_SmartPay_Data(TRANSACTION_OBJECT *pobTran)
 {
-	int	inCnt = 0;
-//	int	inAsciiLen = 0;
-//	char	szTemplate[100 + 1] = {0};
-//	char	szAscii[512 + 1] = {0};
-//	char	szDebugMsg[512 + 1] = {0};
+	int inCnt = 0;
+	//	int	inAsciiLen = 0;
+	//	char	szTemplate[100 + 1] = {0};
+	//	char	szAscii[512 + 1] = {0};
+	//	char	szDebugMsg[512 + 1] = {0};
 
-	
-#if 0 //先刪除	
+#if 0 // 先刪除	
         memset(gszMultiCTLSData, 0x00, sizeof(gszMultiCTLSData));
 	ginMultiCTLSLen = 0;
 
@@ -3714,7 +3793,7 @@ int inMultiFunc_Process_SmartPay_Data(TRANSACTION_OBJECT *pobTran)
 	memcpy(&gszMultiCTLSData[inCnt], &pobTran->srBRec.szFiscMCC[0], 15);
         inCnt += 15;
 
-#if 0 //先刪除
+#if 0 // 先刪除
 	/* 卡片載具 */
 	if (memcmp(pobTran->srBRec.szFiscPayDevice, _FISC_PAY_DEVICE_SMARTPAY_CARD_, strlen(_FISC_PAY_DEVICE_SMARTPAY_CARD_)) == 0)
 	{
@@ -3824,15 +3903,14 @@ int inMultiFunc_Process_SmartPay_Data(TRANSACTION_OBJECT *pobTran)
 
 	}
 
-#endif		
-		
+#endif
+
 	ginMultiCTLSLen += inCnt;
 
-        return (VS_SUCCESS);
+	return (VS_SUCCESS);
 }
 
-
-#if 0 //先刪除
+#if 0 // 先刪除
 /*
 Function        :inMultiFunc_FISC_CTLSProcess
 Date&Time       :2017/7/6 下午 4:30
@@ -3961,7 +4039,7 @@ int inMultiFunc_FISC_CTLSProcess(TRANSACTION_OBJECT *pobTran)
 
 	/* 若1004Select成功，則為手機金融卡 */
 	inRetVal = inFISC_Check_Mobile(pobTran);
-#if 0 //先刪除
+#if 0 // 先刪除
 	if (inRetVal == VS_SUCCESS)
 	{
 		if (ginDebug == VS_TRUE)
@@ -5279,47 +5357,47 @@ Describe        :輸入PIN
 */
 int inMultiFunc_EnterPin(TRANSACTION_OBJECT *pobTran, char *szPinData)
 {
-        int		inRetVal;
-	char		szDispMsg[100 + 1];
-        DISPLAY_OBJECT  srDispObj;
+	int inRetVal;
+	char szDispMsg[100 + 1];
+	DISPLAY_OBJECT srDispObj;
 
 	while (1)
 	{
-                inDISP_BEEP(1, 0);
+		inDISP_BEEP(1, 0);
 
 		/* 目前先借用金融卡的圖片，若之後想改直接改路徑 */
 		inDISP_ClearAll();
 		inDISP_PutGraphic(_MULTI_GET_PASSWORD_, 0, _COORDINATE_Y_LINE_8_4_);
 		memset(szDispMsg, 0x00, sizeof(szDispMsg));
 		sprintf(szDispMsg, "%ld", pobTran->srBRec.lnTxnAmount);
-		inFunc_Amount_Comma(szDispMsg, "NT$ " , ' ', _SIGNED_NONE_, 16, VS_TRUE);
+		inFunc_Amount_Comma(szDispMsg, "NT$ ", ' ', _SIGNED_NONE_, 16, VS_TRUE);
 		inDISP_EnglishFont_Color(szDispMsg, _FONTSIZE_8X16_, _LINE_8_5_, _COLOR_RED_, _DISP_LEFT_);
 
 		memset(&srDispObj, 0x00, DISPLAY_OBJECT_SIZE);
 
-                /* 設定顯示變數 */
-                srDispObj.inMaxLen = 16;
-                srDispObj.inY = _LINE_8_8_;
-                srDispObj.inR_L = _DISP_RIGHT_;
-                srDispObj.inMask = VS_TRUE;
+		/* 設定顯示變數 */
+		srDispObj.inMaxLen = 16;
+		srDispObj.inY = _LINE_8_8_;
+		srDispObj.inR_L = _DISP_RIGHT_;
+		srDispObj.inMask = VS_TRUE;
 		srDispObj.inCanNotBypass = VS_FALSE;
 		srDispObj.inColor = _COLOR_RED_;
 
 		memset(srDispObj.szOutput, 0x00, sizeof(srDispObj.szOutput));
 		srDispObj.inOutputLen = 0;
 
-                inRetVal = inDISP_Enter8x16_Character_Mask(&srDispObj);
+		inRetVal = inDISP_Enter8x16_Character_Mask(&srDispObj);
 		if (inRetVal == VS_TIMEOUT || inRetVal == VS_USER_CANCEL)
 			return (inRetVal);
 
 		if (srDispObj.inOutputLen >= 0)
 		{
-                        memset(szPinData, 0x00, sizeof(szPinData));
-                        memcpy(&szPinData[0], &srDispObj.szOutput[0], srDispObj.inOutputLen);
-                        break;
+			memset(szPinData, 0x00, sizeof(szPinData));
+			memcpy(&szPinData[0], &srDispObj.szOutput[0], srDispObj.inOutputLen);
+			break;
 		}
-                else
-                        continue;
+		else
+			continue;
 	}
 
 	return (VS_SUCCESS);
@@ -5345,19 +5423,18 @@ Describe        :
 */
 int inMultiFunc_Write_PINKey()
 {
-	char			szDebugMsg[100 + 1];
-	char			szAscii[64 + 1];
-	char			szPINKeyAscii[32 + 1] = _MULTIFUNC_PINKEY_VALUE_;
-	unsigned char		uszPINKeyHex[24 + 1];		/* 3DES最長24BYTE */
-	unsigned short		usReturnValue;
-	unsigned short		usPINKeyLen = _MULTIFUNC_PINKEY_VALUE_LEN_ / 2;
-	CTOS_KMS2KEYWRITE_PARA	srKeyWritePara;
-
+	char szDebugMsg[100 + 1];
+	char szAscii[64 + 1];
+	char szPINKeyAscii[32 + 1] = _MULTIFUNC_PINKEY_VALUE_;
+	unsigned char uszPINKeyHex[24 + 1]; /* 3DES最長24BYTE */
+	unsigned short usReturnValue;
+	unsigned short usPINKeyLen = _MULTIFUNC_PINKEY_VALUE_LEN_ / 2;
+	CTOS_KMS2KEYWRITE_PARA srKeyWritePara;
 
 	if (ginDebug == VS_TRUE)
 	{
 		inDISP_LogPrintf("------------------------------------------------------------------");
-		memset(szDebugMsg, 0x00, sizeof (szDebugMsg));
+		memset(szDebugMsg, 0x00, sizeof(szDebugMsg));
 		sprintf(szDebugMsg, "inMultiFunc_Write_PINKey START()！");
 		inDISP_LogPrintf(szDebugMsg);
 	}
@@ -5374,7 +5451,7 @@ int inMultiFunc_Write_PINKey()
 	srKeyWritePara.Info.KeyIndex = _TWK_KEYINDEX_NCCC_PIN_MULTIFUNC_;
 	srKeyWritePara.Info.KeyType = KMS2_KEYTYPE_3DES;
 	srKeyWritePara.Info.KeyVersion = 0x01;
-	srKeyWritePara.Info.KeyAttribute =  KMS2_KEYATTRIBUTE_ENCRYPT;
+	srKeyWritePara.Info.KeyAttribute = KMS2_KEYATTRIBUTE_ENCRYPT;
 	srKeyWritePara.Protection.Mode = KMS2_KEYPROTECTIONMODE_PLAINTEXT;
 	srKeyWritePara.Value.KeyLength = usPINKeyLen;
 	srKeyWritePara.Value.pKeyData = uszPINKeyHex;
@@ -5395,7 +5472,7 @@ int inMultiFunc_Write_PINKey()
 			sprintf(szDebugMsg, "%s", szAscii);
 			inDISP_LogPrintf(szDebugMsg);
 
-			memset(szDebugMsg, 0x00, sizeof (szDebugMsg));
+			memset(szDebugMsg, 0x00, sizeof(szDebugMsg));
 			sprintf(szDebugMsg, "inMultiFunc_Write_PINKey END()！");
 			inDISP_LogPrintf(szDebugMsg);
 			inDISP_LogPrintf("------------------------------------------------------------------");
@@ -5408,7 +5485,7 @@ int inMultiFunc_Write_PINKey()
 		/* 成功 */
 		if (ginDebug == VS_TRUE)
 		{
-			memset(szDebugMsg, 0x00, sizeof (szDebugMsg));
+			memset(szDebugMsg, 0x00, sizeof(szDebugMsg));
 			sprintf(szDebugMsg, "inMultiFunc_Write_PINKey END()！");
 			inDISP_LogPrintf(szDebugMsg);
 			inDISP_LogPrintf("------------------------------------------------------------------");
@@ -5436,17 +5513,17 @@ Describe        :以3DES ECB模式加密
  *szInitialVector			當次加密用的InitialVector
  *szPlaindata				被切成8bytes用來加密的資料塊
 */
-int inMultiFunc_3DES_Encrypt(char* szInPlaindata, int inInPlaindataLen, char *szResult)
+int inMultiFunc_3DES_Encrypt(char *szInPlaindata, int inInPlaindataLen, char *szResult)
 {
-	int				inRetVal;
-	char				szAscii[64 + 1];
-	char				szDebugMsg[100 + 1];
-	CTOS_KMS2DATAENCRYPT_PARA	srDataEncryptPara;
+	int inRetVal;
+	char szAscii[64 + 1];
+	char szDebugMsg[100 + 1];
+	CTOS_KMS2DATAENCRYPT_PARA srDataEncryptPara;
 
 	if (ginDebug == VS_TRUE)
 	{
 		inDISP_LogPrintf("------------------------------------------------------------------");
-		memset(szDebugMsg, 0x00, sizeof (szDebugMsg));
+		memset(szDebugMsg, 0x00, sizeof(szDebugMsg));
 		sprintf(szDebugMsg, "inMultiFunc_3DES_Encrypt START()！");
 		inDISP_LogPrintf(szDebugMsg);
 	}
@@ -5459,7 +5536,7 @@ int inMultiFunc_3DES_Encrypt(char* szInPlaindata, int inInPlaindataLen, char *sz
 	{
 		memset(szAscii, 0x00, sizeof(szAscii));
 		inFunc_BCD_to_ASCII(szAscii, (unsigned char *)szInPlaindata, inInPlaindataLen);
-		memset(szDebugMsg, 0x00, sizeof (szDebugMsg));
+		memset(szDebugMsg, 0x00, sizeof(szDebugMsg));
 		sprintf(szDebugMsg, "%s", szAscii);
 		inDISP_LogPrintf(szDebugMsg);
 	}
@@ -5468,17 +5545,17 @@ int inMultiFunc_3DES_Encrypt(char* szInPlaindata, int inInPlaindataLen, char *sz
 	{
 		memset(szAscii, 0x00, sizeof(szAscii));
 		inFunc_BCD_to_ASCII(szAscii, (unsigned char *)szInPlaindata, 8);
-		memset(szDebugMsg, 0x00, sizeof (szDebugMsg));
+		memset(szDebugMsg, 0x00, sizeof(szDebugMsg));
 		sprintf(szDebugMsg, "%s", szAscii);
 		inDISP_LOGDisplay(szDebugMsg, _FONTSIZE_16X22_, _LINE_16_16_, VS_TRUE);
 
 		memset(szAscii, 0x00, sizeof(szAscii));
 		inFunc_BCD_to_ASCII(szAscii, (unsigned char *)&szInPlaindata[8], 8);
-		memset(szDebugMsg, 0x00, sizeof (szDebugMsg));
+		memset(szDebugMsg, 0x00, sizeof(szDebugMsg));
 		sprintf(szDebugMsg, "%s", szAscii);
 		inDISP_LOGDisplay(szDebugMsg, _FONTSIZE_16X22_, _LINE_16_16_, VS_TRUE);
 
-		memset(szDebugMsg, 0x00, sizeof (szDebugMsg));
+		memset(szDebugMsg, 0x00, sizeof(szDebugMsg));
 		sprintf(szDebugMsg, "Len: %d", inInPlaindataLen);
 		inDISP_LOGDisplay(szDebugMsg, _FONTSIZE_16X22_, _LINE_16_16_, VS_TRUE);
 	}
@@ -5491,8 +5568,8 @@ int inMultiFunc_3DES_Encrypt(char* szInPlaindata, int inInPlaindataLen, char *sz
 	srDataEncryptPara.Protection.SK_Length = 0;
 
 	srDataEncryptPara.Input.Length = inInPlaindataLen;
-	srDataEncryptPara.Input.pData = (unsigned char*)szInPlaindata;
-	srDataEncryptPara.Output.pData = (unsigned char*)szResult;
+	srDataEncryptPara.Input.pData = (unsigned char *)szInPlaindata;
+	srDataEncryptPara.Output.pData = (unsigned char *)szResult;
 	inRetVal = inKMS_DataEncrypt(&srDataEncryptPara);
 
 	if (inRetVal != VS_SUCCESS)
@@ -5516,7 +5593,6 @@ int inMultiFunc_3DES_Encrypt(char* szInPlaindata, int inInPlaindataLen, char *sz
 		}
 	}
 
-
 	if (ginDebug == VS_TRUE)
 	{
 		memset(szDebugMsg, 0x00, sizeof(szDebugMsg));
@@ -5535,8 +5611,8 @@ Describe        :
 */
 int inMultiFunc_GetCardFields_CTLS_Test()
 {
-	TRANSACTION_OBJECT	pobTran;
-	MULTI_TABLE		stMultiOb;
+	TRANSACTION_OBJECT pobTran;
+	MULTI_TABLE stMultiOb;
 
 	memset(&pobTran, 0x00, sizeof(pobTran));
 	memset(&stMultiOb, 0x00, sizeof(stMultiOb));
@@ -5548,11 +5624,11 @@ int inMultiFunc_GetCardFields_CTLS_Test()
 
 int inMultiFunc_RS232_Data_Send(unsigned char uszComPort, unsigned char *uszSendBuff, unsigned short *usSendSize)
 {
-	int	inRetVal;
-	char	szDebugMsg[100 + 1];
+	int inRetVal;
+	char szDebugMsg[100 + 1];
 
 	inMultiFunc_FlushRxBuffer(uszComPort);
-	
+
 	inRetVal = CTOS_RS232TxData(uszComPort, uszSendBuff, usSendSize);
 	if (inRetVal == d_OK)
 	{
@@ -5566,19 +5642,19 @@ int inMultiFunc_RS232_Data_Send(unsigned char uszComPort, unsigned char *uszSend
 			sprintf(szDebugMsg, "CTOS_RS232TxData Error: 0x%04x", inRetVal);
 			inDISP_LogPrintf(szDebugMsg);
 		}
-		
+
 		return (VS_ERROR);
 	}
 }
 
 int inMultiFunc_USB_Data_Send(unsigned char *uszSendBuff, unsigned short *usSendSize)
 {
-	int	inRetVal;
-	char	szDebugMsg[100 + 1];
+	int inRetVal;
+	char szDebugMsg[100 + 1];
 
 	inMultiFunc_USB_FlushRxBuffer();
-//        inMultiFunc_USB_FlushTxBuffer();
-	
+	//        inMultiFunc_USB_FlushTxBuffer();
+
 	inRetVal = CTOS_USBTxData(uszSendBuff, usSendSize);
 	if (inRetVal == d_OK)
 	{
@@ -5588,7 +5664,7 @@ int inMultiFunc_USB_Data_Send(unsigned char *uszSendBuff, unsigned short *usSend
 			sprintf(szDebugMsg, "CTOS_USBTxData Success");
 			inDISP_LogPrintf(szDebugMsg);
 		}
-                return (VS_SUCCESS);
+		return (VS_SUCCESS);
 	}
 	else
 	{
@@ -5598,22 +5674,22 @@ int inMultiFunc_USB_Data_Send(unsigned char *uszSendBuff, unsigned short *usSend
 			sprintf(szDebugMsg, "CTOS_USBTxData Error: 0x%04x", inRetVal);
 			inDISP_LogPrintf(szDebugMsg);
 		}
-		
+
 		return (VS_ERROR);
 	}
 }
 
 int inMultiFunc_USB_FlushRxBuffer(void)
-{    
-        unsigned short	usRetVal;
-	
+{
+	unsigned short usRetVal;
+
 	/* 沒設定完成，不用檢查 */
 	if (gstMultiOb.srSetting.uszSettingOK != VS_TRUE)
 	{
 		inDISP_DispLogAndWriteFlie(" MultiFunc_USB FlushRxBuf Not OK [%u] Line[%d]", gstMultiOb.srSetting.uszSettingOK, __LINE__);
 		return (VS_ERROR);
 	}
-	
+
 	/* 清空接收的buffer */
 	usRetVal = inUSB_FlushRxBuffer();
 	if (usRetVal != d_OK)
@@ -5626,21 +5702,21 @@ int inMultiFunc_USB_FlushRxBuffer(void)
 		inDISP_LogPrintfWithFlag(" MultiFunc_USB FlushRxBuf Successs");
 		return (VS_SUCCESS);
 	}
-  
+
 	return (usRetVal);
 }
 
 int inMultiFunc_USB_FlushTxBuffer(void)
-{    
-        unsigned short	usRetVal;
-	
+{
+	unsigned short usRetVal;
+
 	/* 沒設定完成，不用檢查 */
 	if (gstMultiOb.srSetting.uszSettingOK != VS_TRUE)
 	{
 		inDISP_DispLogAndWriteFlie(" MultiFunc_USB FlushTxBuf Not OK [%u] Line[%d]", gstMultiOb.srSetting.uszSettingOK, __LINE__);
 		return (VS_ERROR);
 	}
-	
+
 	/* 清空接收的buffer */
 	usRetVal = inUSB_FlushTxBuffer();
 	if (usRetVal != d_OK)
@@ -5653,51 +5729,50 @@ int inMultiFunc_USB_FlushTxBuffer(void)
 		inDISP_LogPrintfWithFlag(" MultiFunc_USB FlushTxBuf Successs");
 		return (VS_SUCCESS);
 	}
-  
+
 	return (usRetVal);
 }
 
 int inMultiFunc_USB_Initial(void)
 {
-        int		inChoice = 0;
-	int		inTouchSensorFunc = _Touch_CUP_LOGON_;
-	char		szKey = 0x00;
-	char		szDebugMsg[100 + 1] = {0};
-	unsigned short	usRetVal = 0x00;
-        
-        inDISP_LogPrintf("inMultiFunc_USB_Initial Start");
-        
-        /* 開port */
+	int inChoice = 0;
+	int inTouchSensorFunc = _Touch_CUP_LOGON_;
+	char szKey = 0x00;
+	char szDebugMsg[100 + 1] = {0};
+	unsigned short usRetVal = 0x00;
+
+	inDISP_LogPrintf("inMultiFunc_USB_Initial Start");
+
+	/* 開port */
 	/* Portable 機型若沒接上底座再開Ethernet會失敗 */
 	if (inFunc_Is_Portable_Type() == VS_TRUE)
 	{
 		do
 		{
-			if(inUSB_SelectMode(_USB_MODE_DEVICE_) != d_OK)
-                        {
-                                if (ginDebug == VS_TRUE)
+			if (inUSB_SelectMode(_USB_MODE_DEVICE_) != d_OK)
+			{
+				if (ginDebug == VS_TRUE)
 				{
-					inDISP_LogPrintf(AT,"inUSB_SelectMode Error");
+					inDISP_LogPrintf(AT, "inUSB_SelectMode Error");
 				}
-                                return (VS_ERROR);
-                        }
-                        
-                        /* 20230413 Miyano fix，看虹堡範例 Slave要 CDC Mode */
-                        if (inUSB_SetCDCMode() != VS_SUCCESS)
-                        {
-                                return (VS_ERROR);
-                        }
-                        
-                        usRetVal = inUSB_Open();
-        
+				return (VS_ERROR);
+			}
+
+			/* 20230413 Miyano fix，看虹堡範例 Slave要 CDC Mode */
+			if (inUSB_SetCDCMode() != VS_SUCCESS)
+			{
+				return (VS_ERROR);
+			}
+
+			usRetVal = inUSB_Open();
+
 			if (usRetVal == VS_SUCCESS)
 			{
 				if (ginDebug == VS_TRUE)
 				{
-					inDISP_LogPrintf(AT,"inUSB_Open OK");
+					inDISP_LogPrintf(AT, "inUSB_Open OK");
 				}
 				break;
-				
 			}
 			else
 			{
@@ -5705,9 +5780,9 @@ int inMultiFunc_USB_Initial(void)
 				{
 					memset(szDebugMsg, 0x00, sizeof(szDebugMsg));
 					sprintf(szDebugMsg, "inUSB_Open Error: 0x%04x", usRetVal);
-					inDISP_LogPrintf(AT,szDebugMsg);
+					inDISP_LogPrintf(AT, szDebugMsg);
 				}
-				
+
 				/* 未接上底座，提示接上底座後並按確認 */
 				if (inFunc_Is_Cradle_Attached() != VS_SUCCESS)
 				{
@@ -5715,9 +5790,9 @@ int inMultiFunc_USB_Initial(void)
 					inDISP_Clear_Line(_LINE_8_4_, _LINE_8_8_);
 					inDISP_PutGraphic(_CHECK_CRADLE_ATTATCHED_, 0, _COORDINATE_Y_LINE_8_4_);
 					inDISP_BEEP(1, 0);
-					
+
 					inDISP_Timer_Start(_TIMER_NEXSYS_1_, _EDC_TIMEOUT_);
-					
+
 					while (1)
 					{
 						inChoice = inDisTouch_TouchSensor_Click_Slide(inTouchSensorFunc);
@@ -5730,19 +5805,19 @@ int inMultiFunc_USB_Initial(void)
 							inDISP_Timer_Start(_TIMER_NEXSYS_1_, _EDC_TIMEOUT_);
 						}
 
-						if (szKey == _KEY_ENTER_		||
-						    szKey == _KEY_TIMEOUT_		||
-						    inChoice == _CUPLogOn_Touch_KEY_2_)
-						{	
+						if (szKey == _KEY_ENTER_ ||
+							szKey == _KEY_TIMEOUT_ ||
+							inChoice == _CUPLogOn_Touch_KEY_2_)
+						{
 							inDISP_Clear_Line(_LINE_8_4_, _LINE_8_8_);
 							break;
 						}
-//						else if (szKey == _KEY_CANCEL_)
-//						{
-//							inDISP_Clear_Line(_LINE_8_4_, _LINE_8_8_);
-//							
-//							return (VS_ERROR);
-//						}
+						//						else if (szKey == _KEY_CANCEL_)
+						//						{
+						//							inDISP_Clear_Line(_LINE_8_4_, _LINE_8_8_);
+						//
+						//							return (VS_ERROR);
+						//						}
 						else if (szKey == _KEY_0_)
 						{
 							/* 壓住0後3秒內按clear */
@@ -5750,9 +5825,9 @@ int inMultiFunc_USB_Initial(void)
 							do
 							{
 								szKey = uszKBD_Key_In();
-							}while (szKey == 0	&&
-								inTimerGet(_TIMER_NEXSYS_4_) != VS_SUCCESS);
-							
+							} while (szKey == 0 &&
+									 inTimerGet(_TIMER_NEXSYS_4_) != VS_SUCCESS);
+
 							/* 按clear */
 							if (szKey == _KEY_CLEAR_)
 							{
@@ -5761,208 +5836,546 @@ int inMultiFunc_USB_Initial(void)
 						}
 						else
 						{
-
 						}
-						
-					}/* 重新初始化迴圈 */
+
+					} /* 重新初始化迴圈 */
 					/* 清空Touch資料 */
 					inDisTouch_Flush_TouchFile();
-					
 				}
 				/* 若接上底座還是錯誤，就回傳錯誤 */
 				else
 				{
 					gstMultiOb.srSetting.uszSettingOK = VS_FAILURE;
-                                        return (VS_ERROR);
+					return (VS_ERROR);
 				}
-				
 			}
-			
-		}
-		while (1);
-				
+
+		} while (1);
 	}
-	else/* CounterTop 機型 */
+	else /* CounterTop 機型 */
 	{
-		if(inUSB_SelectMode(_USB_MODE_DEVICE_) != d_OK)
-                {
-                        if (ginDebug == VS_TRUE)
-                        {
-                                inDISP_LogPrintf(AT,"inUSB_SelectMode Error");
-                        }
-                        return (VS_ERROR);
-                }
-                
-                /* 20230413 Miyano fix，看虹堡範例 Slave要 CDC Mode */
-                if (inUSB_SetCDCMode() != VS_SUCCESS)
-                {
-                        return (VS_ERROR);
-                }
-                
-                usRetVal = inUSB_Open();
-        
+		if (inUSB_SelectMode(_USB_MODE_DEVICE_) != d_OK)
+		{
+			if (ginDebug == VS_TRUE)
+			{
+				inDISP_LogPrintf(AT, "inUSB_SelectMode Error");
+			}
+			return (VS_ERROR);
+		}
+
+		/* 20230413 Miyano fix，看虹堡範例 Slave要 CDC Mode */
+		if (inUSB_SetCDCMode() != VS_SUCCESS)
+		{
+			return (VS_ERROR);
+		}
+
+		usRetVal = inUSB_Open();
+
 		if (usRetVal != VS_SUCCESS)
 		{
 			if (ginDebug == VS_TRUE)
 			{
 				memset(szDebugMsg, 0x00, sizeof(szDebugMsg));
 				sprintf(szDebugMsg, "inUSB_Open Error: 0x%04x", usRetVal);
-				inDISP_LogPrintf(AT,szDebugMsg);
+				inDISP_LogPrintf(AT, szDebugMsg);
 			}
-                        gstMultiOb.srSetting.uszSettingOK = VS_FAILURE;
-			return (VS_ERROR);         
+			gstMultiOb.srSetting.uszSettingOK = VS_FAILURE;
+			return (VS_ERROR);
 		}
 		else
 		{
 			if (ginDebug == VS_TRUE)
 			{
-				inDISP_LogPrintf(AT,"inUSB_Open OK");
+				inDISP_LogPrintf(AT, "inUSB_Open OK");
 			}
 		}
-		
 	}
-        
-        gstMultiOb.srSetting.uszSettingOK = VS_TRUE;
-        
+
+	gstMultiOb.srSetting.uszSettingOK = VS_TRUE;
+
 	/* 清空接收的buffer */
-        inMultiFunc_USB_FlushRxBuffer();
-        inMultiFunc_USB_FlushTxBuffer();
-        
-        return (VS_SUCCESS);
+	inMultiFunc_USB_FlushRxBuffer();
+	inMultiFunc_USB_FlushTxBuffer();
+
+	return (VS_SUCCESS);
 }
 
 int inMultiFunc_Data_Receive_Check(unsigned char uszComPort, unsigned short *usReceiveLen)
 {
-        int     inRetVal = 0;
-	char	szComPort[4 + 1];
-        char	szDebugMsg[100 + 1];
-        
-//        inDISP_LogPrintf("inMultiFunc_Data_Receive_Check Start");
-        	
+	int inRetVal = 0;
+	char szComPort[4 + 1];
+	char szDebugMsg[100 + 1];
+
+	//        inDISP_LogPrintf("inMultiFunc_Data_Receive_Check Start");
+
 	memset(szComPort, 0x00, sizeof(szComPort));
 	inGetMultiComPort1(szComPort);
-	if (memcmp(szComPort, "COM1", strlen("COM1")) == 0	||
-	    memcmp(szComPort, "COM2", strlen("COM2")) == 0	||
-	    memcmp(szComPort, "COM3", strlen("COM3")) == 0	||
-	    memcmp(szComPort, "COM4", strlen("COM4")) == 0)
+	if (memcmp(szComPort, "COM1", strlen("COM1")) == 0 ||
+		memcmp(szComPort, "COM2", strlen("COM2")) == 0 ||
+		memcmp(szComPort, "COM3", strlen("COM3")) == 0 ||
+		memcmp(szComPort, "COM4", strlen("COM4")) == 0)
 	{
 		inRetVal = inRS232_Data_Receive_Check(uszComPort, usReceiveLen);
 	}
 	else if (memcmp(szComPort, "USB1", strlen("USB1")) == 0)
 	{
-                inRetVal = inUSB_Data_Receive_Check(usReceiveLen);
+		inRetVal = inUSB_Data_Receive_Check(usReceiveLen);
 	}
 	else if (memcmp(szComPort, "WIFI", strlen("WIFI")) == 0)
 	{
-                inDISP_LogPrintf("WIFI");
+		inDISP_LogPrintf("WIFI");
 	}
 	else
 	{
 		inDISP_LogPrintf("else");
-                inRetVal = VS_ERROR;
+		inRetVal = VS_ERROR;
 	}
-//        inDISP_LogPrintf("inMultiFunc_Data_Receive_Check End");
-        
-        return (inRetVal);
+	//        inDISP_LogPrintf("inMultiFunc_Data_Receive_Check End");
+
+	return (inRetVal);
 }
 
 int inMultiFunc_Data_Receive(unsigned char uszComPort, unsigned char *uszReceBuff, unsigned short *usReceSize)
 {
-        int     inRetVal = 0;
-	char	szComPort[4 + 1];
-        char	szDebugMsg[100 + 1];
-        
-        inDISP_LogPrintf("inMultiFunc_Data_Receive Start");
-        	
+	int inRetVal = 0;
+	char szComPort[4 + 1];
+	char szDebugMsg[100 + 1];
+
+	inDISP_LogPrintf("inMultiFunc_Data_Receive Start");
+
 	memset(szComPort, 0x00, sizeof(szComPort));
 	inGetMultiComPort1(szComPort);
-	if (memcmp(szComPort, "COM1", strlen("COM1")) == 0	||
-	    memcmp(szComPort, "COM2", strlen("COM2")) == 0	||
-	    memcmp(szComPort, "COM3", strlen("COM3")) == 0	||
-	    memcmp(szComPort, "COM4", strlen("COM4")) == 0)
+	if (memcmp(szComPort, "COM1", strlen("COM1")) == 0 ||
+		memcmp(szComPort, "COM2", strlen("COM2")) == 0 ||
+		memcmp(szComPort, "COM3", strlen("COM3")) == 0 ||
+		memcmp(szComPort, "COM4", strlen("COM4")) == 0)
 	{
 		inRetVal = inRS232_Data_Receive(uszComPort, uszReceBuff, usReceSize);
 	}
 	else if (memcmp(szComPort, "USB1", strlen("USB1")) == 0)
 	{
-                inRetVal = inUSB_Data_Receive(uszReceBuff, usReceSize);
+		inRetVal = inUSB_Data_Receive(uszReceBuff, usReceSize);
 	}
 	else if (memcmp(szComPort, "WIFI", strlen("WIFI")) == 0)
 	{
-                inDISP_LogPrintf("WIFI");
+		inDISP_LogPrintf("WIFI");
 	}
 	else
 	{
 		inDISP_LogPrintf("else");
-                inRetVal = VS_ERROR;
+		inRetVal = VS_ERROR;
 	}
-        inDISP_LogPrintf("inMultiFunc_Data_Receive End");
-        
-        return (inRetVal);
+	inDISP_LogPrintf("inMultiFunc_Data_Receive End");
+
+	return (inRetVal);
 }
 
 int inMultiFunc_Data_Send_Check(unsigned char uszComPort)
 {
-        int     inRetVal = 0;
-	char	szComPort[4 + 1];
-        char	szDebugMsg[100 + 1];
-        
-        inDISP_LogPrintf("inMultiFunc_Data_Send_Check Start");
-        	
+	int inRetVal = 0;
+	char szComPort[4 + 1];
+	char szDebugMsg[100 + 1];
+
+	inDISP_LogPrintf("inMultiFunc_Data_Send_Check Start");
+
 	memset(szComPort, 0x00, sizeof(szComPort));
 	inGetMultiComPort1(szComPort);
-	if (memcmp(szComPort, "COM1", strlen("COM1")) == 0	||
-	    memcmp(szComPort, "COM2", strlen("COM2")) == 0	||
-	    memcmp(szComPort, "COM3", strlen("COM3")) == 0	||
-	    memcmp(szComPort, "COM4", strlen("COM4")) == 0)
+	if (memcmp(szComPort, "COM1", strlen("COM1")) == 0 ||
+		memcmp(szComPort, "COM2", strlen("COM2")) == 0 ||
+		memcmp(szComPort, "COM3", strlen("COM3")) == 0 ||
+		memcmp(szComPort, "COM4", strlen("COM4")) == 0)
 	{
 		inRetVal = inRS232_Data_Send_Check(uszComPort);
 	}
 	else if (memcmp(szComPort, "USB1", strlen("USB1")) == 0)
 	{
-                inRetVal = inUSB_Data_Send_Check();
+		inRetVal = inUSB_Data_Send_Check();
 	}
 	else if (memcmp(szComPort, "WIFI", strlen("WIFI")) == 0)
 	{
-                inDISP_LogPrintf("WIFI");
+		inDISP_LogPrintf("WIFI");
 	}
 	else
 	{
 		inDISP_LogPrintf("else");
-                inRetVal = VS_ERROR;
+		inRetVal = VS_ERROR;
 	}
-        inDISP_LogPrintf("inMultiFunc_Data_Send_Check End");
-        
-        return (inRetVal);
+	inDISP_LogPrintf("inMultiFunc_Data_Send_Check End");
+
+	return (inRetVal);
 }
 
 int inMultiFunc_Data_Send(unsigned char uszComPort, unsigned char *uszSendBuff, unsigned short *usSendSize)
 {
-        int     inRetVal = 0;
-	char	szComPort[4 + 1];
+	int inRetVal = 0;
+	char szComPort[4 + 1];
 
 	memset(szComPort, 0x00, sizeof(szComPort));
 	inGetMultiComPort1(szComPort);
-	if (memcmp(szComPort, "COM1", strlen("COM1")) == 0	||
-	    memcmp(szComPort, "COM2", strlen("COM2")) == 0	||
-	    memcmp(szComPort, "COM3", strlen("COM3")) == 0	||
-	    memcmp(szComPort, "COM4", strlen("COM4")) == 0)
+	if (memcmp(szComPort, "COM1", strlen("COM1")) == 0 ||
+		memcmp(szComPort, "COM2", strlen("COM2")) == 0 ||
+		memcmp(szComPort, "COM3", strlen("COM3")) == 0 ||
+		memcmp(szComPort, "COM4", strlen("COM4")) == 0)
 	{
 		inRetVal = inMultiFunc_RS232_Data_Send(uszComPort, uszSendBuff, usSendSize);
 	}
 	else if (memcmp(szComPort, "USB1", strlen("USB1")) == 0)
 	{
-                inRetVal = inMultiFunc_USB_Data_Send(uszSendBuff, usSendSize);
+		inRetVal = inMultiFunc_USB_Data_Send(uszSendBuff, usSendSize);
 	}
 	else if (memcmp(szComPort, "WIFI", strlen("WIFI")) == 0)
 	{
-                inDISP_LogPrintfWithFlag("WIFI");
+		inDISP_LogPrintfWithFlag("WIFI");
 	}
 	else
 	{
 		inDISP_LogPrintfWithFlag("else");
-                inRetVal = VS_ERROR;
+		inRetVal = VS_ERROR;
 	}
 
-        return (inRetVal);
+	return (inRetVal);
+}
+/*
+Function        :inMultiFunc_Get_SVC_CardFields_CTLS
+Date&Time       :2023/05/12 下午 HungYang
+Describe        :感應SVC卡片流程
+*/
+int inMultiFunc_Get_SVC_CardFields_CTLS(TRANSACTION_OBJECT *pobTran, MULTI_TABLE *stMultiOb)
+{
+	int inRetVal = VS_ERROR;
+	int inMultiFunc_RetVal = -1, uszKey;
+	char szKey = -1;
+	char szTemplate[_DISP_MSG_SIZE_ + 1];
+	char szDebugMsg[100 + 1];
+	char szList[10];
+	long lnTimeout;
+	unsigned long ulCTLS_RetVal;
+
+	if (ginDebug == VS_TRUE)
+	{
+		inDISP_LogPrintf(AT, "----------------------------------------");
+		inDISP_LogPrintf(AT, "inMultiFunc_Get_SVC_CardFields_CTLS()_START !");
+	}
+
+	/* 過卡方式參數初始化  */
+	pobTran->srBRec.uszManualBit = VS_FALSE;
+	/* 初始化 ginEventCode */
+	ginEventCode = -1;
+
+	/* Send CTLS Readly for Sale Command */
+	if (inCTLS_SendReadyForSale_Flow(pobTran) != VS_SUCCESS)
+		return (VS_ERROR);
+
+	if (ginFindRunTime == VS_TRUE)
+	{
+		inFunc_SaveRecordTime(5);
+	}
+
+	/* 顯示 請感應卡片 */
+	inDISP_PutGraphic(_CTLS_LOGO_4_, 0, _COORDINATE_Y_LINE_8_1_);
+
+	if (ginFindRunTime == VS_TRUE)
+	{
+		inFunc_SaveRecordTime(6);
+	}
+
+	/* 讀卡不用顯示金額 */
+
+	/* 設定Timeout */
+	if (pobTran->uszECRBit == VS_TRUE)
+	{
+		lnTimeout = _ECR_RS232_GET_CARD_TIMEOUT_;
+	}
+	else if (pobTran->uszMultiFuncSlaveBit == VS_TRUE)
+	{
+		lnTimeout = stMultiOb->stMulti_TransData.inCTLS_Timeout;
+	}
+	else
+	{
+		lnTimeout = 30;
+	}
+	/* inSecond剩餘倒數時間 */
+	inDISP_TimeoutStart(lnTimeout);
+
+	if (ginFindRunTime == VS_TRUE)
+	{
+		inFunc_SaveRecordTime(7);
+		inFunc_WatchRecordTime(0);
+		inFunc_WatchRecordTime(1);
+		inFunc_WatchRecordTime(2);
+		inFunc_WatchRecordTime(3);
+		inFunc_WatchRecordTime(4);
+		inFunc_WatchRecordTime(5);
+		inFunc_WatchRecordTime(6);
+		inFunc_WatchRecordTime(7);
+		inFunc_WatchRecordTime(8);
+		inFunc_WatchRecordTime(9);
+	}
+	inCTLS_LED_Wait_Start();
+
+	while (1)
+	{
+
+		/* 感應倒數時間 && Display Countdown */
+		if (inDISP_TimeoutCheck(_FONTSIZE_8X16_, _LINE_8_6_, _DISP_RIGHT_) == VS_TIMEOUT)
+		{
+			/* 感應時間到Timeout */
+			uszKey = _KEY_TIMEOUT_;
+		}
+
+		if (uszKey == _KEY_TIMEOUT_)
+		{
+			inRetVal = VS_TIMEOUT;
+			break;
+		}
+		else if (uszKey == _KEY_CANCEL_)
+		{
+			inRetVal = VS_USER_CANCEL;
+			break;
+		}
+
+		// 2023/05/15 HungYang 先判斷是否為SVC卡如果不是要重新感應
+		if (inCTLS_Check_TypeACard() == VS_SUCCESS)
+		{
+			inRetVal = inMultiFunc_READ_SVC_Card_Flow(pobTran, stMultiOb);
+		}
+
+		if (inRetVal == _ERRORMSG_NOT_SVC_CARD)
+		{
+			inFISC_CTLS_LED_TONE(VS_ERROR);
+			inRetVal = 99;
+			inCTLS_LED_Wait_Start();
+			// 顯示非SVC CARD錯誤繼續感應
+			if (ginDebug == VS_TRUE)
+			{
+				inDISP_LogPrintf(AT, "in (inRetVal == _ERRORMSG_NOT_SVC_CARD!");
+			}
+		}
+		else if (inRetVal == _ERRORMSG_SVC_CARD_NOT_OPEN_)
+		{
+			// 顯示未開卡回傳錯誤
+			inFISC_CTLS_LED_TONE(VS_ERROR);
+			inRetVal = VS_ERROR;
+			if (ginDebug == VS_TRUE)
+			{
+				inDISP_LogPrintf(AT, "inRetVal == _ERRORMSG_SVC_CARD_NOT_OPEN_!");
+			}
+			break;
+		}
+		else if (inRetVal == VS_SUCCESS)
+		{
+			inFISC_CTLS_LED_TONE(VS_SUCCESS);
+			if (ginDebug == VS_TRUE)
+			{
+				inDISP_LogPrintf(AT, "inRetVal == VS_SUCCESS");
+			}
+			break;
+		}
+		else
+		{
+			// 燈號閃爍在底層直接呼叫這隻就好記的給&szRCDataEx
+			EMVCL_PerformTransactionEx(&szRCDataEx);
+		}
+	}
+
+	if (ginDebug == VS_TRUE)
+	{
+		inDISP_LogPrintf(AT, "inMultiFunc_Get_SVC_CardFields_CTLS()_END!");
+		inDISP_LogPrintf(AT, "----------------------------------------");
+	}
+	return (inRetVal);
+}
+
+/*
+Function        :inMultiFunc_READ_SVC_Card_Flow
+Date&Time       :2023/05/12 下午 HungYang
+Describe        :READ SVC CARD
+*/
+int inMultiFunc_READ_SVC_Card_Flow(TRANSACTION_OBJECT *pobTran, MULTI_TABLE *stMultiOb)
+{
+	int inRetVal = VS_SUCCESS;
+	char szDebugMsg[100 + 1] = {0};
+	char szMifareData[11 + 1][32 + 1];	   // 原始資料
+	char szMifareASIIData[11 + 1][32 + 1]; // 處理後資料(字元)
+	unsigned char uszATQA1[20], uszSAK1[20], uszTCSN1[20];
+	unsigned char uszTCSNLen1;
+	unsigned short usRetVal = 0;
+	int i, j;
+	char szASCII[4 + 1];
+
+	if (ginDebug == VS_TRUE)
+	{
+		inDISP_LogPrintf(AT, "----------------------------------------");
+		inDISP_LogPrintf(AT, "inMultiFunc_READ_SVC_Card_Flow()_START !");
+	}
+
+	// 檢查讀卡是否有錯誤
+	usRetVal = CTOS_CLTypeAActiveFromIdle(0, uszATQA1, uszSAK1, uszTCSN1, &uszTCSNLen1);
+	if (usRetVal != d_OK)
+	{
+		if (ginDebug == VS_TRUE)
+		{
+			if (usRetVal != d_CL_ACCESS_TIMEOUT)
+			{
+				memset(szDebugMsg, 0x00, sizeof(szDebugMsg));
+				sprintf(szDebugMsg, "CTOS_CLTypeAActiveFromIdle Fail :0x%04X", usRetVal);
+				inDISP_LogPrintf(AT, szDebugMsg);
+			}
+		}
+
+		inRetVal = VS_ERROR;
+	}
+	else
+	{
+		/* READ BLOCK*/
+		for (i = 0; i < 11; i++) // 每一個BLOCK
+		{
+			memset(szMifareData[i], 0x00, sizeof(szMifareData[i]));			// 先清空資料
+			inCTLS_Mifare_Read_Block(i, (unsigned char *)&szMifareData[i]); // 一次讀16個BYTE
+			memset(szASCII, 0x00, sizeof(szASCII));
+			inFunc_BCD_to_ASCII(szASCII, (unsigned char *)&szMifareData[i], 16); // 將讀出來的資料做處理
+			if (ginDebug == VS_TRUE)
+			{
+				inDISP_LogPrintf(AT, "mifare_ROW_DARA[%d]: %s", i, szASCII); // 確認用
+				inDISP_LogPrintf(AT, "---------------END---------------");
+			}
+
+			for (j = 0; szASCII[j] != '\0'; j++)
+			{
+				szMifareASIIData[i][j] = szASCII[j]; // 轉存資料到2維陣列
+			}
+		}
+		/*		SVC_CARD 資料格式
+				|----------------------------------------------------------------|
+				|PAGE||----Byte0----||----Byte1----||----Byte2----||----Byte3----|
+				|  0 ||---- UID0----||---- UID1----||---- UID2----||---- BCC0----|
+				|  1 ||---- UID3----||---- UID4----||---- UID5----||---- BCC6----|
+				|  2 ||---- BCC1----||--Internal---||----Lock0----||----Lock1----|
+				|  3 ||---- OPT0----||---- OPT1----||---- OPT2----||---- OPT3----|
+				|  4 ||-------------------------IssuerID-------------------------|
+				|  5 ||-------------------------CardNum--------------------------|
+				|  6 ||-------------------------CardNum--------------------------|
+				|  7 ||-----------CardNum----------||------FF-----||-----FF------|
+				|  8 ||------------------Card Exp Date (YYYYMMDD)----------------|
+				|  9 ||-------------------Activation Terminal ID-----------------|
+				|----------------------------------------------------------------|
+		*/
+		// 將資料存到pobTran中 用strncat來串接字串
+		// strncat(存的變數,要抓的變數,要抓的長度)
+		/* -------CARD_UID--------- */
+		memset(pobTran->szSVC_UID, 0x00, 22);
+		strncat(pobTran->szSVC_UID, &szMifareASIIData[0][0], 6);
+		strncat(pobTran->szSVC_UID, &szMifareASIIData[1][0], 8);
+		if (ginDebug == VS_TRUE)
+		{
+			inDISP_LogPrintf(AT, "pobTran->szSVC_UID: %s", pobTran->szSVC_UID);
+			inDISP_LogPrintf(AT, "pobTran->szSVC_UID: %d", strlen(&pobTran->szSVC_UID));
+		}
+		/*---------------------------*/
+
+		/* -------Card_Num--------- */
+		memset(pobTran->szSVC_CardNum, 0x00, 22);
+		strncat(pobTran->szSVC_CardNum, &szMifareASIIData[5][0], 8);
+		strncat(pobTran->szSVC_CardNum, &szMifareASIIData[6][0], 8);
+		strncat(pobTran->szSVC_CardNum, &szMifareASIIData[7][0], 4);
+		if (ginDebug == VS_TRUE)
+		{
+			inDISP_LogPrintf(AT, "pobTran->szSVC_CardNum: %s", pobTran->szSVC_CardNum);
+			inDISP_LogPrintf(AT, "pobTran->szSVC_CardNum: %d", strlen(&pobTran->szSVC_CardNum));
+		}
+		/*---------------------------*/
+
+		/* -------Card_Exp--------- */
+		memset(pobTran->szSVC_CardExp, 0x00, 22);
+		strncat(pobTran->szSVC_CardExp, &szMifareASIIData[8][0], 8);
+		if (ginDebug == VS_TRUE)
+		{
+			inDISP_LogPrintf(AT, "pobTran->szSVC_CardExp: %s", pobTran->szSVC_CardExp);
+			inDISP_LogPrintf(AT, "pobTran->szSVC_CardExp: %d", strlen(&pobTran->szSVC_CardExp));
+		}
+		/*---------------------------*/
+
+		/* -------Card_ATID--------- */
+		memset(pobTran->szSVC_CardATID, 0x00, 22);
+		strncat(pobTran->szSVC_CardATID, &szMifareASIIData[9][0], 8);
+		if (ginDebug == VS_TRUE)
+		{
+			inDISP_LogPrintf(AT, "pobTran->szSVC_CardATID: %s", pobTran->szSVC_CardATID);
+			inDISP_LogPrintf(AT, "pobTran->szSVC_CardATID: %d", strlen(&pobTran->szSVC_CardATID));
+		}
+		/*---------------------------*/
+
+		/* -------Card_IssuerID--------- */
+		memset(pobTran->szSVC_CardIssuerID, 0x00, 22);
+		strncat(pobTran->szSVC_CardIssuerID, &szMifareASIIData[4][0], 8);
+		if (ginDebug == VS_TRUE)
+		{
+			inDISP_LogPrintf(AT, "pobTran->szSVC_CardIssuerID: %s", pobTran->szSVC_CardIssuerID);
+			inDISP_LogPrintf(AT, "pobTran->szSVC_CardIssuerID: %d", strlen(&pobTran->szSVC_CardIssuerID));
+		}
+		/*---------------------------*/
+
+		/* -------Card_Other_Data--------- */
+		memset(pobTran->szSVC_CardOtherData, 0x00, 22);
+		strncat(pobTran->szSVC_CardOtherData, &szMifareASIIData[2][0], 8);
+		if (ginDebug == VS_TRUE)
+		{
+			inDISP_LogPrintf(AT, "pobTran->szSVC_CardOtherData: %s", pobTran->szSVC_CardOtherData);
+			inDISP_LogPrintf(AT, "pobTran->szSVC_CardIssuerID: %d", strlen(&pobTran->szSVC_CardIssuerID));
+		}
+		/*---------------------------*/
+
+		// 確認讀出來的資料
+		//|----Lock0----| 為 00 且 szSVC_CardOtherData有值 才會是SVC未開卡
+		if (((szMifareASIIData[2][4] == '0' && szMifareASIIData[2][5] == '0')) &&
+			(strncmp(pobTran->szSVC_CardOtherData, "00000000", strlen(pobTran->szSVC_CardOtherData)) != 0) &&
+			(strncmp(pobTran->szSVC_UID, "04", 2) == 0))
+		{
+			inRetVal = _ERRORMSG_SVC_CARD_NOT_OPEN_;
+			stMultiOb->stMulti_TransData.inErrorType = _ECR_RESPONSE_CODE_SVC_CARD_NOT_OPEN;
+			inDISP_LogPrintf(AT, "_ERRORMSG_SVC_CARD_NOT_OPEN_");
+		}
+		// 卡片資料皆為0代表不是SVC_CARD
+		else if ((strncmp(pobTran->szSVC_UID, "0400000000", 10) == 0) ||				 // 票證讀出來會長這樣錯誤
+				 (pobTran->szSVC_UID[0] != '0') && (pobTran->szSVC_UID[1] != '4') &&	 // 其他卡片第0和1位不會是04
+					 (strncmp(pobTran->szSVC_CardNum, "00000000000000000000", 20) == 0)) // 沒有卡號
+		{
+			inRetVal = _ERRORMSG_NOT_SVC_CARD;
+			inDISP_LogPrintf(AT, "_ERRORMSG_NOT_SVC_CARD");
+		}
+	}
+
+	if (ginDebug == VS_TRUE)
+	{
+		inDISP_LogPrintf(AT, "inMultiFunc_READ_SVC_Card_Flow()_END!");
+		inDISP_LogPrintf(AT, "----------------------------------------");
+	}
+
+	return (inRetVal);
+}
+/* 變換燈號及聲響用 */
+int inFISC_CTLS_LED_TONE(int inResult)
+{
+	if (ginDebug == VS_TRUE)
+		inDISP_LogPrintf(AT, "inFISC_CTLS_LED_TONE()");
+
+	switch (inResult)
+	{
+	case VS_SUCCESS:
+		inCTLS_Set_LED(_CTLS_LIGHT_GREEN_);
+		CTOS_Sound(2700, 20);
+		inDISP_Wait(1000); /* 停個一秒 */
+		break;
+	case VS_ERROR:
+		inCTLS_Set_LED(_CTLS_LIGHT_RED_);
+		CTOS_Sound(750, 20);
+		CTOS_Delay(200);
+		CTOS_Sound(750, 20);
+		inDISP_Wait(1000); /* 停個一秒 */
+		break;
+	default:
+		return (VS_ERROR);
+	}
+
+	return (VS_SUCCESS);
 }

@@ -104,3 +104,4 @@ int inCTLS_ReActive_TypeACard(void);
 int inCTLS_Power_On(void);
 int inCTLS_Power_Off(void);
 int inCTLS_ExceptionCheck_External(TRANSACTION_OBJECT *pobTran);
+int inCTLS_Mifare_Read_Block(unsigned char usBlockNum, unsigned char *uszBlockContent);
