@@ -16,42 +16,39 @@
 #include "../FUNCTION/ECR_FUNC/ECR.h"
 #include "../FUNCTION/ECR_FUNC/RS232.h"
 
-
 #include "../FUNCTION/MULTI_FUNC/MultiFunc.h"
 
 #include "Display.h"
 #include "DisTouch.h"
 
 extern int ginTimeLogDebug;
-extern int	ginDebug;
-int		ginSetFont = -1;			/* 判斷目前SetFont */
-extern int	ginIdleDispFlag;			/* 用來控制什麼時候要display Idle圖片，因為while迴圈內一直顯示圖片會造成觸控判斷延遲 */
-extern MULTI_TABLE	gstMultiOb;
+extern int ginDebug;
+int ginSetFont = -1;		/* 判斷目前SetFont */
+extern int ginIdleDispFlag; /* 用來控制什麼時候要display Idle圖片，因為while迴圈內一直顯示圖片會造成觸控判斷延遲 */
+extern MULTI_TABLE gstMultiOb;
 
-
-int			ginDispTimeOut = 0;
-unsigned long	gulDispTimeStart = 0;
-
+int ginDispTimeOut = 0;
+unsigned long gulDispTimeStart = 0;
 
 /* 用來判斷是否要再接收ECR的資料，用在讀卡時的第二段交易 2022/2/18 [SAM] */
 static int st_inStopReceiveEcr = VS_TRUE;
 
 /* 每次開機會紀錄RTC換秒時的tick是多少，借以校正log毫秒*/
-unsigned long	gulTickCorrection = 0;
+unsigned long gulTickCorrection = 0;
 
 static char st_szMsgTemp[42];
 
 /* 抓取用來判斷是否要再接收ECR的資料，用在讀卡時的第二段交易 2022/2/18 [SAM] */
 int inGetStopEcrReceive()
 {
-    return st_inStopReceiveEcr;
+	return st_inStopReceiveEcr;
 }
 
 /* 設定用來判斷是否要再接收ECR的資料，用在讀卡時的第二段交易 2022/2/18 [SAM] */
 int inSetStopEcrReceive(int inStopReceive)
 {
-        st_inStopReceiveEcr = inStopReceive;
-        return VS_SUCCESS;
+	st_inStopReceiveEcr = inStopReceive;
+	return VS_SUCCESS;
 }
 
 /*
@@ -61,9 +58,9 @@ Describe        :設定計時器開啟，inTimerNbr是第幾號計時器，lnDel
 */
 int inTimerStart(int inTimerNbr, long lnDelay)
 {
-        CTOS_TimeOutSet(inTimerNbr, lnDelay * 100);
+	CTOS_TimeOutSet(inTimerNbr, lnDelay * 100);
 
-        return (VS_SUCCESS);
+	return (VS_SUCCESS);
 }
 
 /*
@@ -74,9 +71,9 @@ Describe        :設定計時器開啟，inTimerNbr是第幾號計時器，lnDel
 */
 int inTimerStart_MicroSecond(int inTimerNbr, long lnDelay)
 {
-        CTOS_TimeOutSet(inTimerNbr, lnDelay);
+	CTOS_TimeOutSet(inTimerNbr, lnDelay);
 
-        return (VS_SUCCESS);
+	return (VS_SUCCESS);
 }
 
 /*
@@ -86,10 +83,10 @@ Describe        :確認計時器是否TimeOut，若timeout會回傳VS_SUCCESS
 */
 int inTimerGet(int inTimerNbr)
 {
-         if (CTOS_TimeOutCheck(inTimerNbr) == d_YES)
-                return (VS_SUCCESS);
-         else
-                return (VS_ERROR);
+	if (CTOS_TimeOutCheck(inTimerNbr) == d_YES)
+		return (VS_SUCCESS);
+	else
+		return (VS_ERROR);
 }
 
 /*
@@ -99,7 +96,7 @@ Describe        :開刷卡槽控制權
 */
 unsigned char uszSWIPE_Open(void)
 {
-        return (VS_TRUE);
+	return (VS_TRUE);
 }
 
 /*
@@ -109,7 +106,7 @@ Describe        :關刷卡槽控制權
 */
 unsigned char uszSWIPE_Close(void)
 {
-        return (VS_TRUE);
+	return (VS_TRUE);
 }
 
 /*
@@ -119,27 +116,27 @@ Describe        :清磁條buffer
 */
 unsigned char uszFlushSWIPEBuffer(void)
 {
-        return (VS_SUCCESS);
+	return (VS_SUCCESS);
 }
 
 unsigned char uszKBD_Key(void)
 {
-	int		inRetVal = VS_SUCCESS;
-        unsigned char	uszKey = 0;
+	int inRetVal = VS_SUCCESS;
+	unsigned char uszKey = 0;
 
-        /* 判斷按鍵觸發，若觸發fKeyPressed為d_TRUE */
-        inRetVal = inKBD_Key_IsPressed();
+	/* 判斷按鍵觸發，若觸發fKeyPressed為d_TRUE */
+	inRetVal = inKBD_Key_IsPressed();
 
-        if (inRetVal == VS_SUCCESS)
-        {
+	if (inRetVal == VS_SUCCESS)
+	{
 		uszKey = uszKBD_Key_Hit();
-                if (uszKey != 0)
-                {
-                        return (uszKey);
-                }
-        }
+		if (uszKey != 0)
+		{
+			return (uszKey);
+		}
+	}
 
-        return uszKey;
+	return uszKey;
 }
 
 /*
@@ -149,22 +146,22 @@ Describe        :
 */
 unsigned char szKBD_Key_Keep(void)
 {
-	int		inRetVal = VS_SUCCESS;
-        unsigned char	uszKey = 0;
+	int inRetVal = VS_SUCCESS;
+	unsigned char uszKey = 0;
 
-        /* 判斷按鍵觸發，若觸發fKeyPressed為d_TRUE */
-        inRetVal = inKBD_Key_IsPressed();
+	/* 判斷按鍵觸發，若觸發fKeyPressed為d_TRUE */
+	inRetVal = inKBD_Key_IsPressed();
 
-        if (inRetVal == VS_SUCCESS)
-        {
+	if (inRetVal == VS_SUCCESS)
+	{
 		uszKey = uszKBD_Key_In();
-                if (uszKey != 0)
-                {
-                        return (uszKey);
-                }
-        }
+		if (uszKey != 0)
+		{
+			return (uszKey);
+		}
+	}
 
-        return uszKey;
+	return uszKey;
 }
 
 /*
@@ -174,7 +171,7 @@ Describe        :偵測壓過的key並從Buffer移除
 */
 unsigned char uszKBD_Key_Hit(void)
 {
-        unsigned char	uszKey = 0;
+	unsigned char uszKey = 0;
 
 	if (CTOS_KBDHit(&uszKey) == d_OK)
 	{
@@ -201,7 +198,7 @@ Describe        :偵測壓過的key並不從Buffer移除
 */
 unsigned char uszKBD_Key_In(void)
 {
-        unsigned char	uszKey = 0;
+	unsigned char uszKey = 0;
 
 	if (CTOS_KBDInKeyCheck(&uszKey) == d_OK)
 	{
@@ -228,13 +225,13 @@ Describe        :
 */
 int inKBD_Key_IsPressed(void)
 {
-        VS_BOOL		fKeyPressed = VS_FALSE;
+	VS_BOOL fKeyPressed = VS_FALSE;
 
-        /* 判斷按鍵觸發，若觸發fKeyPressed為d_TRUE */
-        CTOS_KBDInKey(&fKeyPressed);
+	/* 判斷按鍵觸發，若觸發fKeyPressed為d_TRUE */
+	CTOS_KBDInKey(&fKeyPressed);
 
 	if (fKeyPressed == d_TRUE)
-        {
+	{
 		return (VS_SUCCESS);
 	}
 	else
@@ -245,12 +242,12 @@ int inKBD_Key_IsPressed(void)
 
 unsigned char uszKBD_Close(void)
 {
-        return (VS_TRUE);
+	return (VS_TRUE);
 }
 
 unsigned char uszKBD_Open(unsigned char uszLs)
 {
-        return (VS_TRUE);
+	return (VS_TRUE);
 }
 
 /*
@@ -261,12 +258,12 @@ Describe	:到TimeOut時間到前，若有使用按鍵，則回傳按鍵，否則
 */
 unsigned char uszKBD_GetKey(int timeout) /* time out sec */
 {
-	int		inFinalTimeOut;
-	char		szTimeOut[3 + 1];
-        unsigned char   uszKey;
+	int inFinalTimeOut;
+	char szTimeOut[3 + 1];
+	unsigned char uszKey;
 
 	/* 若TIMEOUT時間大於0時用傳進來的TimeOut，否則用EDC.dat的 */
-        if (timeout >= 0)
+	if (timeout >= 0)
 	{
 		inFinalTimeOut = timeout;
 	}
@@ -277,23 +274,23 @@ unsigned char uszKBD_GetKey(int timeout) /* time out sec */
 		inFinalTimeOut = atoi(szTimeOut);
 	}
 
-        inDISP_Timer_Start(_TIMER_NEXSYS_2_, inFinalTimeOut);
+	inDISP_Timer_Start(_TIMER_NEXSYS_2_, inFinalTimeOut);
 
-        while (1)
-        {
-                /* 檢查TIMEOUT */
-                if (inTimerGet(_TIMER_NEXSYS_2_) == VS_SUCCESS)
-                {
-                        return (_KEY_TIMEOUT_);
-                }
+	while (1)
+	{
+		/* 檢查TIMEOUT */
+		if (inTimerGet(_TIMER_NEXSYS_2_) == VS_SUCCESS)
+		{
+			return (_KEY_TIMEOUT_);
+		}
 
-                uszKey = uszKBD_Key();
+		uszKey = uszKBD_Key();
 
-                if (uszKey != 0)
-                        break;
-       }
+		if (uszKey != 0)
+			break;
+	}
 
-        return (uszKey);
+	return (uszKey);
 }
 
 /*
@@ -303,8 +300,8 @@ Describe        :清鍵盤buffer
 */
 int inFlushKBDBuffer(void)
 {
-        CTOS_KBDBufFlush();
-        return (VS_SUCCESS);
+	CTOS_KBDBufFlush();
+	return (VS_SUCCESS);
 }
 
 /*
@@ -321,9 +318,9 @@ int inDISP_Initial(void)
 	CTOS_LCDFontSelectMode(d_FONT_TTF_MODE);
 
 	/* 步驟三 設定TTF字型及Style */
-	inDISP_TTF_SetFont(_DISP_CHINESE_, _FONT_REGULAR_);               /* 微軟正黑體 */
+	inDISP_TTF_SetFont(_DISP_CHINESE_, _FONT_REGULAR_); /* 微軟正黑體 */
 
-        return (VS_SUCCESS);
+	return (VS_SUCCESS);
 }
 
 /*
@@ -333,18 +330,18 @@ Describe	:設定TTF字型及Style
 */
 int inDISP_TTF_SetFont(int inLanguage, int inFontStyle)
 {
-        if (inLanguage == _DISP_CHINESE_)
-        {
-                CTOS_LCDTTFSelect((unsigned char*)_CHINESE_FONE_1_, inFontStyle);               /* 微軟正黑體 */
-                ginSetFont = _DISP_CHINESE_;                                    /* 儲存目前的Font */
-        }
-        else if (inLanguage == _DISP_ENGLISH_)
-        {
-                CTOS_LCDTTFSelect((unsigned char*)_ENGLISH_FONE_1_, inFontStyle);
-                ginSetFont = _DISP_ENGLISH_;                                    /* 儲存目前的Font */
-        }
+	if (inLanguage == _DISP_CHINESE_)
+	{
+		CTOS_LCDTTFSelect((unsigned char *)_CHINESE_FONE_1_, inFontStyle); /* 微軟正黑體 */
+		ginSetFont = _DISP_CHINESE_;									   /* 儲存目前的Font */
+	}
+	else if (inLanguage == _DISP_ENGLISH_)
+	{
+		CTOS_LCDTTFSelect((unsigned char *)_ENGLISH_FONE_1_, inFontStyle);
+		ginSetFont = _DISP_ENGLISH_; /* 儲存目前的Font */
+	}
 
-        return (VS_SUCCESS);
+	return (VS_SUCCESS);
 }
 
 /*
@@ -354,11 +351,10 @@ Describe	:清除整個螢幕
 */
 int inDISP_ClearAll(void)
 {
-	//inDISP_PutGraphic(_CLEAR_ALL_SCREEN_, 0, _COORDINATE_Y_LINE_8_1_); /* 放置空白圖 */
+	// inDISP_PutGraphic(_CLEAR_ALL_SCREEN_, 0, _COORDINATE_Y_LINE_8_1_); /* 放置空白圖 */
 	CTOS_LCDTClearDisplay();
 	return (VS_SUCCESS);
 }
-
 
 /*
 Function	:inDISP_Clear_Area
@@ -367,24 +363,24 @@ Describe	:以8X16格式來指定位置清除螢幕
 */
 int inDISP_Clear_Area(int inXL, int inYL, int inXR, int inYR, int inFoneSize)
 {
-        int	i = 0;
+	int i = 0;
 
-        if (inFoneSize == _ENGLISH_FONT_8X16_)
-                CTOS_LCDTSelectFontSize(_ENGLISH_FONT_8X16_);
-        else if (inFoneSize == _ENGLISH_FONT_8X22_)
-                CTOS_LCDTSelectFontSize(_ENGLISH_FONT_8X22_);
+	if (inFoneSize == _ENGLISH_FONT_8X16_)
+		CTOS_LCDTSelectFontSize(_ENGLISH_FONT_8X16_);
+	else if (inFoneSize == _ENGLISH_FONT_8X22_)
+		CTOS_LCDTSelectFontSize(_ENGLISH_FONT_8X22_);
 
 	for (i = inYL; i <= inYR; i++)
 	{
-                if ( i == inYL)
-                        CTOS_LCDTGotoXY(inXL, i);
-                else
-                        CTOS_LCDTGotoXY(1, i);
+		if (i == inYL)
+			CTOS_LCDTGotoXY(inXL, i);
+		else
+			CTOS_LCDTGotoXY(1, i);
 
 		CTOS_LCDTClear2EOL();
 	}
 
-        return (VS_SUCCESS);
+	return (VS_SUCCESS);
 }
 
 /*
@@ -392,11 +388,11 @@ Function	:inDISP_Clear_Area
 Date&Time	:2015/6/7 下午 6:41
 Describe	:清除區塊，XY起始位置然後算Size
 */
-int inDISP_Clear_Box(int inXL,int inYL,int inXSize,int inYSize)
+int inDISP_Clear_Box(int inXL, int inYL, int inXSize, int inYSize)
 {
 	CTOS_LCDGSetBox(inXL, inYL, inXSize, inYSize, d_LCD_FILL_0);
 
-        return (VS_SUCCESS);
+	return (VS_SUCCESS);
 }
 
 /*
@@ -408,9 +404,9 @@ int inDISP_Clear_Line(int inLineT, int inLineB)
 {
 	int i;
 
-	if(d_OK != CTOS_LCDTSelectFontSize(_ENGLISH_FONT_8X16_))
+	if (d_OK != CTOS_LCDTSelectFontSize(_ENGLISH_FONT_8X16_))
 	{
-		inDISP_LogPrintfWithFlag("  ClearLine LCET Select *Error* [0x%04x] Line[%d]", d_OK,  __LINE__);
+		inDISP_LogPrintfWithFlag("  ClearLine LCET Select *Error* [0x%04x] Line[%d]", d_OK, __LINE__);
 	}
 
 	for (i = inLineT; i <= inLineB; i++)
@@ -427,68 +423,68 @@ Function        :inDISP_Decide_FontSize
 Date&Time       :2018/4/12 上午 10:57
 Describe        :
 */
-int inDISP_Decide_FontSize(int inFontSize, int inLanguage, unsigned short* usFontsize)
+int inDISP_Decide_FontSize(int inFontSize, int inLanguage, unsigned short *usFontsize)
 {
 	if (inLanguage == _DISP_CHINESE_)
 	{
 		if (inFontSize == _FONTSIZE_8X16_)
 			*usFontsize = _CHINESE_FONT_8X16_;
 		else if (inFontSize == _FONTSIZE_8X22_)
-			*usFontsize = _CHINESE_FONT_8X22_;	/* 8 X 22 */
+			*usFontsize = _CHINESE_FONT_8X22_; /* 8 X 22 */
 		else if (inFontSize == _FONTSIZE_8X44_)
-			*usFontsize = _CHINESE_FONT_8X44_;	/* 8 X 44 */
+			*usFontsize = _CHINESE_FONT_8X44_; /* 8 X 44 */
 		else if (inFontSize == _FONTSIZE_12X19_)
-			*usFontsize = _CHINESE_FONT_12X19_;	/* 12 X 19 */
+			*usFontsize = _CHINESE_FONT_12X19_; /* 12 X 19 */
 		else if (inFontSize == _FONTSIZE_16X16_)
-			*usFontsize = _CHINESE_FONT_16X16_;	/* 8 X 16 */
+			*usFontsize = _CHINESE_FONT_16X16_; /* 8 X 16 */
 		else if (inFontSize == _FONTSIZE_16X22_)
-			*usFontsize = _CHINESE_FONT_16X22_;	/* 16 X 22 */
+			*usFontsize = _CHINESE_FONT_16X22_; /* 16 X 22 */
 		else if (inFontSize == _FONTSIZE_16X44_)
-			*usFontsize = _CHINESE_FONT_16X44_;	/* 16 X 44 */
+			*usFontsize = _CHINESE_FONT_16X44_; /* 16 X 44 */
 		else if (inFontSize == _FONTSIZE_32X22_)
-			*usFontsize = _CHINESE_FONT_32X22_;	/* 32 X 22 */
+			*usFontsize = _CHINESE_FONT_32X22_; /* 32 X 22 */
 		else
 			return (VS_ERROR);
 	}
 	else if (inLanguage == _DISP_ENGLISH_)
 	{
 		if (inFontSize == _FONTSIZE_8X16_)
-			*usFontsize = _ENGLISH_FONT_8X16_;	/* 8 X 16 */
+			*usFontsize = _ENGLISH_FONT_8X16_; /* 8 X 16 */
 		else if (inFontSize == _FONTSIZE_8X22_)
-			*usFontsize = _ENGLISH_FONT_8X22_;	/* 8 X 22 */
+			*usFontsize = _ENGLISH_FONT_8X22_; /* 8 X 22 */
 		else if (inFontSize == _FONTSIZE_8X44_)
-			*usFontsize = _ENGLISH_FONT_8X44_;	/* 8 X 44 */
+			*usFontsize = _ENGLISH_FONT_8X44_; /* 8 X 44 */
 		else if (inFontSize == _FONTSIZE_12X19_)
-			*usFontsize = _ENGLISH_FONT_12X19_;	/* 12 X 19 */
+			*usFontsize = _ENGLISH_FONT_12X19_; /* 12 X 19 */
 		else if (inFontSize == _FONTSIZE_16X16_)
-			*usFontsize = _ENGLISH_FONT_16X16_;	/* 16 X 22 */
+			*usFontsize = _ENGLISH_FONT_16X16_; /* 16 X 22 */
 		else if (inFontSize == _FONTSIZE_16X22_)
-			*usFontsize = _ENGLISH_FONT_16X22_;	/* 16 X 22 */
+			*usFontsize = _ENGLISH_FONT_16X22_; /* 16 X 22 */
 		else if (inFontSize == _FONTSIZE_16X44_)
-			*usFontsize = _ENGLISH_FONT_16X44_;	/* 16 X 44 */
+			*usFontsize = _ENGLISH_FONT_16X44_; /* 16 X 44 */
 		else if (inFontSize == _FONTSIZE_32X22_)
-			*usFontsize = _ENGLISH_FONT_32X22_;	/* 32 X 22 */
+			*usFontsize = _ENGLISH_FONT_32X22_; /* 32 X 22 */
 		else
 			return (VS_ERROR);
 	}
 	else
 	{
 		if (inFontSize == _FONTSIZE_8X16_)
-			*usFontsize = _CHINESE_FONT_8X16_;	/* 8 X 16 */
+			*usFontsize = _CHINESE_FONT_8X16_; /* 8 X 16 */
 		else if (inFontSize == _FONTSIZE_8X22_)
-			*usFontsize = _CHINESE_FONT_8X22_;	/* 8 X 22 */
+			*usFontsize = _CHINESE_FONT_8X22_; /* 8 X 22 */
 		else if (inFontSize == _FONTSIZE_8X44_)
-			*usFontsize = _CHINESE_FONT_8X44_;	/* 8 X 44 */
+			*usFontsize = _CHINESE_FONT_8X44_; /* 8 X 44 */
 		else if (inFontSize == _FONTSIZE_12X19_)
-			*usFontsize = _CHINESE_FONT_12X19_;	/* 12 X 19 */
+			*usFontsize = _CHINESE_FONT_12X19_; /* 12 X 19 */
 		else if (inFontSize == _FONTSIZE_16X16_)
-			*usFontsize = _CHINESE_FONT_16X16_;	/* 8 X 16 */
+			*usFontsize = _CHINESE_FONT_16X16_; /* 8 X 16 */
 		else if (inFontSize == _FONTSIZE_16X22_)
-			*usFontsize = _CHINESE_FONT_16X22_;	/* 16 X 22 */
+			*usFontsize = _CHINESE_FONT_16X22_; /* 16 X 22 */
 		else if (inFontSize == _FONTSIZE_16X44_)
-			*usFontsize = _CHINESE_FONT_16X44_;	/* 16 X 44 */
+			*usFontsize = _CHINESE_FONT_16X44_; /* 16 X 44 */
 		else if (inFontSize == _FONTSIZE_32X22_)
-			*usFontsize = _CHINESE_FONT_32X22_;	/* 32 X 22 */
+			*usFontsize = _CHINESE_FONT_32X22_; /* 32 X 22 */
 		else
 			return (VS_ERROR);
 	}
@@ -503,7 +499,7 @@ Describe        :
 */
 int inDISP_Select_FontSize(int inFontSize, int inLanguage)
 {
-	unsigned short	usFontSize = 0;
+	unsigned short usFontSize = 0;
 
 	if (inDISP_Decide_FontSize(inFontSize, inLanguage, &usFontSize) != VS_SUCCESS)
 	{
@@ -524,12 +520,12 @@ Describe	:顯示LCD中文字
 */
 int inDISP_ChineseFont(char *szMessage, int inFontSize, int inLINE, int inAligned)
 {
-	int	inRetVal = VS_SUCCESS;
+	int inRetVal = VS_SUCCESS;
 
-	if (ginSetFont != _DISP_CHINESE_ )
+	if (ginSetFont != _DISP_CHINESE_)
 	{
 		/* 判斷是否已經SetFont過_DISP_CHINESE_，如果沒有就要Set */
-		inDISP_TTF_SetFont(_DISP_CHINESE_, _FONT_REGULAR_);               /* 微軟正黑體 */
+		inDISP_TTF_SetFont(_DISP_CHINESE_, _FONT_REGULAR_); /* 微軟正黑體 */
 	}
 
 	inRetVal = inDISP_Select_FontSize(inFontSize, _DISP_CHINESE_);
@@ -538,7 +534,7 @@ int inDISP_ChineseFont(char *szMessage, int inFontSize, int inLINE, int inAligne
 		return (VS_ERROR);
 	}
 
-	CTOS_LCDTPrintAligned(inLINE, (unsigned char*)szMessage, inAligned);
+	CTOS_LCDTPrintAligned(inLINE, (unsigned char *)szMessage, inAligned);
 	return (VS_SUCCESS);
 }
 
@@ -549,58 +545,57 @@ Describe	:顯示LCD有顏色的中文字
 */
 int inDISP_ChineseFont_Color(char *szMessage, int inFontSize, int inLINE, int inColor, int inAlign)
 {
-	int	inRetVal = VS_SUCCESS;
+	int inRetVal = VS_SUCCESS;
 
-        if (ginSetFont != _DISP_CHINESE_ )
-        {
-                /* 判斷是否已經SetFont過_DISP_CHINESE_，如果沒有就要Set */
-                inDISP_TTF_SetFont(_DISP_CHINESE_, _FONT_REGULAR_);               /* 微軟正黑體 */
-        }
-        /* 將字體顏色換色 */
-        CTOS_LCDForeGndColor(inColor);
+	if (ginSetFont != _DISP_CHINESE_)
+	{
+		/* 判斷是否已經SetFont過_DISP_CHINESE_，如果沒有就要Set */
+		inDISP_TTF_SetFont(_DISP_CHINESE_, _FONT_REGULAR_); /* 微軟正黑體 */
+	}
+	/* 將字體顏色換色 */
+	CTOS_LCDForeGndColor(inColor);
 
-        inRetVal = inDISP_Select_FontSize(inFontSize, _DISP_CHINESE_);
-        if (inRetVal != VS_SUCCESS)
+	inRetVal = inDISP_Select_FontSize(inFontSize, _DISP_CHINESE_);
+	if (inRetVal != VS_SUCCESS)
 	{
 		return (VS_ERROR);
 	}
 
-        CTOS_LCDTPrintAligned(inLINE, (unsigned char*)szMessage, inAlign);
+	CTOS_LCDTPrintAligned(inLINE, (unsigned char *)szMessage, inAlign);
 
-        /* 將字體顏色換回黑色 */
-        CTOS_LCDForeGndColor(0x00000000);
+	/* 將字體顏色換回黑色 */
+	CTOS_LCDForeGndColor(0x00000000);
 
-        return (VS_SUCCESS);
+	return (VS_SUCCESS);
 }
 
-int inDISP_ChineseFont_Point_Color(char *szMessage, int inFontSize,int inLINE, int inForeColor, int inBackColor, int inX)
+int inDISP_ChineseFont_Point_Color(char *szMessage, int inFontSize, int inLINE, int inForeColor, int inBackColor, int inX)
 {
-	int	inRetVal = VS_SUCCESS;
+	int inRetVal = VS_SUCCESS;
 
-        if (ginSetFont != _DISP_CHINESE_ )
-        {
-                /* 判斷是否已經SetFont過_DISP_CHINESE_，如果沒有就要Set */
-                inDISP_TTF_SetFont(_DISP_CHINESE_, _FONT_REGULAR_);     /* 微軟正黑體 */
-        }
+	if (ginSetFont != _DISP_CHINESE_)
+	{
+		/* 判斷是否已經SetFont過_DISP_CHINESE_，如果沒有就要Set */
+		inDISP_TTF_SetFont(_DISP_CHINESE_, _FONT_REGULAR_); /* 微軟正黑體 */
+	}
 
 	/* 將字體顏色換色 */
-        CTOS_LCDForeGndColor(inForeColor);
+	CTOS_LCDForeGndColor(inForeColor);
 	/* 將背景顏色換色 */
 	CTOS_LCDBackGndColor(inBackColor);
 
-
-        inRetVal = inDISP_Select_FontSize(inFontSize, _DISP_CHINESE_);
-        if (inRetVal != VS_SUCCESS)
+	inRetVal = inDISP_Select_FontSize(inFontSize, _DISP_CHINESE_);
+	if (inRetVal != VS_SUCCESS)
 	{
 		return (VS_ERROR);
 	}
 
-        inRetVal = CTOS_LCDTPrintXY(inX, inLINE, (unsigned char*)szMessage);
+	inRetVal = CTOS_LCDTPrintXY(inX, inLINE, (unsigned char *)szMessage);
 	if (inRetVal != d_OK)
 	{
 		if (ginDebug == VS_TRUE)
 		{
-			char	szDebugMsg[100 + 1];
+			char szDebugMsg[100 + 1];
 
 			memset(szDebugMsg, 0x00, sizeof(szDebugMsg));
 			sprintf(szDebugMsg, "0x%04X", inRetVal);
@@ -608,12 +603,12 @@ int inDISP_ChineseFont_Point_Color(char *szMessage, int inFontSize,int inLINE, i
 		}
 	}
 
-        /* 將字體顏色換回黑色 */
-        CTOS_LCDForeGndColor(0x00000000);
+	/* 將字體顏色換回黑色 */
+	CTOS_LCDForeGndColor(0x00000000);
 	/* 將背景顏色換回白色 */
 	CTOS_LCDBackGndColor(0x00FFFFFF);
 
-        return (VS_SUCCESS);
+	return (VS_SUCCESS);
 }
 
 /*
@@ -623,28 +618,28 @@ Describe        :如果用Text Mode會有中文字和英文字對不齊的問題
 */
 int inDISP_ChineseFont_Point_Color_By_Graphic_Mode(char *szMessage, int inFontSize, int inForeColor, int inBackColor, int inX, int inY, unsigned char uszReverse)
 {
-	int		inRetVal = VS_SUCCESS;
-	unsigned short	usFontSize = 0;
+	int inRetVal = VS_SUCCESS;
+	unsigned short usFontSize = 0;
 
-        if (ginSetFont != _DISP_CHINESE_ )
-        {
-                /* 判斷是否已經SetFont過_DISP_CHINESE_，如果沒有就要Set */
-                inDISP_TTF_SetFont(_DISP_CHINESE_, _FONT_REGULAR_);     /* 微軟正黑體 */
-        }
+	if (ginSetFont != _DISP_CHINESE_)
+	{
+		/* 判斷是否已經SetFont過_DISP_CHINESE_，如果沒有就要Set */
+		inDISP_TTF_SetFont(_DISP_CHINESE_, _FONT_REGULAR_); /* 微軟正黑體 */
+	}
 
 	/* 將字體顏色換色 */
-        CTOS_LCDForeGndColor(inForeColor);
+	CTOS_LCDForeGndColor(inForeColor);
 	/* 將背景顏色換色 */
 	CTOS_LCDBackGndColor(inBackColor);
 
 	inDISP_Decide_FontSize(inFontSize, _DISP_CHINESE_, &usFontSize);
 
-        inRetVal = CTOS_LCDGTextOut(inX, inY, (unsigned char*)szMessage, usFontSize, uszReverse);
+	inRetVal = CTOS_LCDGTextOut(inX, inY, (unsigned char *)szMessage, usFontSize, uszReverse);
 	if (inRetVal != d_OK)
 	{
 		if (ginDebug == VS_TRUE)
 		{
-			char	szDebugMsg[100 + 1];
+			char szDebugMsg[100 + 1];
 
 			memset(szDebugMsg, 0x00, sizeof(szDebugMsg));
 			sprintf(szDebugMsg, "0x%04X", inRetVal);
@@ -652,12 +647,12 @@ int inDISP_ChineseFont_Point_Color_By_Graphic_Mode(char *szMessage, int inFontSi
 		}
 	}
 
-        /* 將字體顏色換回黑色 */
-        CTOS_LCDForeGndColor(0x00000000);
+	/* 將字體顏色換回黑色 */
+	CTOS_LCDForeGndColor(0x00000000);
 	/* 將背景顏色換回白色 */
 	CTOS_LCDBackGndColor(0x00FFFFFF);
 
-        return (VS_SUCCESS);
+	return (VS_SUCCESS);
 }
 
 /*
@@ -667,23 +662,23 @@ Describe	:顯示LCD英數字
 */
 int inDISP_EnglishFont(char *szMessage, int inFontSize, int inLINE, int inAlign)
 {
-	int	inRetVal = VS_SUCCESS;
+	int inRetVal = VS_SUCCESS;
 
-        if (ginSetFont != _DISP_ENGLISH_ )
-        {
-                /* 判斷是否已經SetFont過_DISP_ENGLISH_，如果沒有就要Set */
-                inDISP_TTF_SetFont(_DISP_ENGLISH_, _FONT_REGULAR_);
-        }
+	if (ginSetFont != _DISP_ENGLISH_)
+	{
+		/* 判斷是否已經SetFont過_DISP_ENGLISH_，如果沒有就要Set */
+		inDISP_TTF_SetFont(_DISP_ENGLISH_, _FONT_REGULAR_);
+	}
 
 	inRetVal = inDISP_Select_FontSize(inFontSize, _DISP_ENGLISH_);
-        if (inRetVal != VS_SUCCESS)
+	if (inRetVal != VS_SUCCESS)
 	{
 		return (VS_ERROR);
 	}
 
-        CTOS_LCDTPrintAligned(inLINE, (unsigned char*)szMessage, inAlign);
+	CTOS_LCDTPrintAligned(inLINE, (unsigned char *)szMessage, inAlign);
 
-        return (VS_SUCCESS);
+	return (VS_SUCCESS);
 }
 
 /*
@@ -693,50 +688,15 @@ Describe        :顯示LCD彩色英數字
 */
 int inDISP_EnglishFont_Color(char *szMessage, int inFontSize, int inLINE, int inColor, int inAlign)
 {
-	int	inRetVal = VS_SUCCESS;
+	int inRetVal = VS_SUCCESS;
 
-        if (ginSetFont != _DISP_ENGLISH_ )
-        {
-                /* 判斷是否已經SetFont過_DISP_CHINESE_，如果沒有就要Set */
-                inDISP_TTF_SetFont(_DISP_ENGLISH_, _FONT_REGULAR_);     /* 微軟正黑體 */
-        }
-        /* 將字體顏色換色 */
-        CTOS_LCDForeGndColor(inColor);
-
-        inRetVal = inDISP_Select_FontSize(inFontSize, _DISP_ENGLISH_);
-        if (inRetVal != VS_SUCCESS)
-	{
-		return (VS_ERROR);
-	}
-
-        CTOS_LCDTPrintAligned(inLINE, (unsigned char*)szMessage, inAlign);
-
-        /* 將字體顏色換回黑色 */
-        CTOS_LCDForeGndColor(0x00000000);
-
-        return (VS_SUCCESS);
-}
-
-/*
-Function        :inDISP_EnglishFont_Point_Color
-Date&Time       :2016/1/17 下午 9:00
-Describe        :顯示LCD彩色英數字可以為設定顯示起始點
-*/
-int inDISP_EnglishFont_Point_Color(char *szMessage, int inFontSize,int inLINE, int inForeColor, int inBackColor, int inX)
-{
-	int	inRetVal = VS_SUCCESS;
-
-	if (ginSetFont != _DISP_ENGLISH_ )
+	if (ginSetFont != _DISP_ENGLISH_)
 	{
 		/* 判斷是否已經SetFont過_DISP_CHINESE_，如果沒有就要Set */
-		inDISP_TTF_SetFont(_DISP_ENGLISH_, _FONT_REGULAR_);     /* 微軟正黑體 */
+		inDISP_TTF_SetFont(_DISP_ENGLISH_, _FONT_REGULAR_); /* 微軟正黑體 */
 	}
-
 	/* 將字體顏色換色 */
-	CTOS_LCDForeGndColor(inForeColor);
-	/* 將背景顏色換色 */
-	CTOS_LCDBackGndColor(inBackColor);
-
+	CTOS_LCDForeGndColor(inColor);
 
 	inRetVal = inDISP_Select_FontSize(inFontSize, _DISP_ENGLISH_);
 	if (inRetVal != VS_SUCCESS)
@@ -744,7 +704,41 @@ int inDISP_EnglishFont_Point_Color(char *szMessage, int inFontSize,int inLINE, i
 		return (VS_ERROR);
 	}
 
-	CTOS_LCDTPrintXY(inX, inLINE, (unsigned char*)szMessage);
+	CTOS_LCDTPrintAligned(inLINE, (unsigned char *)szMessage, inAlign);
+
+	/* 將字體顏色換回黑色 */
+	CTOS_LCDForeGndColor(0x00000000);
+
+	return (VS_SUCCESS);
+}
+
+/*
+Function        :inDISP_EnglishFont_Point_Color
+Date&Time       :2016/1/17 下午 9:00
+Describe        :顯示LCD彩色英數字可以為設定顯示起始點
+*/
+int inDISP_EnglishFont_Point_Color(char *szMessage, int inFontSize, int inLINE, int inForeColor, int inBackColor, int inX)
+{
+	int inRetVal = VS_SUCCESS;
+
+	if (ginSetFont != _DISP_ENGLISH_)
+	{
+		/* 判斷是否已經SetFont過_DISP_CHINESE_，如果沒有就要Set */
+		inDISP_TTF_SetFont(_DISP_ENGLISH_, _FONT_REGULAR_); /* 微軟正黑體 */
+	}
+
+	/* 將字體顏色換色 */
+	CTOS_LCDForeGndColor(inForeColor);
+	/* 將背景顏色換色 */
+	CTOS_LCDBackGndColor(inBackColor);
+
+	inRetVal = inDISP_Select_FontSize(inFontSize, _DISP_ENGLISH_);
+	if (inRetVal != VS_SUCCESS)
+	{
+		return (VS_ERROR);
+	}
+
+	CTOS_LCDTPrintXY(inX, inLINE, (unsigned char *)szMessage);
 
 	/* 將字體顏色換回黑色 */
 	CTOS_LCDForeGndColor(0x00000000);
@@ -761,16 +755,16 @@ Describe	:顯示LCD BMP圖檔
 */
 int inDISP_PutGraphic(char *szFileName, int inX, int inY)
 {
-	char		szDebugMsg[100 + 1];
-	unsigned short	usRetVal = 0;
+	char szDebugMsg[100 + 1];
+	unsigned short usRetVal = 0;
 
 	usRetVal = CTOS_LCDGShowBMPPic(inX, inY, (BYTE *)szFileName);
 	if (usRetVal == d_OK)
 	{
-//                if (ginDebug == VS_TRUE)
-//		{
-//                    inDISP_LogPrintf(szFileName);
-//                }
+		//                if (ginDebug == VS_TRUE)
+		//		{
+		//                    inDISP_LogPrintf(szFileName);
+		//                }
 	}
 	else
 	{
@@ -784,7 +778,7 @@ int inDISP_PutGraphic(char *szFileName, int inX, int inY)
 		return (VS_ERROR);
 	}
 
-        return (VS_SUCCESS);
+	return (VS_SUCCESS);
 }
 
 /*
@@ -792,1690 +786,21 @@ Function	:inDISP_Enter8x16
 Date&Time	:2015/6/22 下午 8:11
 Describe	:輸入數字
 */
-int inDISP_Enter8x16(DISPLAY_OBJECT  *srDispObj)
+int inDISP_Enter8x16(DISPLAY_OBJECT *srDispObj)
 {
-	int		inColor;
-	int		inFinalTimeOut, inY_16X22, inY_12X19, inY_16X22_2;
-	int		inPart1Len = 0, inPart2Len = 0;
-	char		szTemplate[_DISP_MSG_SIZE_ + 1], szMaskOutput[_DISP_MSG_SIZE_ + 1];
-	char		szTemplate2[_DISP_MSG_SIZE_ + 1], szMaskOutput2[_DISP_MSG_SIZE_ + 1];
-	char		szTemp[_DISP_MSG_SIZE_ + 1], szTemp2[_DISP_MSG_SIZE_ + 1];
-        unsigned char   uszkey;
-
-	if (srDispObj->inMenuKeyIn > 0)
-        {
-                /* 將輸入第一碼先存起來 */
-                sprintf(&srDispObj->szOutput[srDispObj->inOutputLen], "%c", srDispObj->inMenuKeyIn);
-                srDispObj->inOutputLen ++;
-        }
-
-	/* 若TIMEOUT時間大於0時用傳進來的TimeOut，否則用EDC.dat的 */
-        if (srDispObj->inTimeout > 0)
-	{
-		inFinalTimeOut = srDispObj->inTimeout;
-	}
-	else
-	{
-		inFinalTimeOut = _EDC_TIMEOUT_;
-	}
-
-	inColor = srDispObj->inColor;
-
-	while (1)
-	{
-                uszkey = -1;
-
-		if (srDispObj->inMenuKeyIn > 0)
-                {
-			/* 如果為MenuKeyIn，第一個數字要顯示 */
-                        uszkey = _MENUKEYIN_EVENT_;
-                }
-                else
-                {
-			uszkey = uszKBD_GetKey(inFinalTimeOut);
-                }
-
-                switch (uszkey)
-                {
-                        case _KEY_CANCEL_ :
-                                srDispObj->inOutputLen = 0;
-                                memset(srDispObj->szOutput, 0x00, sizeof(srDispObj->szOutput));
-                                return (VS_USER_CANCEL);
-                        case _KEY_TIMEOUT_ :
-                                srDispObj->inOutputLen = 0;
-                                memset(srDispObj->szOutput, 0x00, sizeof(srDispObj->szOutput));
-                                return(VS_TIMEOUT);
-                        case _KEY_ENTER_ :
-				/* 先確認該部份是否可輸入0 和 ByPass */
-				if (srDispObj->inCanNotZero != VS_TRUE && srDispObj->inCanNotBypass != VS_TRUE)
-				{
-					return (srDispObj->inOutputLen);
-				}
-				/* 不能ByPass但可以輸入0 */
-				else if (srDispObj->inCanNotZero != VS_TRUE && srDispObj->inCanNotBypass == VS_TRUE)
-				{
-					if (srDispObj->inOutputLen == 0)
-					{
-						inDISP_BEEP(1, 0);
-						continue;
-					}
-					else
-					{
-						return (srDispObj->inOutputLen);
-					}
-				}
-				/* 不能輸入0但可以ByPass */
-				else if (srDispObj->inCanNotZero == VS_TRUE && srDispObj->inCanNotBypass != VS_TRUE)
-				{
-					/* 判斷輸入為零 提示聲音+重新輸入 */
-					if (atol(srDispObj->szOutput) == 0L)
-					{
-						inDISP_BEEP(1, 0);
-						continue;
-					}
-					else
-					{
-						return (srDispObj->inOutputLen);
-					}
-
-				}
-				/* 不能輸入0也不能ByPass */
-				else
-				{
-					/* 判斷輸入為零 提示聲音+重新輸入 */
-					if (atol(srDispObj->szOutput) == 0L || srDispObj->inOutputLen == 0)
-					{
-						inDISP_BEEP(1, 0);
-						continue;
-					}
-					else
-					{
-						return (srDispObj->inOutputLen);
-					}
-
-				}
-                        case _KEY_CLEAR_ :
-                                if (srDispObj->inOutputLen > 0)
-                                {
-                                        srDispObj->szOutput[srDispObj->inOutputLen - 1] = 0x00;
-                                        srDispObj->inOutputLen --;
-                                        break;
-                                }
-                                else
-                                        continue;
-                        case _KEY_0_ :
-                        case _KEY_1_ :
-                        case _KEY_2_ :
-                        case _KEY_3_ :
-                        case _KEY_4_ :
-                        case _KEY_5_ :
-                        case _KEY_6_ :
-                        case _KEY_7_ :
-                        case _KEY_8_ :
-                        case _KEY_9_ :
-				/* 若超過最大長度時長嗶一聲 */
-				if (srDispObj->inOutputLen >= srDispObj->inMaxLen)
-				{
-					inDISP_BEEP(1, 1);
-					continue;
-				}
-
-                                sprintf(&srDispObj->szOutput[srDispObj->inOutputLen], "%c", uszkey);
-                                srDispObj->inOutputLen ++;
-                                break;
-			case _MENUKEYIN_EVENT_:
-                                /* 將inMenuKeyIn初始化 */
-                                srDispObj->inMenuKeyIn = -1;
-                                break;
-                        default :
-                                continue;
-                }
-
-                /* 如果長度大於16，將8X16轉8X23顯示 */
-                if (srDispObj->inOutputLen + strlen(srDispObj->szPromptMsg) <= 19  && srDispObj->inOutputLen + strlen(srDispObj->szPromptMsg) > 16)
-                {
-                        /* 將8行模式顯示轉換成10行模式 */
-                        inY_12X19 = (srDispObj->inY * 3) / 2;
-                        /* 設定螢幕字型大小 */
-                        srDispObj->inFoneSize = _ENGLISH_FONT_8X22_;
-                        /* 一律先把畫面清掉後再顯示輸入訊息 */
-                        if (srDispObj->inX != 0)
-				inDISP_Clear_Area(srDispObj->inX, srDispObj->inY, 16, srDispObj->inY, srDispObj->inFoneSize);
-			else
-				inDISP_Clear_Area(1, srDispObj->inY, 16, srDispObj->inY, srDispObj->inFoneSize);
-
-			memset(szTemplate, 0x00, sizeof(szTemplate));
-			if (srDispObj->inR_L == _DISP_LEFT_)
-                        {
-				memset(szTemplate, 0x00, sizeof(szTemplate));
-
-                                if (srDispObj->inMask == VS_TRUE)
-                                {
-					/* 將要Mask字數存起來，就memset幾個* */
-                                        memset(szMaskOutput, 0x00, sizeof(szMaskOutput));
-                                        memset(szMaskOutput, '*', srDispObj->inOutputLen);
-
-                                        if (strlen(srDispObj->szPromptMsg) > 0)
-                                        {
-                                                /* 如果有提示字串將顯示 */
-                                                strcpy(szTemplate, srDispObj->szPromptMsg);
-                                                strcat(szTemplate, szMaskOutput);
-                                        }
-                                        else
-                                        {
-						strcat(szTemplate, szMaskOutput);
-                                        }
-                                }
-                                else
-                                {
-					if (strlen(srDispObj->szPromptMsg) > 0)
-                                        {
-                                                /* 如果有提示字串將顯示 */
-                                                strcpy(szTemplate, srDispObj->szPromptMsg);
-                                                strcat(szTemplate, srDispObj->szOutput);
-                                        }
-                                        else
-                                        {
-                                                strcpy(szTemplate, srDispObj->szOutput);
-                                        }
-                                }
-
-				inDISP_EnglishFont_Color(szTemplate, _FONTSIZE_12X19_, inY_12X19, inColor, _DISP_LEFT_);
-                        }
-                        else if (srDispObj->inR_L == _DISP_RIGHT_)
-                        {
-                                memset(szTemplate, 0x00, sizeof(szTemplate));
-
-                                if (srDispObj->inMask == VS_TRUE)
-                                {
-					/* 將要Mask字數存起來，就memset幾個* */
-                                        memset(szMaskOutput, 0x00, sizeof(szMaskOutput));
-                                        memset(szMaskOutput, '*', srDispObj->inOutputLen);
-
-                                        if (strlen(srDispObj->szPromptMsg) > 0)
-                                        {
-                                                /* 如果有提示字串將顯示 */
-                                                strcpy(szTemplate, srDispObj->szPromptMsg);
-                                                strcat(szTemplate, szMaskOutput);
-                                        }
-                                        else
-                                        {
-                                                strcpy(szTemplate, szMaskOutput);
-                                        }
-                                }
-                                else
-                                {
-                                        if (strlen(srDispObj->szPromptMsg) > 0)
-                                        {
-                                                /* 如果有提示字串將顯示 */
-                                                strcpy(szTemplate, srDispObj->szPromptMsg);
-                                                strcat(szTemplate, srDispObj->szOutput);
-                                        }
-                                        else
-                                        {
-                                                strcpy(szTemplate, srDispObj->szOutput);
-                                        }
-                                }
-
-                                inDISP_EnglishFont_Color(szTemplate, _FONTSIZE_12X19_, inY_12X19, inColor, _DISP_RIGHT_);
-                        }
-
-                }
-                else if (srDispObj->inOutputLen + strlen(srDispObj->szPromptMsg) <= 22 && srDispObj->inOutputLen + strlen(srDispObj->szPromptMsg) > 19)
-                {
-                        /* 將8行模式顯示轉換成16行模式 */
-                        inY_16X22 = srDispObj->inY * 2 - 1;
-                        /* 一律先把畫面清掉後再顯示輸入訊息 */
-                        if (srDispObj->inX != 0)
-				inDISP_Clear_Area(srDispObj->inX, srDispObj->inY, 16, srDispObj->inY, srDispObj->inFoneSize);
-			else
-				inDISP_Clear_Area(1, srDispObj->inY, 16, srDispObj->inY, srDispObj->inFoneSize);
-
-			memset(szTemplate, 0x00, sizeof(szTemplate));
-                        if (srDispObj->inR_L == _DISP_LEFT_)
-                        {
-                                if (srDispObj->inMask == VS_TRUE)
-                                {
-					/* 將要Mask字數存起來，就memset幾個* */
-                                        memset(szMaskOutput, 0x00, sizeof(szMaskOutput));
-                                        memset(szMaskOutput, '*', srDispObj->inOutputLen);
-
-                                        if (strlen(srDispObj->szPromptMsg) > 0)
-                                        {
-                                                /* 如果有提示字串將顯示 */
-                                                strcpy(szTemplate, srDispObj->szPromptMsg);
-                                                strcat(szTemplate, szMaskOutput);
-                                        }
-                                        else
-                                        {
-						strcpy(szTemplate, szMaskOutput);
-                                        }
-                                }
-                                else
-                                {
-                                        if (strlen(srDispObj->szPromptMsg) > 0)
-                                        {
-                                                /* 如果有提示字串將顯示 */
-                                                strcpy(szTemplate, srDispObj->szPromptMsg);
-                                                strcat(szTemplate, srDispObj->szOutput);
-                                        }
-                                        else
-                                        {
-                                                strcpy(szTemplate, srDispObj->szOutput);
-                                        }
-                                }
-
-				inDISP_EnglishFont_Color(szTemplate, _FONTSIZE_16X22_, inY_16X22, inColor, _DISP_LEFT_);
-                        }
-                        else if (srDispObj->inR_L == _DISP_RIGHT_)
-                        {
-                                if (srDispObj->inMask == VS_TRUE)
-                                {
-					/* 將要Mask字數存起來，就memset幾個* */
-                                        memset(szMaskOutput, 0x00, sizeof(szMaskOutput));
-                                        memset(szMaskOutput, '*', srDispObj->inOutputLen);
-
-                                        if (strlen(srDispObj->szPromptMsg) > 0)
-                                        {
-                                                /* 如果有提示字串將顯示 */
-                                                strcpy(szTemplate, srDispObj->szPromptMsg);
-                                                strcat(szTemplate, szMaskOutput);
-                                        }
-                                        else
-                                        {
-                                                strcpy(szTemplate, szMaskOutput);
-                                        }
-                                }
-                                else
-                                {
-                                        if (strlen(srDispObj->szPromptMsg) > 0)
-                                        {
-                                                /* 如果有提示字串將顯示 */
-                                                strcpy(szTemplate, srDispObj->szPromptMsg);
-                                                strcat(szTemplate, srDispObj->szOutput);
-                                        }
-                                        else
-                                        {
-                                                strcpy(szTemplate, srDispObj->szOutput);
-                                        }
-                                }
-
-                                inDISP_EnglishFont_Color(szTemplate, _FONTSIZE_16X22_, inY_16X22, inColor, _DISP_RIGHT_);
-                        }
-
-                }
-		else if (srDispObj->inOutputLen + strlen(srDispObj->szPromptMsg) > 22)
-                {
-                        /* 將8行模式顯示轉換成16行模式 */
-                        inY_16X22 = srDispObj->inY * 2 - 1;
-			inY_16X22_2 = srDispObj->inY * 2;
-                        /* 一律先把畫面清掉後再顯示輸入訊息 */
-			if (srDispObj->inX != 0)
-				inDISP_Clear_Area(srDispObj->inX, srDispObj->inY, 16, srDispObj->inY, srDispObj->inFoneSize);
-			else
-				inDISP_Clear_Area(1, srDispObj->inY, 16, srDispObj->inY, srDispObj->inFoneSize);
-
-			memset(szTemplate, 0x00, sizeof(szTemplate));
-			memset(szTemplate2, 0x00, sizeof(szTemplate2));
-			inPart1Len = 22 - strlen(srDispObj->szPromptMsg);
-			inPart2Len = srDispObj->inOutputLen + strlen(srDispObj->szPromptMsg) - 22;
-
-                        if (srDispObj->inR_L == _DISP_LEFT_)
-                        {
-                                if (srDispObj->inMask == VS_TRUE)
-                                {
-
-					/* 將要Mask字數存起來，就memset幾個* */
-                                        memset(szMaskOutput, 0x00, sizeof(szMaskOutput));
-                                        memset(szMaskOutput, '*', inPart1Len);
-
-					memset(szMaskOutput2, 0x00, sizeof(szMaskOutput));
-                                        memset(szMaskOutput2, '*', inPart2Len);
-
-                                        if (strlen(srDispObj->szPromptMsg) > 0)
-                                        {
-                                                /* 如果有提示字串將顯示 */
-                                                strcpy(szTemplate, srDispObj->szPromptMsg);
-                                                strcat(szTemplate, szMaskOutput);
-						strcpy(szTemplate2, szMaskOutput2);
-                                        }
-                                        else
-                                        {
-						strcpy(szTemplate, szMaskOutput);
-						strcpy(szTemplate2, szMaskOutput2);
-                                        }
-                                }
-                                else
-                                {
-					memset(szTemp, 0x00, sizeof(szTemp));
-					memcpy(szTemp, srDispObj->szOutput, inPart1Len);
-
-					memset(szTemp2, 0x00, sizeof(szTemp2));
-					memcpy(szTemp2, &srDispObj->szOutput[inPart1Len], inPart2Len);
-
-                                        if (strlen(srDispObj->szPromptMsg) > 0)
-                                        {
-                                                /* 如果有提示字串將顯示 */
-                                                strcpy(szTemplate, srDispObj->szPromptMsg);
-                                                strcat(szTemplate, szTemp);
-						strcpy(szTemplate2, szTemp2);
-                                        }
-                                        else
-                                        {
-                                                strcpy(szTemplate, szTemp);
-						strcpy(szTemplate2, szTemp2);
-                                        }
-                                }
-
-				inDISP_EnglishFont_Color(szTemplate, _FONTSIZE_16X22_, inY_16X22, inColor, _DISP_LEFT_);
-				inDISP_EnglishFont_Color(szTemplate2, _FONTSIZE_16X22_, inY_16X22_2, inColor, _DISP_LEFT_);
-                        }
-                        else if (srDispObj->inR_L == _DISP_RIGHT_)
-                        {
-                                if (srDispObj->inMask == VS_TRUE)
-                                {
-					/* 將要Mask字數存起來，就memset幾個* */
-                                        memset(szMaskOutput, 0x00, sizeof(szMaskOutput));
-                                        memset(szMaskOutput, '*', inPart1Len);
-
-					memset(szMaskOutput2, 0x00, sizeof(szMaskOutput));
-                                        memset(szMaskOutput2, '*', inPart2Len);
-
-                                        if (strlen(srDispObj->szPromptMsg) > 0)
-                                        {
-                                                /* 如果有提示字串將顯示 */
-                                                strcpy(szTemplate, srDispObj->szPromptMsg);
-                                                strcat(szTemplate, szMaskOutput);
-						strcpy(szTemplate2, szMaskOutput2);
-                                        }
-                                        else
-                                        {
-                                                strcpy(szTemplate, szMaskOutput);
-						strcpy(szTemplate2, szMaskOutput2);
-                                        }
-                                }
-                                else
-                                {
-                                        memset(szTemp, 0x00, sizeof(szTemp));
-					memcpy(szTemp, srDispObj->szOutput, inPart1Len);
-
-					memset(szTemp2, 0x00, sizeof(szTemp2));
-					memcpy(szTemp2, &srDispObj->szOutput[inPart1Len], inPart2Len);
-
-                                        if (strlen(srDispObj->szPromptMsg) > 0)
-                                        {
-                                                /* 如果有提示字串將顯示 */
-                                                strcpy(szTemplate, srDispObj->szPromptMsg);
-                                                strcat(szTemplate, szTemp);
-						strcpy(szTemplate2, szTemp2);
-                                        }
-                                        else
-                                        {
-                                                strcpy(szTemplate, szTemp);
-						strcpy(szTemplate2, szTemp2);
-                                        }
-                                }
-
-                                inDISP_EnglishFont_Color(szTemplate, _FONTSIZE_16X22_, inY_16X22, inColor, _DISP_RIGHT_);
-				inDISP_EnglishFont_Color(szTemplate2, _FONTSIZE_16X22_, inY_16X22_2, inColor, _DISP_RIGHT_);
-                        }
-
-                }
-		else
-		{
-			/* 設定螢幕字型大小 */
-			srDispObj->inFoneSize = _ENGLISH_FONT_8X16_;
-			/* 一律先把畫面清掉後再顯示輸入訊息 */
-			if (srDispObj->inX != 0)
-				inDISP_Clear_Area(srDispObj->inX, srDispObj->inY, 16, srDispObj->inY, srDispObj->inFoneSize);
-			else
-				inDISP_Clear_Area(1, srDispObj->inY, 16, srDispObj->inY, srDispObj->inFoneSize);
-
-			memset(szTemplate, 0x00, sizeof(szTemplate));
-			if (srDispObj->inR_L == _DISP_LEFT_)
-			{
-				if (srDispObj->inMask == VS_TRUE)
-				{
-					/* 將要Mask字數存起來，就memset幾個* */
-					memset(szMaskOutput, 0x00, sizeof(szMaskOutput));
-					memset(szMaskOutput, '*', srDispObj->inOutputLen);
-
-					if (strlen(srDispObj->szPromptMsg) > 0)
-					{
-						/* 如果有提示字串將顯示 */
-						strcpy(szTemplate, srDispObj->szPromptMsg);
-						strcat(szTemplate, szMaskOutput);
-					}
-					else
-					{
-						strcat(szTemplate, szMaskOutput);
-					}
-				}
-				else
-				{
-					if (strlen(srDispObj->szPromptMsg) > 0)
-					{
-						/* 如果有提示字串將顯示 */
-						strcpy(szTemplate, srDispObj->szPromptMsg);
-						strcat(szTemplate, srDispObj->szOutput);
-					}
-					else
-					{
-						strcpy(szTemplate, srDispObj->szOutput);
-					}
-
-				}
-
-				inDISP_EnglishFont_Color(szTemplate, _FONTSIZE_8X16_, srDispObj->inY, inColor, _DISP_LEFT_);
-			}
-			else if (srDispObj->inR_L == _DISP_RIGHT_)
-			{
-				if (srDispObj->inMask == VS_TRUE)
-				{
-					/* 將要Mask字數存起來，就memset幾個* */
-					memset(szMaskOutput, 0x00, sizeof(szMaskOutput));
-					memset(szMaskOutput, '*', srDispObj->inOutputLen);
-
-					if (strlen(srDispObj->szPromptMsg) > 0)
-					{
-						/* 如果有提示字串將顯示 */
-						strcpy(szTemplate, srDispObj->szPromptMsg);
-						strcat(szTemplate, szMaskOutput);
-					}
-					else
-					{
-						strcpy(szTemplate, szMaskOutput);
-					}
-				}
-				else
-				{
-					if (strlen(srDispObj->szPromptMsg) > 0)
-					{
-						/* 如果有提示字串將顯示 */
-						strcpy(szTemplate, srDispObj->szPromptMsg);
-						strcat(szTemplate, srDispObj->szOutput);
-					}
-					else
-					{
-						strcpy(szTemplate, srDispObj->szOutput);
-					}
-				}
-
-				inDISP_EnglishFont_Color(szTemplate, _FONTSIZE_8X16_, srDispObj->inY, inColor, _DISP_RIGHT_);
-			}
-
-		}
-
-    	}
-
-}
-
-/*
-Function	:inDISP_Enter8x16_NumDot
-Date&Time	:2016/1/6 上午 10:20
-Describe	:輸入數字和點 主要是輸入IP用
-*/
-int inDISP_Enter8x16_NumDot(DISPLAY_OBJECT  *srDispObj)
-{
-	int		inColor;
-	int		inFinalTimeOut, inY_16X22, inY_12X19, inY_16X22_2;
-	int		inPart1Len = 0, inPart2Len = 0;
-	char		szTemplate[_DISP_MSG_SIZE_ + 1], szMaskOutput[_DISP_MSG_SIZE_ + 1];
-	char		szTemplate2[_DISP_MSG_SIZE_ + 1], szMaskOutput2[_DISP_MSG_SIZE_ + 1];
-	char		szTemp[_DISP_MSG_SIZE_ + 1], szTemp2[_DISP_MSG_SIZE_ + 1];
-        unsigned char   uszkey;
-
-	if (srDispObj->inMenuKeyIn > 0)
-        {
-                /* 將輸入第一碼先存起來 */
-                sprintf(&srDispObj->szOutput[srDispObj->inOutputLen], "%c", srDispObj->inMenuKeyIn);
-                srDispObj->inOutputLen ++;
-        }
-
-	/* 若TIMEOUT時間大於0時用傳進來的TimeOut，否則用EDC.dat的 */
-        if (srDispObj->inTimeout > 0)
-	{
-		inFinalTimeOut = srDispObj->inTimeout;
-	}
-	else
-	{
-		inFinalTimeOut = _EDC_TIMEOUT_;
-	}
-
-	inColor = srDispObj->inColor;
-
-	while (1)
-	{
-                uszkey = -1;
-
-		if (srDispObj->inMenuKeyIn > 0)
-                {
-			/* 如果為MenuKeyIn，第一個數字要顯示 */
-                        uszkey = _MENUKEYIN_EVENT_;
-                }
-                else
-                {
-			uszkey = uszKBD_GetKey(inFinalTimeOut);
-                }
-
-                switch (uszkey)
-                {
-                        case _KEY_CANCEL_ :
-                                srDispObj->inOutputLen = 0;
-                                memset(srDispObj->szOutput, 0x00, sizeof(srDispObj->szOutput));
-                                return (VS_USER_CANCEL);
-                        case _KEY_TIMEOUT_ :
-                                srDispObj->inOutputLen = 0;
-                                memset(srDispObj->szOutput, 0x00, sizeof(srDispObj->szOutput));
-                                return(VS_TIMEOUT);
-                        case _KEY_ENTER_ :
-                                /* 先確認該部份是否可輸入0 和 ByPass */
-				if (srDispObj->inCanNotZero != VS_TRUE && srDispObj->inCanNotBypass != VS_TRUE)
-				{
-					return (srDispObj->inOutputLen);
-				}
-				/* 不能ByPass但可以輸入0 */
-				else if (srDispObj->inCanNotZero != VS_TRUE && srDispObj->inCanNotBypass == VS_TRUE)
-				{
-					if (srDispObj->inOutputLen == 0)
-					{
-						inDISP_BEEP(1, 0);
-						continue;
-					}
-					else
-					{
-						return (srDispObj->inOutputLen);
-					}
-				}
-				/* 不能輸入0但可以ByPass */
-				else if (srDispObj->inCanNotZero == VS_TRUE && srDispObj->inCanNotBypass != VS_TRUE)
-				{
-					/* 判斷輸入為零 提示聲音+重新輸入 */
-					if (atol(srDispObj->szOutput) == 0L)
-					{
-						inDISP_BEEP(1, 0);
-						continue;
-					}
-					else
-					{
-						return (srDispObj->inOutputLen);
-					}
-
-				}
-				/* 不能輸入0也不能ByPass */
-				else
-				{
-					/* 判斷輸入為零 提示聲音+重新輸入 */
-					if (atol(srDispObj->szOutput) == 0L || srDispObj->inOutputLen == 0)
-					{
-						inDISP_BEEP(1, 0);
-						continue;
-					}
-					else
-					{
-						return (srDispObj->inOutputLen);
-					}
-
-				}
-                        case _KEY_CLEAR_ :
-                                if (srDispObj->inOutputLen > 0)
-                                {
-                                        srDispObj->szOutput[srDispObj->inOutputLen - 1] = 0x00;
-                                        srDispObj->inOutputLen --;
-                                        break;
-                                }
-                                else
-                                        continue;
-                        case _KEY_0_ :
-                        case _KEY_1_ :
-                        case _KEY_2_ :
-                        case _KEY_3_ :
-                        case _KEY_4_ :
-                        case _KEY_5_ :
-                        case _KEY_6_ :
-                        case _KEY_7_ :
-                        case _KEY_8_ :
-                        case _KEY_9_ :
-                                /* 若超過最大長度時長嗶一聲 */
-				if (srDispObj->inOutputLen >= srDispObj->inMaxLen)
-				{
-					inDISP_BEEP(1, 1);
-					continue;
-				}
-
-                                sprintf(&srDispObj->szOutput[srDispObj->inOutputLen], "%c", uszkey);
-                                srDispObj->inOutputLen ++;
-                                break;
-                        case _KEY_DOT_ :
-                                if (srDispObj->inOutputLen >= srDispObj->inMaxLen)
-                                        continue;
-
-                                sprintf(&srDispObj->szOutput[srDispObj->inOutputLen], ".");
-                                srDispObj->inOutputLen ++;
-                                break;
-			case _MENUKEYIN_EVENT_:
-                                /* 將inMenuKeyIn初始化 */
-                                srDispObj->inMenuKeyIn = -1;
-                                break;
-                        default :
-                                continue;
-                }
-
-		/* 如果長度大於16，將8X16轉8X23顯示 */
-                if (srDispObj->inOutputLen + strlen(srDispObj->szPromptMsg) <= 19  && srDispObj->inOutputLen + strlen(srDispObj->szPromptMsg) > 16)
-                {
-                        /* 將8行模式顯示轉換成10行模式 */
-                        inY_12X19 = (srDispObj->inY * 3) / 2;
-                        /* 設定螢幕字型大小 */
-                        srDispObj->inFoneSize = _ENGLISH_FONT_8X22_;
-                        /* 一律先把畫面清掉後再顯示輸入訊息 */
-                        if (srDispObj->inX != 0)
-				inDISP_Clear_Area(srDispObj->inX, srDispObj->inY, 16, srDispObj->inY, srDispObj->inFoneSize);
-			else
-				inDISP_Clear_Area(1, srDispObj->inY, 16, srDispObj->inY, srDispObj->inFoneSize);
-
-			memset(szTemplate, 0x00, sizeof(szTemplate));
-			if (srDispObj->inR_L == _DISP_LEFT_)
-                        {
-				memset(szTemplate, 0x00, sizeof(szTemplate));
-
-                                if (srDispObj->inMask == VS_TRUE)
-                                {
-					/* 將要Mask字數存起來，就memset幾個* */
-                                        memset(szMaskOutput, 0x00, sizeof(szMaskOutput));
-                                        memset(szMaskOutput, '*', srDispObj->inOutputLen);
-
-                                        if (strlen(srDispObj->szPromptMsg) > 0)
-                                        {
-                                                /* 如果有提示字串將顯示 */
-                                                strcpy(szTemplate, srDispObj->szPromptMsg);
-                                                strcat(szTemplate, szMaskOutput);
-                                        }
-                                        else
-                                        {
-						strcat(szTemplate, szMaskOutput);
-                                        }
-                                }
-                                else
-                                {
-					if (strlen(srDispObj->szPromptMsg) > 0)
-                                        {
-                                                /* 如果有提示字串將顯示 */
-                                                strcpy(szTemplate, srDispObj->szPromptMsg);
-                                                strcat(szTemplate, srDispObj->szOutput);
-                                        }
-                                        else
-                                        {
-                                                strcpy(szTemplate, srDispObj->szOutput);
-                                        }
-                                }
-
-				inDISP_EnglishFont_Color(szTemplate, _FONTSIZE_12X19_, inY_12X19, inColor, _DISP_LEFT_);
-                        }
-                        else if (srDispObj->inR_L == _DISP_RIGHT_)
-                        {
-                                memset(szTemplate, 0x00, sizeof(szTemplate));
-
-                                if (srDispObj->inMask == VS_TRUE)
-                                {
-					/* 將要Mask字數存起來，就memset幾個* */
-                                        memset(szMaskOutput, 0x00, sizeof(szMaskOutput));
-                                        memset(szMaskOutput, '*', srDispObj->inOutputLen);
-
-                                        if (strlen(srDispObj->szPromptMsg) > 0)
-                                        {
-                                                /* 如果有提示字串將顯示 */
-                                                strcpy(szTemplate, srDispObj->szPromptMsg);
-                                                strcat(szTemplate, szMaskOutput);
-                                        }
-                                        else
-                                        {
-                                                strcpy(szTemplate, szMaskOutput);
-                                        }
-                                }
-                                else
-                                {
-                                        if (strlen(srDispObj->szPromptMsg) > 0)
-                                        {
-                                                /* 如果有提示字串將顯示 */
-                                                strcpy(szTemplate, srDispObj->szPromptMsg);
-                                                strcat(szTemplate, srDispObj->szOutput);
-                                        }
-                                        else
-                                        {
-                                                strcpy(szTemplate, srDispObj->szOutput);
-                                        }
-                                }
-
-                                inDISP_EnglishFont_Color(szTemplate, _FONTSIZE_12X19_, inY_12X19, inColor, _DISP_RIGHT_);
-                        }
-
-                }
-                else if (srDispObj->inOutputLen + strlen(srDispObj->szPromptMsg) <= 22 && srDispObj->inOutputLen + strlen(srDispObj->szPromptMsg) > 19)
-                {
-                        /* 將8行模式顯示轉換成16行模式 */
-                        inY_16X22 = srDispObj->inY * 2 - 1;
-                        /* 一律先把畫面清掉後再顯示輸入訊息 */
-                        if (srDispObj->inX != 0)
-				inDISP_Clear_Area(srDispObj->inX, srDispObj->inY, 16, srDispObj->inY, srDispObj->inFoneSize);
-			else
-				inDISP_Clear_Area(1, srDispObj->inY, 16, srDispObj->inY, srDispObj->inFoneSize);
-
-			memset(szTemplate, 0x00, sizeof(szTemplate));
-                        if (srDispObj->inR_L == _DISP_LEFT_)
-                        {
-                                if (srDispObj->inMask == VS_TRUE)
-                                {
-					/* 將要Mask字數存起來，就memset幾個* */
-                                        memset(szMaskOutput, 0x00, sizeof(szMaskOutput));
-                                        memset(szMaskOutput, '*', srDispObj->inOutputLen);
-
-                                        if (strlen(srDispObj->szPromptMsg) > 0)
-                                        {
-                                                /* 如果有提示字串將顯示 */
-                                                strcpy(szTemplate, srDispObj->szPromptMsg);
-                                                strcat(szTemplate, szMaskOutput);
-                                        }
-                                        else
-                                        {
-						strcpy(szTemplate, szMaskOutput);
-                                        }
-                                }
-                                else
-                                {
-                                        if (strlen(srDispObj->szPromptMsg) > 0)
-                                        {
-                                                /* 如果有提示字串將顯示 */
-                                                strcpy(szTemplate, srDispObj->szPromptMsg);
-                                                strcat(szTemplate, srDispObj->szOutput);
-                                        }
-                                        else
-                                        {
-                                                strcpy(szTemplate, srDispObj->szOutput);
-                                        }
-                                }
-
-				inDISP_EnglishFont_Color(szTemplate, _FONTSIZE_16X22_, inY_16X22, inColor, _DISP_LEFT_);
-                        }
-                        else if (srDispObj->inR_L == _DISP_RIGHT_)
-                        {
-                                if (srDispObj->inMask == VS_TRUE)
-                                {
-					/* 將要Mask字數存起來，就memset幾個* */
-                                        memset(szMaskOutput, 0x00, sizeof(szMaskOutput));
-                                        memset(szMaskOutput, '*', srDispObj->inOutputLen);
-
-                                        if (strlen(srDispObj->szPromptMsg) > 0)
-                                        {
-                                                /* 如果有提示字串將顯示 */
-                                                strcpy(szTemplate, srDispObj->szPromptMsg);
-                                                strcat(szTemplate, szMaskOutput);
-                                        }
-                                        else
-                                        {
-                                                strcpy(szTemplate, szMaskOutput);
-                                        }
-                                }
-                                else
-                                {
-                                        if (strlen(srDispObj->szPromptMsg) > 0)
-                                        {
-                                                /* 如果有提示字串將顯示 */
-                                                strcpy(szTemplate, srDispObj->szPromptMsg);
-                                                strcat(szTemplate, srDispObj->szOutput);
-                                        }
-                                        else
-                                        {
-                                                strcpy(szTemplate, srDispObj->szOutput);
-                                        }
-                                }
-
-                                inDISP_EnglishFont_Color(szTemplate, _FONTSIZE_16X22_, inY_16X22, inColor, _DISP_RIGHT_);
-                        }
-
-                }
-				else if (srDispObj->inOutputLen + strlen(srDispObj->szPromptMsg) > 22)
-                {
-                        /* 將8行模式顯示轉換成16行模式 */
-                        inY_16X22 = srDispObj->inY * 2 - 1;
-			inY_16X22_2 = srDispObj->inY * 2;
-                        /* 一律先把畫面清掉後再顯示輸入訊息 */
-			if (srDispObj->inX != 0)
-				inDISP_Clear_Area(srDispObj->inX, srDispObj->inY, 16, srDispObj->inY, srDispObj->inFoneSize);
-			else
-				inDISP_Clear_Area(1, srDispObj->inY, 16, srDispObj->inY, srDispObj->inFoneSize);
-
-			memset(szTemplate, 0x00, sizeof(szTemplate));
-			memset(szTemplate2, 0x00, sizeof(szTemplate2));
-			inPart1Len = 22 - strlen(srDispObj->szPromptMsg);
-			inPart2Len = srDispObj->inOutputLen + strlen(srDispObj->szPromptMsg) - 22;
-
-                        if (srDispObj->inR_L == _DISP_LEFT_)
-                        {
-                                if (srDispObj->inMask == VS_TRUE)
-                                {
-
-					/* 將要Mask字數存起來，就memset幾個* */
-                                        memset(szMaskOutput, 0x00, sizeof(szMaskOutput));
-                                        memset(szMaskOutput, '*', inPart1Len);
-
-					memset(szMaskOutput2, 0x00, sizeof(szMaskOutput));
-                                        memset(szMaskOutput2, '*', inPart2Len);
-
-                                        if (strlen(srDispObj->szPromptMsg) > 0)
-                                        {
-                                                /* 如果有提示字串將顯示 */
-                                                strcpy(szTemplate, srDispObj->szPromptMsg);
-                                                strcat(szTemplate, szMaskOutput);
-						strcpy(szTemplate2, szMaskOutput2);
-                                        }
-                                        else
-                                        {
-						strcpy(szTemplate, szMaskOutput);
-						strcpy(szTemplate2, szMaskOutput2);
-                                        }
-                                }
-                                else
-                                {
-					memset(szTemp, 0x00, sizeof(szTemp));
-					memcpy(szTemp, srDispObj->szOutput, inPart1Len);
-
-					memset(szTemp2, 0x00, sizeof(szTemp2));
-					memcpy(szTemp2, &srDispObj->szOutput[inPart1Len], inPart2Len);
-
-                                        if (strlen(srDispObj->szPromptMsg) > 0)
-                                        {
-                                                /* 如果有提示字串將顯示 */
-                                                strcpy(szTemplate, srDispObj->szPromptMsg);
-                                                strcat(szTemplate, szTemp);
-						strcpy(szTemplate2, szTemp2);
-                                        }
-                                        else
-                                        {
-                                                strcpy(szTemplate, szTemp);
-						strcpy(szTemplate2, szTemp2);
-                                        }
-                                }
-
-				inDISP_EnglishFont_Color(szTemplate, _FONTSIZE_16X22_, inY_16X22, inColor, _DISP_LEFT_);
-				inDISP_EnglishFont_Color(szTemplate2, _FONTSIZE_16X22_, inY_16X22_2, inColor, _DISP_LEFT_);
-                        }
-                        else if (srDispObj->inR_L == _DISP_RIGHT_)
-                        {
-                                if (srDispObj->inMask == VS_TRUE)
-                                {
-					/* 將要Mask字數存起來，就memset幾個* */
-                                        memset(szMaskOutput, 0x00, sizeof(szMaskOutput));
-                                        memset(szMaskOutput, '*', inPart1Len);
-
-					memset(szMaskOutput2, 0x00, sizeof(szMaskOutput));
-                                        memset(szMaskOutput2, '*', inPart2Len);
-
-                                        if (strlen(srDispObj->szPromptMsg) > 0)
-                                        {
-                                                /* 如果有提示字串將顯示 */
-                                                strcpy(szTemplate, srDispObj->szPromptMsg);
-                                                strcat(szTemplate, szMaskOutput);
-						strcpy(szTemplate2, szMaskOutput2);
-                                        }
-                                        else
-                                        {
-                                                strcpy(szTemplate, szMaskOutput);
-						strcpy(szTemplate2, szMaskOutput2);
-                                        }
-                                }
-                                else
-                                {
-                                        memset(szTemp, 0x00, sizeof(szTemp));
-					memcpy(szTemp, srDispObj->szOutput, inPart1Len);
-
-					memset(szTemp2, 0x00, sizeof(szTemp2));
-					memcpy(szTemp2, &srDispObj->szOutput[inPart1Len], inPart2Len);
-
-                                        if (strlen(srDispObj->szPromptMsg) > 0)
-                                        {
-                                                /* 如果有提示字串將顯示 */
-                                                strcpy(szTemplate, srDispObj->szPromptMsg);
-                                                strcat(szTemplate, szTemp);
-						strcpy(szTemplate2, szTemp2);
-                                        }
-                                        else
-                                        {
-                                                strcpy(szTemplate, szTemp);
-						strcpy(szTemplate2, szTemp2);
-                                        }
-                                }
-
-                                inDISP_EnglishFont_Color(szTemplate, _FONTSIZE_16X22_, inY_16X22, inColor, _DISP_RIGHT_);
-				inDISP_EnglishFont_Color(szTemplate2, _FONTSIZE_16X22_, inY_16X22_2, inColor, _DISP_RIGHT_);
-                        }
-
-                }
-		else
-		{
-			/* 設定螢幕字型大小 */
-			srDispObj->inFoneSize = _ENGLISH_FONT_8X16_;
-			/* 一律先把畫面清掉後再顯示輸入訊息 */
-			if (srDispObj->inX != 0)
-				inDISP_Clear_Area(srDispObj->inX, srDispObj->inY, 16, srDispObj->inY, srDispObj->inFoneSize);
-			else
-				inDISP_Clear_Area(1, srDispObj->inY, 16, srDispObj->inY, srDispObj->inFoneSize);
-
-			memset(szTemplate, 0x00, sizeof(szTemplate));
-			if (srDispObj->inR_L == _DISP_LEFT_)
-			{
-				if (srDispObj->inMask == VS_TRUE)
-				{
-					/* 將要Mask字數存起來，就memset幾個* */
-					memset(szMaskOutput, 0x00, sizeof(szMaskOutput));
-					memset(szMaskOutput, '*', srDispObj->inOutputLen);
-
-					if (strlen(srDispObj->szPromptMsg) > 0)
-					{
-						/* 如果有提示字串將顯示 */
-						strcpy(szTemplate, srDispObj->szPromptMsg);
-						strcat(szTemplate, szMaskOutput);
-					}
-					else
-					{
-						strcat(szTemplate, szMaskOutput);
-					}
-				}
-				else
-				{
-					if (strlen(srDispObj->szPromptMsg) > 0)
-					{
-						/* 如果有提示字串將顯示 */
-						strcpy(szTemplate, srDispObj->szPromptMsg);
-						strcat(szTemplate, srDispObj->szOutput);
-					}
-					else
-					{
-						strcpy(szTemplate, srDispObj->szOutput);
-					}
-
-				}
-
-				inDISP_EnglishFont_Color(szTemplate, _FONTSIZE_8X16_, srDispObj->inY, inColor, _DISP_LEFT_);
-			}
-			else if (srDispObj->inR_L == _DISP_RIGHT_)
-			{
-				if (srDispObj->inMask == VS_TRUE)
-				{
-					/* 將要Mask字數存起來，就memset幾個* */
-					memset(szMaskOutput, 0x00, sizeof(szMaskOutput));
-					memset(szMaskOutput, '*', srDispObj->inOutputLen);
-
-					if (strlen(srDispObj->szPromptMsg) > 0)
-					{
-						/* 如果有提示字串將顯示 */
-						strcpy(szTemplate, srDispObj->szPromptMsg);
-						strcat(szTemplate, szMaskOutput);
-					}
-					else
-					{
-						strcpy(szTemplate, szMaskOutput);
-					}
-				}
-				else
-				{
-					if (strlen(srDispObj->szPromptMsg) > 0)
-					{
-						/* 如果有提示字串將顯示 */
-						strcpy(szTemplate, srDispObj->szPromptMsg);
-						strcat(szTemplate, srDispObj->szOutput);
-					}
-					else
-					{
-						strcpy(szTemplate, srDispObj->szOutput);
-					}
-				}
-
-				inDISP_EnglishFont_Color(szTemplate, _FONTSIZE_8X16_, srDispObj->inY, inColor, _DISP_RIGHT_);
-			}
-
-		}
-
-    	}
-}
-
-/*
-Function	:inDISP_Enter8x16_Character
-Date&Time	:2015/7/5 下午 7:49
-Describe	:輸入字元包含英數字，建議使用inDISP_Enter8x16_Character_Mask，相當於inDISP_Enter8x16_Character_Mask但不把inMask設為On
-*/
-int inDISP_Enter8x16_Character(DISPLAY_OBJECT  *srDispObj)
-{
-	int		inColor;
-        int		inNumberKey = -1, inAlphaKeyIndex = 0;
-	int		inFinalTimeOut, inY_16X22, inY_12X19, inY_16X22_2;
-	int		inPart1Len = 0, inPart2Len = 0;
-	char		szTemplate[_DISP_MSG_SIZE_ + 1], szMaskOutput[_DISP_MSG_SIZE_ + 1];
-	char		szTemplate2[_DISP_MSG_SIZE_ + 1], szMaskOutput2[_DISP_MSG_SIZE_ + 1];
-	char		szTemp[_DISP_MSG_SIZE_ + 1], szTemp2[_DISP_MSG_SIZE_ + 1];
-        char		CharSet[10][15] = {{"0.,@* -"},{"1QZqz"},{"2ABCabc"},{"3DEFdef"},
-                                  {"4GHIghi"},{"5JKLjkl"},{"6MNOmno"},
-                                  {"7PRSprs"},{"8TUVtuv"},{"9WXYwxy"}};
-        unsigned char	uszkey = 0x00;
-	unsigned char	uszFindAlpha = VS_FALSE;
-
-	if (srDispObj->inMenuKeyIn > 0)
-        {
-                /* 將輸入第一碼先存起來 */
-                sprintf(&srDispObj->szOutput[srDispObj->inOutputLen], "%c", srDispObj->inMenuKeyIn);
-                srDispObj->inOutputLen ++;
-        }
-
-	/* 若TIMEOUT時間大於0時用傳進來的TimeOut，否則用EDC.dat的 */
-        if (srDispObj->inTimeout > 0)
-	{
-		inFinalTimeOut = srDispObj->inTimeout;
-	}
-	else
-	{
-		inFinalTimeOut = _EDC_TIMEOUT_;
-	}
-
-	inColor = srDispObj->inColor;
-
-	while (1)
-	{
-                uszkey = -1;
-
-                if (srDispObj->inMenuKeyIn > 0)
-                {
-			/* 如果為MenuKeyIn，第一個數字要顯示 */
-                        uszkey = _MENUKEYIN_EVENT_;
-                }
-                else
-                {
-			uszkey = uszKBD_GetKey(inFinalTimeOut);
-                }
-
-                switch (uszkey)
-                {
-                        case _KEY_CANCEL_ :
-                                srDispObj->inOutputLen = 0;
-                                memset(srDispObj->szOutput, 0x00, sizeof(srDispObj->szOutput));
-                                return (VS_USER_CANCEL);
-                        case _KEY_TIMEOUT_ :
-                                srDispObj->inOutputLen = 0;
-                                memset(srDispObj->szOutput, 0x00, sizeof(srDispObj->szOutput));
-                                return(VS_TIMEOUT);
-                        case _KEY_ENTER_ :
-                                /* 先確認該部份是否可輸入0 和 ByPass */
-				if (srDispObj->inCanNotZero != VS_TRUE && srDispObj->inCanNotBypass != VS_TRUE)
-				{
-					return (srDispObj->inOutputLen);
-				}
-				/* 不能ByPass但可以輸入0 */
-				else if (srDispObj->inCanNotZero != VS_TRUE && srDispObj->inCanNotBypass == VS_TRUE)
-				{
-					if (srDispObj->inOutputLen == 0)
-					{
-						inDISP_BEEP(1, 0);
-						continue;
-					}
-					else
-					{
-						return (srDispObj->inOutputLen);
-					}
-				}
-				/* 不能輸入0但可以ByPass */
-				else if (srDispObj->inCanNotZero == VS_TRUE && srDispObj->inCanNotBypass != VS_TRUE)
-				{
-					/* 判斷輸入為零 提示聲音+重新輸入 */
-					if (atol(srDispObj->szOutput) == 0L)
-					{
-						inDISP_BEEP(1, 0);
-						continue;
-					}
-					else
-					{
-						return (srDispObj->inOutputLen);
-					}
-
-				}
-				/* 不能輸入0也不能ByPass */
-				else
-				{
-					/* 判斷輸入為零 提示聲音+重新輸入 */
-					if (atol(srDispObj->szOutput) == 0L || srDispObj->inOutputLen == 0)
-					{
-						inDISP_BEEP(1, 0);
-						continue;
-					}
-					else
-					{
-						return (srDispObj->inOutputLen);
-					}
-
-				}
-                        case _KEY_CLEAR_ :
-				if (srDispObj->inOutputLen > 1)
-                                {
-                                        srDispObj->szOutput[srDispObj->inOutputLen - 1] = 0x00;
-                                        szMaskOutput[srDispObj->inOutputLen - 1] = 0x00;
-                                        srDispObj->inOutputLen --;
-
-					uszFindAlpha = VS_FALSE;
-					for (inNumberKey = 0; inNumberKey < 10; inNumberKey++)
-					{
-						for (inAlphaKeyIndex = 0; inAlphaKeyIndex < 15; inAlphaKeyIndex++)
-						{
-							if (CharSet[inNumberKey][inAlphaKeyIndex] == srDispObj->szOutput[srDispObj->inOutputLen - 1])
-							{
-								uszFindAlpha = VS_TRUE;
-							}
-
-							/* 找到就一路break出去 */
-							if (uszFindAlpha == VS_TRUE)
-							{
-								break;
-							}
-						}
-
-						/* 找到就一路break出去 */
-						if (uszFindAlpha == VS_TRUE)
-						{
-							break;
-						}
-					}
-
-					/* 找到就一路break出去 */
-					if (uszFindAlpha == VS_TRUE)
-					{
-
-					}
-					else
-					{
-						inAlphaKeyIndex = 0;
-						inNumberKey = -1;
-					}
-                                        break;
-                                }
-                                else if (srDispObj->inOutputLen == 1)
-                                {
-                                        srDispObj->szOutput[srDispObj->inOutputLen - 1] = 0x00;
-                                        szMaskOutput[srDispObj->inOutputLen - 1] = 0x00;
-                                        srDispObj->inOutputLen --;
-
-					inAlphaKeyIndex = 0;
-					inNumberKey = -1;
-                                        break;
-                                }
-                                else
-				{
-					inAlphaKeyIndex = 0;
-					inNumberKey = -1;
-                                        continue;
-				}
-                        case _KEY_0_ :
-                        case _KEY_1_ :
-                        case _KEY_2_ :
-                        case _KEY_3_ :
-                        case _KEY_4_ :
-                        case _KEY_5_ :
-                        case _KEY_6_ :
-                        case _KEY_7_ :
-                        case _KEY_8_ :
-                        case _KEY_9_ :
-                                /* 若超過最大長度時長嗶一聲 */
-				if (srDispObj->inOutputLen >= srDispObj->inMaxLen)
-				{
-					inDISP_BEEP(1, 1);
-					continue;
-				}
-
-                                sprintf(&srDispObj->szOutput[srDispObj->inOutputLen], "%c", uszkey);
-                                srDispObj->inOutputLen ++;
-
-                                /* 將當下的Array存起來，以便切換Alpha鍵 */
-                                inNumberKey = uszkey - 48;
-                                /* 回到當初的index */
-                                inAlphaKeyIndex = 0;
-                                break;
-                        case _KEY_ALPHA_ :
-                                if (inNumberKey == -1)
-                                        continue;
-
-				inAlphaKeyIndex++;
-
-                                switch (inNumberKey)
-                                {
-                                        case 0 :
-					case 1 :
-                                        case 2 :
-                                        case 3 :
-                                        case 4 :
-                                        case 5 :
-                                        case 6 :
-                                        case 7 :
-                                        case 8 :
-                                        case 9 :
-                                                if (inAlphaKeyIndex >= strlen(CharSet[inNumberKey]))
-                                                        inAlphaKeyIndex = 0;
-                                                break;
-                                }
-
-
-				/* 至Array中抓取對應位置的符號再塞到srDispObj->szOutput */
-                                memcpy(&srDispObj->szOutput[srDispObj->inOutputLen - 1], &CharSet[inNumberKey][inAlphaKeyIndex], 1);
-
-                                break;
-			case _MENUKEYIN_EVENT_:
-                                /* 將inMenuKeyIn初始化 */
-                                srDispObj->inMenuKeyIn = -1;
-                                break;
-                        default :
-                                continue;
-                }
-
-                /* 如果長度大於16，將8X16轉8X23顯示 */
-                if (srDispObj->inOutputLen + strlen(srDispObj->szPromptMsg) <= 19  && srDispObj->inOutputLen + strlen(srDispObj->szPromptMsg) > 16)
-                {
-                        /* 將8行模式顯示轉換成10行模式 */
-                        inY_12X19 = (srDispObj->inY * 3) / 2;
-                        /* 設定螢幕字型大小 */
-                        srDispObj->inFoneSize = _ENGLISH_FONT_8X22_;
-                        /* 一律先把畫面清掉後再顯示輸入訊息 */
-                        if (srDispObj->inX != 0)
-				inDISP_Clear_Area(srDispObj->inX, srDispObj->inY, 16, srDispObj->inY, srDispObj->inFoneSize);
-			else
-				inDISP_Clear_Area(1, srDispObj->inY, 16, srDispObj->inY, srDispObj->inFoneSize);
-
-			memset(szTemplate, 0x00, sizeof(szTemplate));
-			if (srDispObj->inR_L == _DISP_LEFT_)
-                        {
-				memset(szTemplate, 0x00, sizeof(szTemplate));
-
-                                if (srDispObj->inMask == VS_TRUE)
-                                {
-					/* 將要Mask字數存起來，就memset幾個* */
-                                        memset(szMaskOutput, 0x00, sizeof(szMaskOutput));
-                                        memset(szMaskOutput, '*', srDispObj->inOutputLen);
-
-                                        if (strlen(srDispObj->szPromptMsg) > 0)
-                                        {
-                                                /* 如果有提示字串將顯示 */
-                                                strcpy(szTemplate, srDispObj->szPromptMsg);
-                                                strcat(szTemplate, szMaskOutput);
-                                        }
-                                        else
-                                        {
-						strcat(szTemplate, szMaskOutput);
-                                        }
-                                }
-                                else
-                                {
-					if (strlen(srDispObj->szPromptMsg) > 0)
-                                        {
-                                                /* 如果有提示字串將顯示 */
-                                                strcpy(szTemplate, srDispObj->szPromptMsg);
-                                                strcat(szTemplate, srDispObj->szOutput);
-                                        }
-                                        else
-                                        {
-                                                strcpy(szTemplate, srDispObj->szOutput);
-                                        }
-                                }
-
-				inDISP_EnglishFont_Color(szTemplate, _FONTSIZE_12X19_, inY_12X19, inColor, _DISP_LEFT_);
-                        }
-                        else if (srDispObj->inR_L == _DISP_RIGHT_)
-                        {
-                                memset(szTemplate, 0x00, sizeof(szTemplate));
-
-                                if (srDispObj->inMask == VS_TRUE)
-                                {
-					/* 將要Mask字數存起來，就memset幾個* */
-                                        memset(szMaskOutput, 0x00, sizeof(szMaskOutput));
-                                        memset(szMaskOutput, '*', srDispObj->inOutputLen);
-
-                                        if (strlen(srDispObj->szPromptMsg) > 0)
-                                        {
-                                                /* 如果有提示字串將顯示 */
-                                                strcpy(szTemplate, srDispObj->szPromptMsg);
-                                                strcat(szTemplate, szMaskOutput);
-                                        }
-                                        else
-                                        {
-                                                strcpy(szTemplate, szMaskOutput);
-                                        }
-                                }
-                                else
-                                {
-                                        if (strlen(srDispObj->szPromptMsg) > 0)
-                                        {
-                                                /* 如果有提示字串將顯示 */
-                                                strcpy(szTemplate, srDispObj->szPromptMsg);
-                                                strcat(szTemplate, srDispObj->szOutput);
-                                        }
-                                        else
-                                        {
-                                                strcpy(szTemplate, srDispObj->szOutput);
-                                        }
-                                }
-
-                                inDISP_EnglishFont_Color(szTemplate, _FONTSIZE_12X19_, inY_12X19, inColor, _DISP_RIGHT_);
-                        }
-
-                }
-                else if (srDispObj->inOutputLen + strlen(srDispObj->szPromptMsg) <= 22 && srDispObj->inOutputLen + strlen(srDispObj->szPromptMsg) > 19)
-                {
-                        /* 將8行模式顯示轉換成16行模式 */
-                        inY_16X22 = srDispObj->inY * 2 - 1;
-                        /* 一律先把畫面清掉後再顯示輸入訊息 */
-                        if (srDispObj->inX != 0)
-				inDISP_Clear_Area(srDispObj->inX, srDispObj->inY, 16, srDispObj->inY, srDispObj->inFoneSize);
-			else
-				inDISP_Clear_Area(1, srDispObj->inY, 16, srDispObj->inY, srDispObj->inFoneSize);
-
-			memset(szTemplate, 0x00, sizeof(szTemplate));
-                        if (srDispObj->inR_L == _DISP_LEFT_)
-                        {
-                                if (srDispObj->inMask == VS_TRUE)
-                                {
-					/* 將要Mask字數存起來，就memset幾個* */
-                                        memset(szMaskOutput, 0x00, sizeof(szMaskOutput));
-                                        memset(szMaskOutput, '*', srDispObj->inOutputLen);
-
-                                        if (strlen(srDispObj->szPromptMsg) > 0)
-                                        {
-                                                /* 如果有提示字串將顯示 */
-                                                strcpy(szTemplate, srDispObj->szPromptMsg);
-                                                strcat(szTemplate, szMaskOutput);
-                                        }
-                                        else
-                                        {
-						strcpy(szTemplate, szMaskOutput);
-                                        }
-                                }
-                                else
-                                {
-                                        if (strlen(srDispObj->szPromptMsg) > 0)
-                                        {
-                                                /* 如果有提示字串將顯示 */
-                                                strcpy(szTemplate, srDispObj->szPromptMsg);
-                                                strcat(szTemplate, srDispObj->szOutput);
-                                        }
-                                        else
-                                        {
-                                                strcpy(szTemplate, srDispObj->szOutput);
-                                        }
-                                }
-
-				inDISP_EnglishFont_Color(szTemplate, _FONTSIZE_16X22_, inY_16X22, inColor, _DISP_LEFT_);
-                        }
-                        else if (srDispObj->inR_L == _DISP_RIGHT_)
-                        {
-                                if (srDispObj->inMask == VS_TRUE)
-                                {
-					/* 將要Mask字數存起來，就memset幾個* */
-                                        memset(szMaskOutput, 0x00, sizeof(szMaskOutput));
-                                        memset(szMaskOutput, '*', srDispObj->inOutputLen);
-
-                                        if (strlen(srDispObj->szPromptMsg) > 0)
-                                        {
-                                                /* 如果有提示字串將顯示 */
-                                                strcpy(szTemplate, srDispObj->szPromptMsg);
-                                                strcat(szTemplate, szMaskOutput);
-                                        }
-                                        else
-                                        {
-                                                strcpy(szTemplate, szMaskOutput);
-                                        }
-                                }
-                                else
-                                {
-                                        if (strlen(srDispObj->szPromptMsg) > 0)
-                                        {
-                                                /* 如果有提示字串將顯示 */
-                                                strcpy(szTemplate, srDispObj->szPromptMsg);
-                                                strcat(szTemplate, srDispObj->szOutput);
-                                        }
-                                        else
-                                        {
-                                                strcpy(szTemplate, srDispObj->szOutput);
-                                        }
-                                }
-
-                                inDISP_EnglishFont_Color(szTemplate, _FONTSIZE_16X22_, inY_16X22, inColor, _DISP_RIGHT_);
-                        }
-
-                }
-				else if (srDispObj->inOutputLen + strlen(srDispObj->szPromptMsg) > 22)
-                {
-                        /* 將8行模式顯示轉換成16行模式 */
-                        inY_16X22 = srDispObj->inY * 2 - 1;
-			inY_16X22_2 = srDispObj->inY * 2;
-                        /* 一律先把畫面清掉後再顯示輸入訊息 */
-			if (srDispObj->inX != 0)
-				inDISP_Clear_Area(srDispObj->inX, srDispObj->inY, 16, srDispObj->inY, srDispObj->inFoneSize);
-			else
-				inDISP_Clear_Area(1, srDispObj->inY, 16, srDispObj->inY, srDispObj->inFoneSize);
-
-			memset(szTemplate, 0x00, sizeof(szTemplate));
-			memset(szTemplate2, 0x00, sizeof(szTemplate2));
-			inPart1Len = 22 - strlen(srDispObj->szPromptMsg);
-			inPart2Len = srDispObj->inOutputLen + strlen(srDispObj->szPromptMsg) - 22;
-
-                        if (srDispObj->inR_L == _DISP_LEFT_)
-                        {
-                                if (srDispObj->inMask == VS_TRUE)
-                                {
-
-					/* 將要Mask字數存起來，就memset幾個* */
-                                        memset(szMaskOutput, 0x00, sizeof(szMaskOutput));
-                                        memset(szMaskOutput, '*', inPart1Len);
-
-					memset(szMaskOutput2, 0x00, sizeof(szMaskOutput));
-                                        memset(szMaskOutput2, '*', inPart2Len);
-
-                                        if (strlen(srDispObj->szPromptMsg) > 0)
-                                        {
-                                                /* 如果有提示字串將顯示 */
-                                                strcpy(szTemplate, srDispObj->szPromptMsg);
-                                                strcat(szTemplate, szMaskOutput);
-						strcpy(szTemplate2, szMaskOutput2);
-                                        }
-                                        else
-                                        {
-						strcpy(szTemplate, szMaskOutput);
-						strcpy(szTemplate2, szMaskOutput2);
-                                        }
-                                }
-                                else
-                                {
-					memset(szTemp, 0x00, sizeof(szTemp));
-					memcpy(szTemp, srDispObj->szOutput, inPart1Len);
-
-					memset(szTemp2, 0x00, sizeof(szTemp2));
-					memcpy(szTemp2, &srDispObj->szOutput[inPart1Len], inPart2Len);
-
-                                        if (strlen(srDispObj->szPromptMsg) > 0)
-                                        {
-                                                /* 如果有提示字串將顯示 */
-                                                strcpy(szTemplate, srDispObj->szPromptMsg);
-                                                strcat(szTemplate, szTemp);
-						strcpy(szTemplate2, szTemp2);
-                                        }
-                                        else
-                                        {
-                                                strcpy(szTemplate, szTemp);
-						strcpy(szTemplate2, szTemp2);
-                                        }
-                                }
-
-				inDISP_EnglishFont_Color(szTemplate, _FONTSIZE_16X22_, inY_16X22, inColor, _DISP_LEFT_);
-				inDISP_EnglishFont_Color(szTemplate2, _FONTSIZE_16X22_, inY_16X22_2, inColor, _DISP_LEFT_);
-                        }
-                        else if (srDispObj->inR_L == _DISP_RIGHT_)
-                        {
-                                if (srDispObj->inMask == VS_TRUE)
-                                {
-					/* 將要Mask字數存起來，就memset幾個* */
-                                        memset(szMaskOutput, 0x00, sizeof(szMaskOutput));
-                                        memset(szMaskOutput, '*', inPart1Len);
-
-					memset(szMaskOutput2, 0x00, sizeof(szMaskOutput));
-                                        memset(szMaskOutput2, '*', inPart2Len);
-
-                                        if (strlen(srDispObj->szPromptMsg) > 0)
-                                        {
-                                                /* 如果有提示字串將顯示 */
-                                                strcpy(szTemplate, srDispObj->szPromptMsg);
-                                                strcat(szTemplate, szMaskOutput);
-						strcpy(szTemplate2, szMaskOutput2);
-                                        }
-                                        else
-                                        {
-                                                strcpy(szTemplate, szMaskOutput);
-						strcpy(szTemplate2, szMaskOutput2);
-                                        }
-                                }
-                                else
-                                {
-                                        memset(szTemp, 0x00, sizeof(szTemp));
-					memcpy(szTemp, srDispObj->szOutput, inPart1Len);
-
-					memset(szTemp2, 0x00, sizeof(szTemp2));
-					memcpy(szTemp2, &srDispObj->szOutput[inPart1Len], inPart2Len);
-
-                                        if (strlen(srDispObj->szPromptMsg) > 0)
-                                        {
-                                                /* 如果有提示字串將顯示 */
-                                                strcpy(szTemplate, srDispObj->szPromptMsg);
-                                                strcat(szTemplate, szTemp);
-						strcpy(szTemplate2, szTemp2);
-                                        }
-                                        else
-                                        {
-                                                strcpy(szTemplate, szTemp);
-						strcpy(szTemplate2, szTemp2);
-                                        }
-                                }
-
-                                inDISP_EnglishFont_Color(szTemplate, _FONTSIZE_16X22_, inY_16X22, inColor, _DISP_RIGHT_);
-				inDISP_EnglishFont_Color(szTemplate2, _FONTSIZE_16X22_, inY_16X22_2, inColor, _DISP_RIGHT_);
-                        }
-
-                }
-		else
-		{
-			/* 設定螢幕字型大小 */
-			srDispObj->inFoneSize = _ENGLISH_FONT_8X16_;
-			/* 一律先把畫面清掉後再顯示輸入訊息 */
-			if (srDispObj->inX != 0)
-				inDISP_Clear_Area(srDispObj->inX, srDispObj->inY, 16, srDispObj->inY, srDispObj->inFoneSize);
-			else
-				inDISP_Clear_Area(1, srDispObj->inY, 16, srDispObj->inY, srDispObj->inFoneSize);
-
-			memset(szTemplate, 0x00, sizeof(szTemplate));
-			if (srDispObj->inR_L == _DISP_LEFT_)
-			{
-				if (srDispObj->inMask == VS_TRUE)
-				{
-					/* 將要Mask字數存起來，就memset幾個* */
-					memset(szMaskOutput, 0x00, sizeof(szMaskOutput));
-					memset(szMaskOutput, '*', srDispObj->inOutputLen);
-
-					if (strlen(srDispObj->szPromptMsg) > 0)
-					{
-						/* 如果有提示字串將顯示 */
-						strcpy(szTemplate, srDispObj->szPromptMsg);
-						strcat(szTemplate, szMaskOutput);
-					}
-					else
-					{
-						strcat(szTemplate, szMaskOutput);
-					}
-				}
-				else
-				{
-					if (strlen(srDispObj->szPromptMsg) > 0)
-					{
-						/* 如果有提示字串將顯示 */
-						strcpy(szTemplate, srDispObj->szPromptMsg);
-						strcat(szTemplate, srDispObj->szOutput);
-					}
-					else
-					{
-						strcpy(szTemplate, srDispObj->szOutput);
-					}
-
-				}
-
-				inDISP_EnglishFont_Color(szTemplate, _FONTSIZE_8X16_, srDispObj->inY, inColor, _DISP_LEFT_);
-			}
-			else if (srDispObj->inR_L == _DISP_RIGHT_)
-			{
-				if (srDispObj->inMask == VS_TRUE)
-				{
-					/* 將要Mask字數存起來，就memset幾個* */
-					memset(szMaskOutput, 0x00, sizeof(szMaskOutput));
-					memset(szMaskOutput, '*', srDispObj->inOutputLen);
-
-					if (strlen(srDispObj->szPromptMsg) > 0)
-					{
-						/* 如果有提示字串將顯示 */
-						strcpy(szTemplate, srDispObj->szPromptMsg);
-						strcat(szTemplate, szMaskOutput);
-					}
-					else
-					{
-						strcpy(szTemplate, szMaskOutput);
-					}
-				}
-				else
-				{
-					if (strlen(srDispObj->szPromptMsg) > 0)
-					{
-						/* 如果有提示字串將顯示 */
-						strcpy(szTemplate, srDispObj->szPromptMsg);
-						strcat(szTemplate, srDispObj->szOutput);
-					}
-					else
-					{
-						strcpy(szTemplate, srDispObj->szOutput);
-					}
-				}
-
-				inDISP_EnglishFont_Color(szTemplate, _FONTSIZE_8X16_, srDispObj->inY, inColor, _DISP_RIGHT_);
-			}
-
-		}
-
-    	}
-
-}
-
-/*
-Function	:inDISP_Enter8x16_Character_Mask
-Date&Time	:2015/7/5 下午 7:49
-Describe	:輸入字元包含Mask
-*/
-int inDISP_Enter8x16_Character_Mask (DISPLAY_OBJECT  *srDispObj)
-{
-	int		inChoice = 0;
-	int		inColor = _COLOR_RED_;
-	int		inNumberKey = -1, inAlphaKeyIndex = 0;
-	int		inFinalTimeOut, inY_16X22, inY_12X19, inY_16X22_2;
-	int		inPart1Len = 0, inPart2Len = 0;
-	char		szTemplate[_DISP_MSG_SIZE_ + 1], szMaskOutput[_DISP_MSG_SIZE_ + 1];
-	char		szTemplate2[_DISP_MSG_SIZE_ + 1], szMaskOutput2[_DISP_MSG_SIZE_ + 1];
-	char		szTemp[_DISP_MSG_SIZE_ + 1], szTemp2[_DISP_MSG_SIZE_ + 1];
-	char		CharSet[10][15] = {{"0.,@* -:/_"},{"1QZqz"},{"2ABCabc"},{"3DEFdef"},
-								  {"4GHIghi"},{"5JKLjkl"},{"6MNOmno"},
-								  {"7PRSprs"},{"8TUVtuv"},{"9WXYwxy"}};
-	unsigned char	uszkey = 0x00;
-	unsigned char	uszFindAlpha = VS_FALSE;
+	int inColor;
+	int inFinalTimeOut, inY_16X22, inY_12X19, inY_16X22_2;
+	int inPart1Len = 0, inPart2Len = 0;
+	char szTemplate[_DISP_MSG_SIZE_ + 1], szMaskOutput[_DISP_MSG_SIZE_ + 1];
+	char szTemplate2[_DISP_MSG_SIZE_ + 1], szMaskOutput2[_DISP_MSG_SIZE_ + 1];
+	char szTemp[_DISP_MSG_SIZE_ + 1], szTemp2[_DISP_MSG_SIZE_ + 1];
+	unsigned char uszkey;
 
 	if (srDispObj->inMenuKeyIn > 0)
 	{
 		/* 將輸入第一碼先存起來 */
 		sprintf(&srDispObj->szOutput[srDispObj->inOutputLen], "%c", srDispObj->inMenuKeyIn);
-		srDispObj->inOutputLen ++;
+		srDispObj->inOutputLen++;
 	}
 
 	/* 若TIMEOUT時間大於0時用傳進來的TimeOut，否則用EDC.dat的 */
@@ -2490,7 +815,6 @@ int inDISP_Enter8x16_Character_Mask (DISPLAY_OBJECT  *srDispObj)
 
 	inColor = srDispObj->inColor;
 
-	inDISP_Timer_Start(_TIMER_NEXSYS_1_, inFinalTimeOut);
 	while (1)
 	{
 		uszkey = -1;
@@ -2502,219 +826,117 @@ int inDISP_Enter8x16_Character_Mask (DISPLAY_OBJECT  *srDispObj)
 		}
 		else
 		{
-			inChoice = inDisTouch_TouchSensor_Click_Slide(srDispObj->inTouchSensorFunc);
-			uszkey = uszKBD_Key();
+			uszkey = uszKBD_GetKey(inFinalTimeOut);
 		}
-
-		if (inChoice == _Touch_OX_LINE8_8_ENTER_BUTTON_)
-		{
-			uszkey = _KEY_ENTER_;
-		}
-		else if (inChoice == _Touch_OX_LINE8_8_CANCEL_BUTTON_)
-		{
-			uszkey = _KEY_CANCEL_;
-		}
-
-		/* Timeout */
-		if (inTimerGet(_TIMER_NEXSYS_1_) == VS_SUCCESS)
-		{
-			uszkey = _KEY_TIMEOUT_;
-		}
-
 
 		switch (uszkey)
 		{
-			case _KEY_CANCEL_ :
-				srDispObj->inOutputLen = 0;
-				memset(srDispObj->szOutput, 0x00, sizeof(srDispObj->szOutput));
-				return (VS_USER_CANCEL);
-			case _KEY_TIMEOUT_ :
-				srDispObj->inOutputLen = 0;
-				memset(srDispObj->szOutput, 0x00, sizeof(srDispObj->szOutput));
-				return(VS_TIMEOUT);
-			case _KEY_ENTER_ :
-				/* 先確認該部份是否可輸入0 和 ByPass */
-				if (srDispObj->inCanNotZero != VS_TRUE && srDispObj->inCanNotBypass != VS_TRUE)
+		case _KEY_CANCEL_:
+			srDispObj->inOutputLen = 0;
+			memset(srDispObj->szOutput, 0x00, sizeof(srDispObj->szOutput));
+			return (VS_USER_CANCEL);
+		case _KEY_TIMEOUT_:
+			srDispObj->inOutputLen = 0;
+			memset(srDispObj->szOutput, 0x00, sizeof(srDispObj->szOutput));
+			return (VS_TIMEOUT);
+		case _KEY_ENTER_:
+			/* 先確認該部份是否可輸入0 和 ByPass */
+			if (srDispObj->inCanNotZero != VS_TRUE && srDispObj->inCanNotBypass != VS_TRUE)
+			{
+				return (srDispObj->inOutputLen);
+			}
+			/* 不能ByPass但可以輸入0 */
+			else if (srDispObj->inCanNotZero != VS_TRUE && srDispObj->inCanNotBypass == VS_TRUE)
+			{
+				if (srDispObj->inOutputLen == 0)
+				{
+					inDISP_BEEP(1, 0);
+					continue;
+				}
+				else
 				{
 					return (srDispObj->inOutputLen);
 				}
-				/* 不能ByPass但可以輸入0 */
-				else if (srDispObj->inCanNotZero != VS_TRUE && srDispObj->inCanNotBypass == VS_TRUE)
+			}
+			/* 不能輸入0但可以ByPass */
+			else if (srDispObj->inCanNotZero == VS_TRUE && srDispObj->inCanNotBypass != VS_TRUE)
+			{
+				/* 判斷輸入為零 提示聲音+重新輸入 */
+				if (atol(srDispObj->szOutput) == 0L)
 				{
-					if (srDispObj->inOutputLen == 0)
-					{
-						inDISP_BEEP(1, 0);
-						continue;
-					}
-					else
-					{
-						return (srDispObj->inOutputLen);
-					}
+					inDISP_BEEP(1, 0);
+					continue;
 				}
-				/* 不能輸入0但可以ByPass */
-				else if (srDispObj->inCanNotZero == VS_TRUE && srDispObj->inCanNotBypass != VS_TRUE)
-				{
-					/* 判斷輸入為零 提示聲音+重新輸入 */
-					if (atol(srDispObj->szOutput) == 0L)
-					{
-						inDISP_BEEP(1, 0);
-						continue;
-					}
-					else
-					{
-						return (srDispObj->inOutputLen);
-					}
-
-				}
-				/* 不能輸入0也不能ByPass */
 				else
 				{
-					/* 判斷輸入為零 提示聲音+重新輸入 */
-					if (atol(srDispObj->szOutput) == 0L || srDispObj->inOutputLen == 0)
-					{
-						inDISP_BEEP(1, 0);
-						continue;
-					}
-					else
-					{
-						return (srDispObj->inOutputLen);
-					}
-
+					return (srDispObj->inOutputLen);
 				}
-			case _KEY_CLEAR_ :
-					if (srDispObj->inOutputLen > 1)
-					{
-						srDispObj->szOutput[srDispObj->inOutputLen - 1] = 0x00;
-						szMaskOutput[srDispObj->inOutputLen - 1] = 0x00;
-						srDispObj->inOutputLen --;
-
-						uszFindAlpha = VS_FALSE;
-						for (inNumberKey = 0; inNumberKey < 10; inNumberKey++)
-						{
-							for (inAlphaKeyIndex = 0; inAlphaKeyIndex < 15; inAlphaKeyIndex++)
-							{
-								if (CharSet[inNumberKey][inAlphaKeyIndex] == srDispObj->szOutput[srDispObj->inOutputLen - 1])
-								{
-									uszFindAlpha = VS_TRUE;
-								}
-
-								/* 找到就一路break出去 */
-								if (uszFindAlpha == VS_TRUE)
-								{
-									break;
-								}
-							}
-
-							/* 找到就一路break出去 */
-							if (uszFindAlpha == VS_TRUE)
-							{
-								break;
-							}
-						}
-
-						/* 找到就一路break出去 */
-						if (uszFindAlpha == VS_TRUE)
-						{
-
-						}
-						else
-						{
-							inAlphaKeyIndex = 0;
-							inNumberKey = -1;
-						}
-						break;
-					}
-					else if (srDispObj->inOutputLen == 1)
-					{
-						srDispObj->szOutput[srDispObj->inOutputLen - 1] = 0x00;
-						szMaskOutput[srDispObj->inOutputLen - 1] = 0x00;
-						srDispObj->inOutputLen --;
-
-						inAlphaKeyIndex = 0;
-						inNumberKey = -1;
-						break;
-					}
-					else
-					{
-						inAlphaKeyIndex = 0;
-						inNumberKey = -1;
-						continue;
-					}
-			case _KEY_0_ :
-			case _KEY_1_ :
-			case _KEY_2_ :
-			case _KEY_3_ :
-			case _KEY_4_ :
-			case _KEY_5_ :
-			case _KEY_6_ :
-			case _KEY_7_ :
-			case _KEY_8_ :
-			case _KEY_9_ :
-				/* 若超過最大長度時長嗶一聲 */
-				if (srDispObj->inOutputLen >= srDispObj->inMaxLen)
+			}
+			/* 不能輸入0也不能ByPass */
+			else
+			{
+				/* 判斷輸入為零 提示聲音+重新輸入 */
+				if (atol(srDispObj->szOutput) == 0L || srDispObj->inOutputLen == 0)
 				{
-					inDISP_BEEP(1, 1);
+					inDISP_BEEP(1, 0);
 					continue;
 				}
-
-				sprintf(&srDispObj->szOutput[srDispObj->inOutputLen], "%c", uszkey);
-				srDispObj->inOutputLen ++;
-
-				/* 將當下的Array存起來，以便切換Alpha鍵 */
-				inNumberKey = uszkey - 48;
-				/* 回到當初的index */
-				inAlphaKeyIndex = 0;
-				break;
-			case _KEY_ALPHA_ :
-				if (inNumberKey == -1)
-					continue;
-
-				inAlphaKeyIndex++;
-
-				switch (inNumberKey)
+				else
 				{
-					case 0 :
-					case 1 :
-					case 2 :
-					case 3 :
-					case 4 :
-					case 5 :
-					case 6 :
-					case 7 :
-					case 8 :
-					case 9 :
-					if (inAlphaKeyIndex >= strlen(CharSet[inNumberKey]))
-						inAlphaKeyIndex = 0;
-					break;
+					return (srDispObj->inOutputLen);
 				}
-
-				/* 至Array中抓取對應位置的符號再塞到srDispObj->szOutput */
-				memcpy(&srDispObj->szOutput[srDispObj->inOutputLen - 1], &CharSet[inNumberKey][inAlphaKeyIndex], 1);
-
+			}
+		case _KEY_CLEAR_:
+			if (srDispObj->inOutputLen > 0)
+			{
+				srDispObj->szOutput[srDispObj->inOutputLen - 1] = 0x00;
+				srDispObj->inOutputLen--;
 				break;
-			case _MENUKEYIN_EVENT_:
-				/* 將inMenuKeyIn初始化 */
-				srDispObj->inMenuKeyIn = -1;
-				break;
-			default :
+			}
+			else
 				continue;
+		case _KEY_0_:
+		case _KEY_1_:
+		case _KEY_2_:
+		case _KEY_3_:
+		case _KEY_4_:
+		case _KEY_5_:
+		case _KEY_6_:
+		case _KEY_7_:
+		case _KEY_8_:
+		case _KEY_9_:
+			/* 若超過最大長度時長嗶一聲 */
+			if (srDispObj->inOutputLen >= srDispObj->inMaxLen)
+			{
+				inDISP_BEEP(1, 1);
+				continue;
+			}
+
+			sprintf(&srDispObj->szOutput[srDispObj->inOutputLen], "%c", uszkey);
+			srDispObj->inOutputLen++;
+			break;
+		case _MENUKEYIN_EVENT_:
+			/* 將inMenuKeyIn初始化 */
+			srDispObj->inMenuKeyIn = -1;
+			break;
+		default:
+			continue;
 		}
-		
-		inDISP_Timer_Start(_TIMER_NEXSYS_1_, inFinalTimeOut);
 
 		/* 如果長度大於16，將8X16轉8X23顯示 */
-		if (srDispObj->inOutputLen + strlen(srDispObj->szPromptMsg) <= 19  && srDispObj->inOutputLen + strlen(srDispObj->szPromptMsg) > 16)
+		if (srDispObj->inOutputLen + strlen(srDispObj->szPromptMsg) <= 19 && srDispObj->inOutputLen + strlen(srDispObj->szPromptMsg) > 16)
 		{
 			/* 將8行模式顯示轉換成10行模式 */
 			inY_12X19 = (srDispObj->inY * 3) / 2;
 			/* 設定螢幕字型大小 */
 			srDispObj->inFoneSize = _ENGLISH_FONT_8X22_;
-						/* 一律先把畫面清掉後再顯示輸入訊息 */
+			/* 一律先把畫面清掉後再顯示輸入訊息 */
 			if (srDispObj->inX != 0)
 				inDISP_Clear_Area(srDispObj->inX, srDispObj->inY, 16, srDispObj->inY, srDispObj->inFoneSize);
 			else
 				inDISP_Clear_Area(1, srDispObj->inY, 16, srDispObj->inY, srDispObj->inFoneSize);
 
+			memset(szTemplate, 0x00, sizeof(szTemplate));
 			if (srDispObj->inR_L == _DISP_LEFT_)
 			{
 				memset(szTemplate, 0x00, sizeof(szTemplate));
@@ -2789,7 +1011,6 @@ int inDISP_Enter8x16_Character_Mask (DISPLAY_OBJECT  *srDispObj)
 
 				inDISP_EnglishFont_Color(szTemplate, _FONTSIZE_12X19_, inY_12X19, inColor, _DISP_RIGHT_);
 			}
-
 		}
 		else if (srDispObj->inOutputLen + strlen(srDispObj->szPromptMsg) <= 22 && srDispObj->inOutputLen + strlen(srDispObj->szPromptMsg) > 19)
 		{
@@ -2872,7 +1093,6 @@ int inDISP_Enter8x16_Character_Mask (DISPLAY_OBJECT  *srDispObj)
 
 				inDISP_EnglishFont_Color(szTemplate, _FONTSIZE_16X22_, inY_16X22, inColor, _DISP_RIGHT_);
 			}
-
 		}
 		else if (srDispObj->inOutputLen + strlen(srDispObj->szPromptMsg) > 22)
 		{
@@ -2989,7 +1209,6 @@ int inDISP_Enter8x16_Character_Mask (DISPLAY_OBJECT  *srDispObj)
 				inDISP_EnglishFont_Color(szTemplate, _FONTSIZE_16X22_, inY_16X22, inColor, _DISP_RIGHT_);
 				inDISP_EnglishFont_Color(szTemplate2, _FONTSIZE_16X22_, inY_16X22_2, inColor, _DISP_RIGHT_);
 			}
-
 		}
 		else
 		{
@@ -2997,9 +1216,1745 @@ int inDISP_Enter8x16_Character_Mask (DISPLAY_OBJECT  *srDispObj)
 			srDispObj->inFoneSize = _ENGLISH_FONT_8X16_;
 			/* 一律先把畫面清掉後再顯示輸入訊息 */
 			if (srDispObj->inX != 0)
-			inDISP_Clear_Area(srDispObj->inX, srDispObj->inY, 16, srDispObj->inY, srDispObj->inFoneSize);
+				inDISP_Clear_Area(srDispObj->inX, srDispObj->inY, 16, srDispObj->inY, srDispObj->inFoneSize);
 			else
-			inDISP_Clear_Area(1, srDispObj->inY, 16, srDispObj->inY, srDispObj->inFoneSize);
+				inDISP_Clear_Area(1, srDispObj->inY, 16, srDispObj->inY, srDispObj->inFoneSize);
+
+			memset(szTemplate, 0x00, sizeof(szTemplate));
+			if (srDispObj->inR_L == _DISP_LEFT_)
+			{
+				if (srDispObj->inMask == VS_TRUE)
+				{
+					/* 將要Mask字數存起來，就memset幾個* */
+					memset(szMaskOutput, 0x00, sizeof(szMaskOutput));
+					memset(szMaskOutput, '*', srDispObj->inOutputLen);
+
+					if (strlen(srDispObj->szPromptMsg) > 0)
+					{
+						/* 如果有提示字串將顯示 */
+						strcpy(szTemplate, srDispObj->szPromptMsg);
+						strcat(szTemplate, szMaskOutput);
+					}
+					else
+					{
+						strcat(szTemplate, szMaskOutput);
+					}
+				}
+				else
+				{
+					if (strlen(srDispObj->szPromptMsg) > 0)
+					{
+						/* 如果有提示字串將顯示 */
+						strcpy(szTemplate, srDispObj->szPromptMsg);
+						strcat(szTemplate, srDispObj->szOutput);
+					}
+					else
+					{
+						strcpy(szTemplate, srDispObj->szOutput);
+					}
+				}
+
+				inDISP_EnglishFont_Color(szTemplate, _FONTSIZE_8X16_, srDispObj->inY, inColor, _DISP_LEFT_);
+			}
+			else if (srDispObj->inR_L == _DISP_RIGHT_)
+			{
+				if (srDispObj->inMask == VS_TRUE)
+				{
+					/* 將要Mask字數存起來，就memset幾個* */
+					memset(szMaskOutput, 0x00, sizeof(szMaskOutput));
+					memset(szMaskOutput, '*', srDispObj->inOutputLen);
+
+					if (strlen(srDispObj->szPromptMsg) > 0)
+					{
+						/* 如果有提示字串將顯示 */
+						strcpy(szTemplate, srDispObj->szPromptMsg);
+						strcat(szTemplate, szMaskOutput);
+					}
+					else
+					{
+						strcpy(szTemplate, szMaskOutput);
+					}
+				}
+				else
+				{
+					if (strlen(srDispObj->szPromptMsg) > 0)
+					{
+						/* 如果有提示字串將顯示 */
+						strcpy(szTemplate, srDispObj->szPromptMsg);
+						strcat(szTemplate, srDispObj->szOutput);
+					}
+					else
+					{
+						strcpy(szTemplate, srDispObj->szOutput);
+					}
+				}
+
+				inDISP_EnglishFont_Color(szTemplate, _FONTSIZE_8X16_, srDispObj->inY, inColor, _DISP_RIGHT_);
+			}
+		}
+	}
+}
+
+/*
+Function	:inDISP_Enter8x16_NumDot
+Date&Time	:2016/1/6 上午 10:20
+Describe	:輸入數字和點 主要是輸入IP用
+*/
+int inDISP_Enter8x16_NumDot(DISPLAY_OBJECT *srDispObj)
+{
+	int inColor;
+	int inFinalTimeOut, inY_16X22, inY_12X19, inY_16X22_2;
+	int inPart1Len = 0, inPart2Len = 0;
+	char szTemplate[_DISP_MSG_SIZE_ + 1], szMaskOutput[_DISP_MSG_SIZE_ + 1];
+	char szTemplate2[_DISP_MSG_SIZE_ + 1], szMaskOutput2[_DISP_MSG_SIZE_ + 1];
+	char szTemp[_DISP_MSG_SIZE_ + 1], szTemp2[_DISP_MSG_SIZE_ + 1];
+	unsigned char uszkey;
+
+	if (srDispObj->inMenuKeyIn > 0)
+	{
+		/* 將輸入第一碼先存起來 */
+		sprintf(&srDispObj->szOutput[srDispObj->inOutputLen], "%c", srDispObj->inMenuKeyIn);
+		srDispObj->inOutputLen++;
+	}
+
+	/* 若TIMEOUT時間大於0時用傳進來的TimeOut，否則用EDC.dat的 */
+	if (srDispObj->inTimeout > 0)
+	{
+		inFinalTimeOut = srDispObj->inTimeout;
+	}
+	else
+	{
+		inFinalTimeOut = _EDC_TIMEOUT_;
+	}
+
+	inColor = srDispObj->inColor;
+
+	while (1)
+	{
+		uszkey = -1;
+
+		if (srDispObj->inMenuKeyIn > 0)
+		{
+			/* 如果為MenuKeyIn，第一個數字要顯示 */
+			uszkey = _MENUKEYIN_EVENT_;
+		}
+		else
+		{
+			uszkey = uszKBD_GetKey(inFinalTimeOut);
+		}
+
+		switch (uszkey)
+		{
+		case _KEY_CANCEL_:
+			srDispObj->inOutputLen = 0;
+			memset(srDispObj->szOutput, 0x00, sizeof(srDispObj->szOutput));
+			return (VS_USER_CANCEL);
+		case _KEY_TIMEOUT_:
+			srDispObj->inOutputLen = 0;
+			memset(srDispObj->szOutput, 0x00, sizeof(srDispObj->szOutput));
+			return (VS_TIMEOUT);
+		case _KEY_ENTER_:
+			/* 先確認該部份是否可輸入0 和 ByPass */
+			if (srDispObj->inCanNotZero != VS_TRUE && srDispObj->inCanNotBypass != VS_TRUE)
+			{
+				return (srDispObj->inOutputLen);
+			}
+			/* 不能ByPass但可以輸入0 */
+			else if (srDispObj->inCanNotZero != VS_TRUE && srDispObj->inCanNotBypass == VS_TRUE)
+			{
+				if (srDispObj->inOutputLen == 0)
+				{
+					inDISP_BEEP(1, 0);
+					continue;
+				}
+				else
+				{
+					return (srDispObj->inOutputLen);
+				}
+			}
+			/* 不能輸入0但可以ByPass */
+			else if (srDispObj->inCanNotZero == VS_TRUE && srDispObj->inCanNotBypass != VS_TRUE)
+			{
+				/* 判斷輸入為零 提示聲音+重新輸入 */
+				if (atol(srDispObj->szOutput) == 0L)
+				{
+					inDISP_BEEP(1, 0);
+					continue;
+				}
+				else
+				{
+					return (srDispObj->inOutputLen);
+				}
+			}
+			/* 不能輸入0也不能ByPass */
+			else
+			{
+				/* 判斷輸入為零 提示聲音+重新輸入 */
+				if (atol(srDispObj->szOutput) == 0L || srDispObj->inOutputLen == 0)
+				{
+					inDISP_BEEP(1, 0);
+					continue;
+				}
+				else
+				{
+					return (srDispObj->inOutputLen);
+				}
+			}
+		case _KEY_CLEAR_:
+			if (srDispObj->inOutputLen > 0)
+			{
+				srDispObj->szOutput[srDispObj->inOutputLen - 1] = 0x00;
+				srDispObj->inOutputLen--;
+				break;
+			}
+			else
+				continue;
+		case _KEY_0_:
+		case _KEY_1_:
+		case _KEY_2_:
+		case _KEY_3_:
+		case _KEY_4_:
+		case _KEY_5_:
+		case _KEY_6_:
+		case _KEY_7_:
+		case _KEY_8_:
+		case _KEY_9_:
+			/* 若超過最大長度時長嗶一聲 */
+			if (srDispObj->inOutputLen >= srDispObj->inMaxLen)
+			{
+				inDISP_BEEP(1, 1);
+				continue;
+			}
+
+			sprintf(&srDispObj->szOutput[srDispObj->inOutputLen], "%c", uszkey);
+			srDispObj->inOutputLen++;
+			break;
+		case _KEY_DOT_:
+			if (srDispObj->inOutputLen >= srDispObj->inMaxLen)
+				continue;
+
+			sprintf(&srDispObj->szOutput[srDispObj->inOutputLen], ".");
+			srDispObj->inOutputLen++;
+			break;
+		case _MENUKEYIN_EVENT_:
+			/* 將inMenuKeyIn初始化 */
+			srDispObj->inMenuKeyIn = -1;
+			break;
+		default:
+			continue;
+		}
+
+		/* 如果長度大於16，將8X16轉8X23顯示 */
+		if (srDispObj->inOutputLen + strlen(srDispObj->szPromptMsg) <= 19 && srDispObj->inOutputLen + strlen(srDispObj->szPromptMsg) > 16)
+		{
+			/* 將8行模式顯示轉換成10行模式 */
+			inY_12X19 = (srDispObj->inY * 3) / 2;
+			/* 設定螢幕字型大小 */
+			srDispObj->inFoneSize = _ENGLISH_FONT_8X22_;
+			/* 一律先把畫面清掉後再顯示輸入訊息 */
+			if (srDispObj->inX != 0)
+				inDISP_Clear_Area(srDispObj->inX, srDispObj->inY, 16, srDispObj->inY, srDispObj->inFoneSize);
+			else
+				inDISP_Clear_Area(1, srDispObj->inY, 16, srDispObj->inY, srDispObj->inFoneSize);
+
+			memset(szTemplate, 0x00, sizeof(szTemplate));
+			if (srDispObj->inR_L == _DISP_LEFT_)
+			{
+				memset(szTemplate, 0x00, sizeof(szTemplate));
+
+				if (srDispObj->inMask == VS_TRUE)
+				{
+					/* 將要Mask字數存起來，就memset幾個* */
+					memset(szMaskOutput, 0x00, sizeof(szMaskOutput));
+					memset(szMaskOutput, '*', srDispObj->inOutputLen);
+
+					if (strlen(srDispObj->szPromptMsg) > 0)
+					{
+						/* 如果有提示字串將顯示 */
+						strcpy(szTemplate, srDispObj->szPromptMsg);
+						strcat(szTemplate, szMaskOutput);
+					}
+					else
+					{
+						strcat(szTemplate, szMaskOutput);
+					}
+				}
+				else
+				{
+					if (strlen(srDispObj->szPromptMsg) > 0)
+					{
+						/* 如果有提示字串將顯示 */
+						strcpy(szTemplate, srDispObj->szPromptMsg);
+						strcat(szTemplate, srDispObj->szOutput);
+					}
+					else
+					{
+						strcpy(szTemplate, srDispObj->szOutput);
+					}
+				}
+
+				inDISP_EnglishFont_Color(szTemplate, _FONTSIZE_12X19_, inY_12X19, inColor, _DISP_LEFT_);
+			}
+			else if (srDispObj->inR_L == _DISP_RIGHT_)
+			{
+				memset(szTemplate, 0x00, sizeof(szTemplate));
+
+				if (srDispObj->inMask == VS_TRUE)
+				{
+					/* 將要Mask字數存起來，就memset幾個* */
+					memset(szMaskOutput, 0x00, sizeof(szMaskOutput));
+					memset(szMaskOutput, '*', srDispObj->inOutputLen);
+
+					if (strlen(srDispObj->szPromptMsg) > 0)
+					{
+						/* 如果有提示字串將顯示 */
+						strcpy(szTemplate, srDispObj->szPromptMsg);
+						strcat(szTemplate, szMaskOutput);
+					}
+					else
+					{
+						strcpy(szTemplate, szMaskOutput);
+					}
+				}
+				else
+				{
+					if (strlen(srDispObj->szPromptMsg) > 0)
+					{
+						/* 如果有提示字串將顯示 */
+						strcpy(szTemplate, srDispObj->szPromptMsg);
+						strcat(szTemplate, srDispObj->szOutput);
+					}
+					else
+					{
+						strcpy(szTemplate, srDispObj->szOutput);
+					}
+				}
+
+				inDISP_EnglishFont_Color(szTemplate, _FONTSIZE_12X19_, inY_12X19, inColor, _DISP_RIGHT_);
+			}
+		}
+		else if (srDispObj->inOutputLen + strlen(srDispObj->szPromptMsg) <= 22 && srDispObj->inOutputLen + strlen(srDispObj->szPromptMsg) > 19)
+		{
+			/* 將8行模式顯示轉換成16行模式 */
+			inY_16X22 = srDispObj->inY * 2 - 1;
+			/* 一律先把畫面清掉後再顯示輸入訊息 */
+			if (srDispObj->inX != 0)
+				inDISP_Clear_Area(srDispObj->inX, srDispObj->inY, 16, srDispObj->inY, srDispObj->inFoneSize);
+			else
+				inDISP_Clear_Area(1, srDispObj->inY, 16, srDispObj->inY, srDispObj->inFoneSize);
+
+			memset(szTemplate, 0x00, sizeof(szTemplate));
+			if (srDispObj->inR_L == _DISP_LEFT_)
+			{
+				if (srDispObj->inMask == VS_TRUE)
+				{
+					/* 將要Mask字數存起來，就memset幾個* */
+					memset(szMaskOutput, 0x00, sizeof(szMaskOutput));
+					memset(szMaskOutput, '*', srDispObj->inOutputLen);
+
+					if (strlen(srDispObj->szPromptMsg) > 0)
+					{
+						/* 如果有提示字串將顯示 */
+						strcpy(szTemplate, srDispObj->szPromptMsg);
+						strcat(szTemplate, szMaskOutput);
+					}
+					else
+					{
+						strcpy(szTemplate, szMaskOutput);
+					}
+				}
+				else
+				{
+					if (strlen(srDispObj->szPromptMsg) > 0)
+					{
+						/* 如果有提示字串將顯示 */
+						strcpy(szTemplate, srDispObj->szPromptMsg);
+						strcat(szTemplate, srDispObj->szOutput);
+					}
+					else
+					{
+						strcpy(szTemplate, srDispObj->szOutput);
+					}
+				}
+
+				inDISP_EnglishFont_Color(szTemplate, _FONTSIZE_16X22_, inY_16X22, inColor, _DISP_LEFT_);
+			}
+			else if (srDispObj->inR_L == _DISP_RIGHT_)
+			{
+				if (srDispObj->inMask == VS_TRUE)
+				{
+					/* 將要Mask字數存起來，就memset幾個* */
+					memset(szMaskOutput, 0x00, sizeof(szMaskOutput));
+					memset(szMaskOutput, '*', srDispObj->inOutputLen);
+
+					if (strlen(srDispObj->szPromptMsg) > 0)
+					{
+						/* 如果有提示字串將顯示 */
+						strcpy(szTemplate, srDispObj->szPromptMsg);
+						strcat(szTemplate, szMaskOutput);
+					}
+					else
+					{
+						strcpy(szTemplate, szMaskOutput);
+					}
+				}
+				else
+				{
+					if (strlen(srDispObj->szPromptMsg) > 0)
+					{
+						/* 如果有提示字串將顯示 */
+						strcpy(szTemplate, srDispObj->szPromptMsg);
+						strcat(szTemplate, srDispObj->szOutput);
+					}
+					else
+					{
+						strcpy(szTemplate, srDispObj->szOutput);
+					}
+				}
+
+				inDISP_EnglishFont_Color(szTemplate, _FONTSIZE_16X22_, inY_16X22, inColor, _DISP_RIGHT_);
+			}
+		}
+		else if (srDispObj->inOutputLen + strlen(srDispObj->szPromptMsg) > 22)
+		{
+			/* 將8行模式顯示轉換成16行模式 */
+			inY_16X22 = srDispObj->inY * 2 - 1;
+			inY_16X22_2 = srDispObj->inY * 2;
+			/* 一律先把畫面清掉後再顯示輸入訊息 */
+			if (srDispObj->inX != 0)
+				inDISP_Clear_Area(srDispObj->inX, srDispObj->inY, 16, srDispObj->inY, srDispObj->inFoneSize);
+			else
+				inDISP_Clear_Area(1, srDispObj->inY, 16, srDispObj->inY, srDispObj->inFoneSize);
+
+			memset(szTemplate, 0x00, sizeof(szTemplate));
+			memset(szTemplate2, 0x00, sizeof(szTemplate2));
+			inPart1Len = 22 - strlen(srDispObj->szPromptMsg);
+			inPart2Len = srDispObj->inOutputLen + strlen(srDispObj->szPromptMsg) - 22;
+
+			if (srDispObj->inR_L == _DISP_LEFT_)
+			{
+				if (srDispObj->inMask == VS_TRUE)
+				{
+
+					/* 將要Mask字數存起來，就memset幾個* */
+					memset(szMaskOutput, 0x00, sizeof(szMaskOutput));
+					memset(szMaskOutput, '*', inPart1Len);
+
+					memset(szMaskOutput2, 0x00, sizeof(szMaskOutput));
+					memset(szMaskOutput2, '*', inPart2Len);
+
+					if (strlen(srDispObj->szPromptMsg) > 0)
+					{
+						/* 如果有提示字串將顯示 */
+						strcpy(szTemplate, srDispObj->szPromptMsg);
+						strcat(szTemplate, szMaskOutput);
+						strcpy(szTemplate2, szMaskOutput2);
+					}
+					else
+					{
+						strcpy(szTemplate, szMaskOutput);
+						strcpy(szTemplate2, szMaskOutput2);
+					}
+				}
+				else
+				{
+					memset(szTemp, 0x00, sizeof(szTemp));
+					memcpy(szTemp, srDispObj->szOutput, inPart1Len);
+
+					memset(szTemp2, 0x00, sizeof(szTemp2));
+					memcpy(szTemp2, &srDispObj->szOutput[inPart1Len], inPart2Len);
+
+					if (strlen(srDispObj->szPromptMsg) > 0)
+					{
+						/* 如果有提示字串將顯示 */
+						strcpy(szTemplate, srDispObj->szPromptMsg);
+						strcat(szTemplate, szTemp);
+						strcpy(szTemplate2, szTemp2);
+					}
+					else
+					{
+						strcpy(szTemplate, szTemp);
+						strcpy(szTemplate2, szTemp2);
+					}
+				}
+
+				inDISP_EnglishFont_Color(szTemplate, _FONTSIZE_16X22_, inY_16X22, inColor, _DISP_LEFT_);
+				inDISP_EnglishFont_Color(szTemplate2, _FONTSIZE_16X22_, inY_16X22_2, inColor, _DISP_LEFT_);
+			}
+			else if (srDispObj->inR_L == _DISP_RIGHT_)
+			{
+				if (srDispObj->inMask == VS_TRUE)
+				{
+					/* 將要Mask字數存起來，就memset幾個* */
+					memset(szMaskOutput, 0x00, sizeof(szMaskOutput));
+					memset(szMaskOutput, '*', inPart1Len);
+
+					memset(szMaskOutput2, 0x00, sizeof(szMaskOutput));
+					memset(szMaskOutput2, '*', inPart2Len);
+
+					if (strlen(srDispObj->szPromptMsg) > 0)
+					{
+						/* 如果有提示字串將顯示 */
+						strcpy(szTemplate, srDispObj->szPromptMsg);
+						strcat(szTemplate, szMaskOutput);
+						strcpy(szTemplate2, szMaskOutput2);
+					}
+					else
+					{
+						strcpy(szTemplate, szMaskOutput);
+						strcpy(szTemplate2, szMaskOutput2);
+					}
+				}
+				else
+				{
+					memset(szTemp, 0x00, sizeof(szTemp));
+					memcpy(szTemp, srDispObj->szOutput, inPart1Len);
+
+					memset(szTemp2, 0x00, sizeof(szTemp2));
+					memcpy(szTemp2, &srDispObj->szOutput[inPart1Len], inPart2Len);
+
+					if (strlen(srDispObj->szPromptMsg) > 0)
+					{
+						/* 如果有提示字串將顯示 */
+						strcpy(szTemplate, srDispObj->szPromptMsg);
+						strcat(szTemplate, szTemp);
+						strcpy(szTemplate2, szTemp2);
+					}
+					else
+					{
+						strcpy(szTemplate, szTemp);
+						strcpy(szTemplate2, szTemp2);
+					}
+				}
+
+				inDISP_EnglishFont_Color(szTemplate, _FONTSIZE_16X22_, inY_16X22, inColor, _DISP_RIGHT_);
+				inDISP_EnglishFont_Color(szTemplate2, _FONTSIZE_16X22_, inY_16X22_2, inColor, _DISP_RIGHT_);
+			}
+		}
+		else
+		{
+			/* 設定螢幕字型大小 */
+			srDispObj->inFoneSize = _ENGLISH_FONT_8X16_;
+			/* 一律先把畫面清掉後再顯示輸入訊息 */
+			if (srDispObj->inX != 0)
+				inDISP_Clear_Area(srDispObj->inX, srDispObj->inY, 16, srDispObj->inY, srDispObj->inFoneSize);
+			else
+				inDISP_Clear_Area(1, srDispObj->inY, 16, srDispObj->inY, srDispObj->inFoneSize);
+
+			memset(szTemplate, 0x00, sizeof(szTemplate));
+			if (srDispObj->inR_L == _DISP_LEFT_)
+			{
+				if (srDispObj->inMask == VS_TRUE)
+				{
+					/* 將要Mask字數存起來，就memset幾個* */
+					memset(szMaskOutput, 0x00, sizeof(szMaskOutput));
+					memset(szMaskOutput, '*', srDispObj->inOutputLen);
+
+					if (strlen(srDispObj->szPromptMsg) > 0)
+					{
+						/* 如果有提示字串將顯示 */
+						strcpy(szTemplate, srDispObj->szPromptMsg);
+						strcat(szTemplate, szMaskOutput);
+					}
+					else
+					{
+						strcat(szTemplate, szMaskOutput);
+					}
+				}
+				else
+				{
+					if (strlen(srDispObj->szPromptMsg) > 0)
+					{
+						/* 如果有提示字串將顯示 */
+						strcpy(szTemplate, srDispObj->szPromptMsg);
+						strcat(szTemplate, srDispObj->szOutput);
+					}
+					else
+					{
+						strcpy(szTemplate, srDispObj->szOutput);
+					}
+				}
+
+				inDISP_EnglishFont_Color(szTemplate, _FONTSIZE_8X16_, srDispObj->inY, inColor, _DISP_LEFT_);
+			}
+			else if (srDispObj->inR_L == _DISP_RIGHT_)
+			{
+				if (srDispObj->inMask == VS_TRUE)
+				{
+					/* 將要Mask字數存起來，就memset幾個* */
+					memset(szMaskOutput, 0x00, sizeof(szMaskOutput));
+					memset(szMaskOutput, '*', srDispObj->inOutputLen);
+
+					if (strlen(srDispObj->szPromptMsg) > 0)
+					{
+						/* 如果有提示字串將顯示 */
+						strcpy(szTemplate, srDispObj->szPromptMsg);
+						strcat(szTemplate, szMaskOutput);
+					}
+					else
+					{
+						strcpy(szTemplate, szMaskOutput);
+					}
+				}
+				else
+				{
+					if (strlen(srDispObj->szPromptMsg) > 0)
+					{
+						/* 如果有提示字串將顯示 */
+						strcpy(szTemplate, srDispObj->szPromptMsg);
+						strcat(szTemplate, srDispObj->szOutput);
+					}
+					else
+					{
+						strcpy(szTemplate, srDispObj->szOutput);
+					}
+				}
+
+				inDISP_EnglishFont_Color(szTemplate, _FONTSIZE_8X16_, srDispObj->inY, inColor, _DISP_RIGHT_);
+			}
+		}
+	}
+}
+
+/*
+Function	:inDISP_Enter8x16_Character
+Date&Time	:2015/7/5 下午 7:49
+Describe	:輸入字元包含英數字，建議使用inDISP_Enter8x16_Character_Mask，相當於inDISP_Enter8x16_Character_Mask但不把inMask設為On
+*/
+int inDISP_Enter8x16_Character(DISPLAY_OBJECT *srDispObj)
+{
+	int inColor;
+	int inNumberKey = -1, inAlphaKeyIndex = 0;
+	int inFinalTimeOut, inY_16X22, inY_12X19, inY_16X22_2;
+	int inPart1Len = 0, inPart2Len = 0;
+	char szTemplate[_DISP_MSG_SIZE_ + 1], szMaskOutput[_DISP_MSG_SIZE_ + 1];
+	char szTemplate2[_DISP_MSG_SIZE_ + 1], szMaskOutput2[_DISP_MSG_SIZE_ + 1];
+	char szTemp[_DISP_MSG_SIZE_ + 1], szTemp2[_DISP_MSG_SIZE_ + 1];
+	char CharSet[10][15] = {{"0.,@* -"}, {"1QZqz"}, {"2ABCabc"}, {"3DEFdef"}, {"4GHIghi"}, {"5JKLjkl"}, {"6MNOmno"}, {"7PRSprs"}, {"8TUVtuv"}, {"9WXYwxy"}};
+	unsigned char uszkey = 0x00;
+	unsigned char uszFindAlpha = VS_FALSE;
+
+	if (srDispObj->inMenuKeyIn > 0)
+	{
+		/* 將輸入第一碼先存起來 */
+		sprintf(&srDispObj->szOutput[srDispObj->inOutputLen], "%c", srDispObj->inMenuKeyIn);
+		srDispObj->inOutputLen++;
+	}
+
+	/* 若TIMEOUT時間大於0時用傳進來的TimeOut，否則用EDC.dat的 */
+	if (srDispObj->inTimeout > 0)
+	{
+		inFinalTimeOut = srDispObj->inTimeout;
+	}
+	else
+	{
+		inFinalTimeOut = _EDC_TIMEOUT_;
+	}
+
+	inColor = srDispObj->inColor;
+
+	while (1)
+	{
+		uszkey = -1;
+
+		if (srDispObj->inMenuKeyIn > 0)
+		{
+			/* 如果為MenuKeyIn，第一個數字要顯示 */
+			uszkey = _MENUKEYIN_EVENT_;
+		}
+		else
+		{
+			uszkey = uszKBD_GetKey(inFinalTimeOut);
+		}
+
+		switch (uszkey)
+		{
+		case _KEY_CANCEL_:
+			srDispObj->inOutputLen = 0;
+			memset(srDispObj->szOutput, 0x00, sizeof(srDispObj->szOutput));
+			return (VS_USER_CANCEL);
+		case _KEY_TIMEOUT_:
+			srDispObj->inOutputLen = 0;
+			memset(srDispObj->szOutput, 0x00, sizeof(srDispObj->szOutput));
+			return (VS_TIMEOUT);
+		case _KEY_ENTER_:
+			/* 先確認該部份是否可輸入0 和 ByPass */
+			if (srDispObj->inCanNotZero != VS_TRUE && srDispObj->inCanNotBypass != VS_TRUE)
+			{
+				return (srDispObj->inOutputLen);
+			}
+			/* 不能ByPass但可以輸入0 */
+			else if (srDispObj->inCanNotZero != VS_TRUE && srDispObj->inCanNotBypass == VS_TRUE)
+			{
+				if (srDispObj->inOutputLen == 0)
+				{
+					inDISP_BEEP(1, 0);
+					continue;
+				}
+				else
+				{
+					return (srDispObj->inOutputLen);
+				}
+			}
+			/* 不能輸入0但可以ByPass */
+			else if (srDispObj->inCanNotZero == VS_TRUE && srDispObj->inCanNotBypass != VS_TRUE)
+			{
+				/* 判斷輸入為零 提示聲音+重新輸入 */
+				if (atol(srDispObj->szOutput) == 0L)
+				{
+					inDISP_BEEP(1, 0);
+					continue;
+				}
+				else
+				{
+					return (srDispObj->inOutputLen);
+				}
+			}
+			/* 不能輸入0也不能ByPass */
+			else
+			{
+				/* 判斷輸入為零 提示聲音+重新輸入 */
+				if (atol(srDispObj->szOutput) == 0L || srDispObj->inOutputLen == 0)
+				{
+					inDISP_BEEP(1, 0);
+					continue;
+				}
+				else
+				{
+					return (srDispObj->inOutputLen);
+				}
+			}
+		case _KEY_CLEAR_:
+			if (srDispObj->inOutputLen > 1)
+			{
+				srDispObj->szOutput[srDispObj->inOutputLen - 1] = 0x00;
+				szMaskOutput[srDispObj->inOutputLen - 1] = 0x00;
+				srDispObj->inOutputLen--;
+
+				uszFindAlpha = VS_FALSE;
+				for (inNumberKey = 0; inNumberKey < 10; inNumberKey++)
+				{
+					for (inAlphaKeyIndex = 0; inAlphaKeyIndex < 15; inAlphaKeyIndex++)
+					{
+						if (CharSet[inNumberKey][inAlphaKeyIndex] == srDispObj->szOutput[srDispObj->inOutputLen - 1])
+						{
+							uszFindAlpha = VS_TRUE;
+						}
+
+						/* 找到就一路break出去 */
+						if (uszFindAlpha == VS_TRUE)
+						{
+							break;
+						}
+					}
+
+					/* 找到就一路break出去 */
+					if (uszFindAlpha == VS_TRUE)
+					{
+						break;
+					}
+				}
+
+				/* 找到就一路break出去 */
+				if (uszFindAlpha == VS_TRUE)
+				{
+				}
+				else
+				{
+					inAlphaKeyIndex = 0;
+					inNumberKey = -1;
+				}
+				break;
+			}
+			else if (srDispObj->inOutputLen == 1)
+			{
+				srDispObj->szOutput[srDispObj->inOutputLen - 1] = 0x00;
+				szMaskOutput[srDispObj->inOutputLen - 1] = 0x00;
+				srDispObj->inOutputLen--;
+
+				inAlphaKeyIndex = 0;
+				inNumberKey = -1;
+				break;
+			}
+			else
+			{
+				inAlphaKeyIndex = 0;
+				inNumberKey = -1;
+				continue;
+			}
+		case _KEY_0_:
+		case _KEY_1_:
+		case _KEY_2_:
+		case _KEY_3_:
+		case _KEY_4_:
+		case _KEY_5_:
+		case _KEY_6_:
+		case _KEY_7_:
+		case _KEY_8_:
+		case _KEY_9_:
+			/* 若超過最大長度時長嗶一聲 */
+			if (srDispObj->inOutputLen >= srDispObj->inMaxLen)
+			{
+				inDISP_BEEP(1, 1);
+				continue;
+			}
+
+			sprintf(&srDispObj->szOutput[srDispObj->inOutputLen], "%c", uszkey);
+			srDispObj->inOutputLen++;
+
+			/* 將當下的Array存起來，以便切換Alpha鍵 */
+			inNumberKey = uszkey - 48;
+			/* 回到當初的index */
+			inAlphaKeyIndex = 0;
+			break;
+		case _KEY_ALPHA_:
+			if (inNumberKey == -1)
+				continue;
+
+			inAlphaKeyIndex++;
+
+			switch (inNumberKey)
+			{
+			case 0:
+			case 1:
+			case 2:
+			case 3:
+			case 4:
+			case 5:
+			case 6:
+			case 7:
+			case 8:
+			case 9:
+				if (inAlphaKeyIndex >= strlen(CharSet[inNumberKey]))
+					inAlphaKeyIndex = 0;
+				break;
+			}
+
+			/* 至Array中抓取對應位置的符號再塞到srDispObj->szOutput */
+			memcpy(&srDispObj->szOutput[srDispObj->inOutputLen - 1], &CharSet[inNumberKey][inAlphaKeyIndex], 1);
+
+			break;
+		case _MENUKEYIN_EVENT_:
+			/* 將inMenuKeyIn初始化 */
+			srDispObj->inMenuKeyIn = -1;
+			break;
+		default:
+			continue;
+		}
+
+		/* 如果長度大於16，將8X16轉8X23顯示 */
+		if (srDispObj->inOutputLen + strlen(srDispObj->szPromptMsg) <= 19 && srDispObj->inOutputLen + strlen(srDispObj->szPromptMsg) > 16)
+		{
+			/* 將8行模式顯示轉換成10行模式 */
+			inY_12X19 = (srDispObj->inY * 3) / 2;
+			/* 設定螢幕字型大小 */
+			srDispObj->inFoneSize = _ENGLISH_FONT_8X22_;
+			/* 一律先把畫面清掉後再顯示輸入訊息 */
+			if (srDispObj->inX != 0)
+				inDISP_Clear_Area(srDispObj->inX, srDispObj->inY, 16, srDispObj->inY, srDispObj->inFoneSize);
+			else
+				inDISP_Clear_Area(1, srDispObj->inY, 16, srDispObj->inY, srDispObj->inFoneSize);
+
+			memset(szTemplate, 0x00, sizeof(szTemplate));
+			if (srDispObj->inR_L == _DISP_LEFT_)
+			{
+				memset(szTemplate, 0x00, sizeof(szTemplate));
+
+				if (srDispObj->inMask == VS_TRUE)
+				{
+					/* 將要Mask字數存起來，就memset幾個* */
+					memset(szMaskOutput, 0x00, sizeof(szMaskOutput));
+					memset(szMaskOutput, '*', srDispObj->inOutputLen);
+
+					if (strlen(srDispObj->szPromptMsg) > 0)
+					{
+						/* 如果有提示字串將顯示 */
+						strcpy(szTemplate, srDispObj->szPromptMsg);
+						strcat(szTemplate, szMaskOutput);
+					}
+					else
+					{
+						strcat(szTemplate, szMaskOutput);
+					}
+				}
+				else
+				{
+					if (strlen(srDispObj->szPromptMsg) > 0)
+					{
+						/* 如果有提示字串將顯示 */
+						strcpy(szTemplate, srDispObj->szPromptMsg);
+						strcat(szTemplate, srDispObj->szOutput);
+					}
+					else
+					{
+						strcpy(szTemplate, srDispObj->szOutput);
+					}
+				}
+
+				inDISP_EnglishFont_Color(szTemplate, _FONTSIZE_12X19_, inY_12X19, inColor, _DISP_LEFT_);
+			}
+			else if (srDispObj->inR_L == _DISP_RIGHT_)
+			{
+				memset(szTemplate, 0x00, sizeof(szTemplate));
+
+				if (srDispObj->inMask == VS_TRUE)
+				{
+					/* 將要Mask字數存起來，就memset幾個* */
+					memset(szMaskOutput, 0x00, sizeof(szMaskOutput));
+					memset(szMaskOutput, '*', srDispObj->inOutputLen);
+
+					if (strlen(srDispObj->szPromptMsg) > 0)
+					{
+						/* 如果有提示字串將顯示 */
+						strcpy(szTemplate, srDispObj->szPromptMsg);
+						strcat(szTemplate, szMaskOutput);
+					}
+					else
+					{
+						strcpy(szTemplate, szMaskOutput);
+					}
+				}
+				else
+				{
+					if (strlen(srDispObj->szPromptMsg) > 0)
+					{
+						/* 如果有提示字串將顯示 */
+						strcpy(szTemplate, srDispObj->szPromptMsg);
+						strcat(szTemplate, srDispObj->szOutput);
+					}
+					else
+					{
+						strcpy(szTemplate, srDispObj->szOutput);
+					}
+				}
+
+				inDISP_EnglishFont_Color(szTemplate, _FONTSIZE_12X19_, inY_12X19, inColor, _DISP_RIGHT_);
+			}
+		}
+		else if (srDispObj->inOutputLen + strlen(srDispObj->szPromptMsg) <= 22 && srDispObj->inOutputLen + strlen(srDispObj->szPromptMsg) > 19)
+		{
+			/* 將8行模式顯示轉換成16行模式 */
+			inY_16X22 = srDispObj->inY * 2 - 1;
+			/* 一律先把畫面清掉後再顯示輸入訊息 */
+			if (srDispObj->inX != 0)
+				inDISP_Clear_Area(srDispObj->inX, srDispObj->inY, 16, srDispObj->inY, srDispObj->inFoneSize);
+			else
+				inDISP_Clear_Area(1, srDispObj->inY, 16, srDispObj->inY, srDispObj->inFoneSize);
+
+			memset(szTemplate, 0x00, sizeof(szTemplate));
+			if (srDispObj->inR_L == _DISP_LEFT_)
+			{
+				if (srDispObj->inMask == VS_TRUE)
+				{
+					/* 將要Mask字數存起來，就memset幾個* */
+					memset(szMaskOutput, 0x00, sizeof(szMaskOutput));
+					memset(szMaskOutput, '*', srDispObj->inOutputLen);
+
+					if (strlen(srDispObj->szPromptMsg) > 0)
+					{
+						/* 如果有提示字串將顯示 */
+						strcpy(szTemplate, srDispObj->szPromptMsg);
+						strcat(szTemplate, szMaskOutput);
+					}
+					else
+					{
+						strcpy(szTemplate, szMaskOutput);
+					}
+				}
+				else
+				{
+					if (strlen(srDispObj->szPromptMsg) > 0)
+					{
+						/* 如果有提示字串將顯示 */
+						strcpy(szTemplate, srDispObj->szPromptMsg);
+						strcat(szTemplate, srDispObj->szOutput);
+					}
+					else
+					{
+						strcpy(szTemplate, srDispObj->szOutput);
+					}
+				}
+
+				inDISP_EnglishFont_Color(szTemplate, _FONTSIZE_16X22_, inY_16X22, inColor, _DISP_LEFT_);
+			}
+			else if (srDispObj->inR_L == _DISP_RIGHT_)
+			{
+				if (srDispObj->inMask == VS_TRUE)
+				{
+					/* 將要Mask字數存起來，就memset幾個* */
+					memset(szMaskOutput, 0x00, sizeof(szMaskOutput));
+					memset(szMaskOutput, '*', srDispObj->inOutputLen);
+
+					if (strlen(srDispObj->szPromptMsg) > 0)
+					{
+						/* 如果有提示字串將顯示 */
+						strcpy(szTemplate, srDispObj->szPromptMsg);
+						strcat(szTemplate, szMaskOutput);
+					}
+					else
+					{
+						strcpy(szTemplate, szMaskOutput);
+					}
+				}
+				else
+				{
+					if (strlen(srDispObj->szPromptMsg) > 0)
+					{
+						/* 如果有提示字串將顯示 */
+						strcpy(szTemplate, srDispObj->szPromptMsg);
+						strcat(szTemplate, srDispObj->szOutput);
+					}
+					else
+					{
+						strcpy(szTemplate, srDispObj->szOutput);
+					}
+				}
+
+				inDISP_EnglishFont_Color(szTemplate, _FONTSIZE_16X22_, inY_16X22, inColor, _DISP_RIGHT_);
+			}
+		}
+		else if (srDispObj->inOutputLen + strlen(srDispObj->szPromptMsg) > 22)
+		{
+			/* 將8行模式顯示轉換成16行模式 */
+			inY_16X22 = srDispObj->inY * 2 - 1;
+			inY_16X22_2 = srDispObj->inY * 2;
+			/* 一律先把畫面清掉後再顯示輸入訊息 */
+			if (srDispObj->inX != 0)
+				inDISP_Clear_Area(srDispObj->inX, srDispObj->inY, 16, srDispObj->inY, srDispObj->inFoneSize);
+			else
+				inDISP_Clear_Area(1, srDispObj->inY, 16, srDispObj->inY, srDispObj->inFoneSize);
+
+			memset(szTemplate, 0x00, sizeof(szTemplate));
+			memset(szTemplate2, 0x00, sizeof(szTemplate2));
+			inPart1Len = 22 - strlen(srDispObj->szPromptMsg);
+			inPart2Len = srDispObj->inOutputLen + strlen(srDispObj->szPromptMsg) - 22;
+
+			if (srDispObj->inR_L == _DISP_LEFT_)
+			{
+				if (srDispObj->inMask == VS_TRUE)
+				{
+
+					/* 將要Mask字數存起來，就memset幾個* */
+					memset(szMaskOutput, 0x00, sizeof(szMaskOutput));
+					memset(szMaskOutput, '*', inPart1Len);
+
+					memset(szMaskOutput2, 0x00, sizeof(szMaskOutput));
+					memset(szMaskOutput2, '*', inPart2Len);
+
+					if (strlen(srDispObj->szPromptMsg) > 0)
+					{
+						/* 如果有提示字串將顯示 */
+						strcpy(szTemplate, srDispObj->szPromptMsg);
+						strcat(szTemplate, szMaskOutput);
+						strcpy(szTemplate2, szMaskOutput2);
+					}
+					else
+					{
+						strcpy(szTemplate, szMaskOutput);
+						strcpy(szTemplate2, szMaskOutput2);
+					}
+				}
+				else
+				{
+					memset(szTemp, 0x00, sizeof(szTemp));
+					memcpy(szTemp, srDispObj->szOutput, inPart1Len);
+
+					memset(szTemp2, 0x00, sizeof(szTemp2));
+					memcpy(szTemp2, &srDispObj->szOutput[inPart1Len], inPart2Len);
+
+					if (strlen(srDispObj->szPromptMsg) > 0)
+					{
+						/* 如果有提示字串將顯示 */
+						strcpy(szTemplate, srDispObj->szPromptMsg);
+						strcat(szTemplate, szTemp);
+						strcpy(szTemplate2, szTemp2);
+					}
+					else
+					{
+						strcpy(szTemplate, szTemp);
+						strcpy(szTemplate2, szTemp2);
+					}
+				}
+
+				inDISP_EnglishFont_Color(szTemplate, _FONTSIZE_16X22_, inY_16X22, inColor, _DISP_LEFT_);
+				inDISP_EnglishFont_Color(szTemplate2, _FONTSIZE_16X22_, inY_16X22_2, inColor, _DISP_LEFT_);
+			}
+			else if (srDispObj->inR_L == _DISP_RIGHT_)
+			{
+				if (srDispObj->inMask == VS_TRUE)
+				{
+					/* 將要Mask字數存起來，就memset幾個* */
+					memset(szMaskOutput, 0x00, sizeof(szMaskOutput));
+					memset(szMaskOutput, '*', inPart1Len);
+
+					memset(szMaskOutput2, 0x00, sizeof(szMaskOutput));
+					memset(szMaskOutput2, '*', inPart2Len);
+
+					if (strlen(srDispObj->szPromptMsg) > 0)
+					{
+						/* 如果有提示字串將顯示 */
+						strcpy(szTemplate, srDispObj->szPromptMsg);
+						strcat(szTemplate, szMaskOutput);
+						strcpy(szTemplate2, szMaskOutput2);
+					}
+					else
+					{
+						strcpy(szTemplate, szMaskOutput);
+						strcpy(szTemplate2, szMaskOutput2);
+					}
+				}
+				else
+				{
+					memset(szTemp, 0x00, sizeof(szTemp));
+					memcpy(szTemp, srDispObj->szOutput, inPart1Len);
+
+					memset(szTemp2, 0x00, sizeof(szTemp2));
+					memcpy(szTemp2, &srDispObj->szOutput[inPart1Len], inPart2Len);
+
+					if (strlen(srDispObj->szPromptMsg) > 0)
+					{
+						/* 如果有提示字串將顯示 */
+						strcpy(szTemplate, srDispObj->szPromptMsg);
+						strcat(szTemplate, szTemp);
+						strcpy(szTemplate2, szTemp2);
+					}
+					else
+					{
+						strcpy(szTemplate, szTemp);
+						strcpy(szTemplate2, szTemp2);
+					}
+				}
+
+				inDISP_EnglishFont_Color(szTemplate, _FONTSIZE_16X22_, inY_16X22, inColor, _DISP_RIGHT_);
+				inDISP_EnglishFont_Color(szTemplate2, _FONTSIZE_16X22_, inY_16X22_2, inColor, _DISP_RIGHT_);
+			}
+		}
+		else
+		{
+			/* 設定螢幕字型大小 */
+			srDispObj->inFoneSize = _ENGLISH_FONT_8X16_;
+			/* 一律先把畫面清掉後再顯示輸入訊息 */
+			if (srDispObj->inX != 0)
+				inDISP_Clear_Area(srDispObj->inX, srDispObj->inY, 16, srDispObj->inY, srDispObj->inFoneSize);
+			else
+				inDISP_Clear_Area(1, srDispObj->inY, 16, srDispObj->inY, srDispObj->inFoneSize);
+
+			memset(szTemplate, 0x00, sizeof(szTemplate));
+			if (srDispObj->inR_L == _DISP_LEFT_)
+			{
+				if (srDispObj->inMask == VS_TRUE)
+				{
+					/* 將要Mask字數存起來，就memset幾個* */
+					memset(szMaskOutput, 0x00, sizeof(szMaskOutput));
+					memset(szMaskOutput, '*', srDispObj->inOutputLen);
+
+					if (strlen(srDispObj->szPromptMsg) > 0)
+					{
+						/* 如果有提示字串將顯示 */
+						strcpy(szTemplate, srDispObj->szPromptMsg);
+						strcat(szTemplate, szMaskOutput);
+					}
+					else
+					{
+						strcat(szTemplate, szMaskOutput);
+					}
+				}
+				else
+				{
+					if (strlen(srDispObj->szPromptMsg) > 0)
+					{
+						/* 如果有提示字串將顯示 */
+						strcpy(szTemplate, srDispObj->szPromptMsg);
+						strcat(szTemplate, srDispObj->szOutput);
+					}
+					else
+					{
+						strcpy(szTemplate, srDispObj->szOutput);
+					}
+				}
+
+				inDISP_EnglishFont_Color(szTemplate, _FONTSIZE_8X16_, srDispObj->inY, inColor, _DISP_LEFT_);
+			}
+			else if (srDispObj->inR_L == _DISP_RIGHT_)
+			{
+				if (srDispObj->inMask == VS_TRUE)
+				{
+					/* 將要Mask字數存起來，就memset幾個* */
+					memset(szMaskOutput, 0x00, sizeof(szMaskOutput));
+					memset(szMaskOutput, '*', srDispObj->inOutputLen);
+
+					if (strlen(srDispObj->szPromptMsg) > 0)
+					{
+						/* 如果有提示字串將顯示 */
+						strcpy(szTemplate, srDispObj->szPromptMsg);
+						strcat(szTemplate, szMaskOutput);
+					}
+					else
+					{
+						strcpy(szTemplate, szMaskOutput);
+					}
+				}
+				else
+				{
+					if (strlen(srDispObj->szPromptMsg) > 0)
+					{
+						/* 如果有提示字串將顯示 */
+						strcpy(szTemplate, srDispObj->szPromptMsg);
+						strcat(szTemplate, srDispObj->szOutput);
+					}
+					else
+					{
+						strcpy(szTemplate, srDispObj->szOutput);
+					}
+				}
+
+				inDISP_EnglishFont_Color(szTemplate, _FONTSIZE_8X16_, srDispObj->inY, inColor, _DISP_RIGHT_);
+			}
+		}
+	}
+}
+
+/*
+Function	:inDISP_Enter8x16_Character_Mask
+Date&Time	:2015/7/5 下午 7:49
+Describe	:輸入字元包含Mask
+*/
+int inDISP_Enter8x16_Character_Mask(DISPLAY_OBJECT *srDispObj)
+{
+	int inChoice = 0;
+	int inColor = _COLOR_RED_;
+	int inNumberKey = -1, inAlphaKeyIndex = 0;
+	int inFinalTimeOut, inY_16X22, inY_12X19, inY_16X22_2;
+	int inPart1Len = 0, inPart2Len = 0;
+	char szTemplate[_DISP_MSG_SIZE_ + 1], szMaskOutput[_DISP_MSG_SIZE_ + 1];
+	char szTemplate2[_DISP_MSG_SIZE_ + 1], szMaskOutput2[_DISP_MSG_SIZE_ + 1];
+	char szTemp[_DISP_MSG_SIZE_ + 1], szTemp2[_DISP_MSG_SIZE_ + 1];
+	char CharSet[10][15] = {{"0.,@* -:/_"}, {"1QZqz"}, {"2ABCabc"}, {"3DEFdef"}, {"4GHIghi"}, {"5JKLjkl"}, {"6MNOmno"}, {"7PRSprs"}, {"8TUVtuv"}, {"9WXYwxy"}};
+	unsigned char uszkey = 0x00;
+	unsigned char uszFindAlpha = VS_FALSE;
+
+	if (srDispObj->inMenuKeyIn > 0)
+	{
+		/* 將輸入第一碼先存起來 */
+		sprintf(&srDispObj->szOutput[srDispObj->inOutputLen], "%c", srDispObj->inMenuKeyIn);
+		srDispObj->inOutputLen++;
+	}
+
+	/* 若TIMEOUT時間大於0時用傳進來的TimeOut，否則用EDC.dat的 */
+	if (srDispObj->inTimeout > 0)
+	{
+		inFinalTimeOut = srDispObj->inTimeout;
+	}
+	else
+	{
+		inFinalTimeOut = _EDC_TIMEOUT_;
+	}
+
+	inColor = srDispObj->inColor;
+
+	inDISP_Timer_Start(_TIMER_NEXSYS_1_, inFinalTimeOut);
+	while (1)
+	{
+		uszkey = -1;
+
+		if (srDispObj->inMenuKeyIn > 0)
+		{
+			/* 如果為MenuKeyIn，第一個數字要顯示 */
+			uszkey = _MENUKEYIN_EVENT_;
+		}
+		else
+		{
+			inChoice = inDisTouch_TouchSensor_Click_Slide(srDispObj->inTouchSensorFunc);
+			uszkey = uszKBD_Key();
+		}
+
+		if (inChoice == _Touch_OX_LINE8_8_ENTER_BUTTON_)
+		{
+			uszkey = _KEY_ENTER_;
+		}
+		else if (inChoice == _Touch_OX_LINE8_8_CANCEL_BUTTON_)
+		{
+			uszkey = _KEY_CANCEL_;
+		}
+
+		/* Timeout */
+		if (inTimerGet(_TIMER_NEXSYS_1_) == VS_SUCCESS)
+		{
+			uszkey = _KEY_TIMEOUT_;
+		}
+
+		switch (uszkey)
+		{
+		case _KEY_CANCEL_:
+			srDispObj->inOutputLen = 0;
+			memset(srDispObj->szOutput, 0x00, sizeof(srDispObj->szOutput));
+			return (VS_USER_CANCEL);
+		case _KEY_TIMEOUT_:
+			srDispObj->inOutputLen = 0;
+			memset(srDispObj->szOutput, 0x00, sizeof(srDispObj->szOutput));
+			return (VS_TIMEOUT);
+		case _KEY_ENTER_:
+			/* 先確認該部份是否可輸入0 和 ByPass */
+			if (srDispObj->inCanNotZero != VS_TRUE && srDispObj->inCanNotBypass != VS_TRUE)
+			{
+				return (srDispObj->inOutputLen);
+			}
+			/* 不能ByPass但可以輸入0 */
+			else if (srDispObj->inCanNotZero != VS_TRUE && srDispObj->inCanNotBypass == VS_TRUE)
+			{
+				if (srDispObj->inOutputLen == 0)
+				{
+					inDISP_BEEP(1, 0);
+					continue;
+				}
+				else
+				{
+					return (srDispObj->inOutputLen);
+				}
+			}
+			/* 不能輸入0但可以ByPass */
+			else if (srDispObj->inCanNotZero == VS_TRUE && srDispObj->inCanNotBypass != VS_TRUE)
+			{
+				/* 判斷輸入為零 提示聲音+重新輸入 */
+				if (atol(srDispObj->szOutput) == 0L)
+				{
+					inDISP_BEEP(1, 0);
+					continue;
+				}
+				else
+				{
+					return (srDispObj->inOutputLen);
+				}
+			}
+			/* 不能輸入0也不能ByPass */
+			else
+			{
+				/* 判斷輸入為零 提示聲音+重新輸入 */
+				if (atol(srDispObj->szOutput) == 0L || srDispObj->inOutputLen == 0)
+				{
+					inDISP_BEEP(1, 0);
+					continue;
+				}
+				else
+				{
+					return (srDispObj->inOutputLen);
+				}
+			}
+		case _KEY_CLEAR_:
+			if (srDispObj->inOutputLen > 1)
+			{
+				srDispObj->szOutput[srDispObj->inOutputLen - 1] = 0x00;
+				szMaskOutput[srDispObj->inOutputLen - 1] = 0x00;
+				srDispObj->inOutputLen--;
+
+				uszFindAlpha = VS_FALSE;
+				for (inNumberKey = 0; inNumberKey < 10; inNumberKey++)
+				{
+					for (inAlphaKeyIndex = 0; inAlphaKeyIndex < 15; inAlphaKeyIndex++)
+					{
+						if (CharSet[inNumberKey][inAlphaKeyIndex] == srDispObj->szOutput[srDispObj->inOutputLen - 1])
+						{
+							uszFindAlpha = VS_TRUE;
+						}
+
+						/* 找到就一路break出去 */
+						if (uszFindAlpha == VS_TRUE)
+						{
+							break;
+						}
+					}
+
+					/* 找到就一路break出去 */
+					if (uszFindAlpha == VS_TRUE)
+					{
+						break;
+					}
+				}
+
+				/* 找到就一路break出去 */
+				if (uszFindAlpha == VS_TRUE)
+				{
+				}
+				else
+				{
+					inAlphaKeyIndex = 0;
+					inNumberKey = -1;
+				}
+				break;
+			}
+			else if (srDispObj->inOutputLen == 1)
+			{
+				srDispObj->szOutput[srDispObj->inOutputLen - 1] = 0x00;
+				szMaskOutput[srDispObj->inOutputLen - 1] = 0x00;
+				srDispObj->inOutputLen--;
+
+				inAlphaKeyIndex = 0;
+				inNumberKey = -1;
+				break;
+			}
+			else
+			{
+				inAlphaKeyIndex = 0;
+				inNumberKey = -1;
+				continue;
+			}
+		case _KEY_0_:
+		case _KEY_1_:
+		case _KEY_2_:
+		case _KEY_3_:
+		case _KEY_4_:
+		case _KEY_5_:
+		case _KEY_6_:
+		case _KEY_7_:
+		case _KEY_8_:
+		case _KEY_9_:
+			/* 若超過最大長度時長嗶一聲 */
+			if (srDispObj->inOutputLen >= srDispObj->inMaxLen)
+			{
+				inDISP_BEEP(1, 1);
+				continue;
+			}
+
+			sprintf(&srDispObj->szOutput[srDispObj->inOutputLen], "%c", uszkey);
+			srDispObj->inOutputLen++;
+
+			/* 將當下的Array存起來，以便切換Alpha鍵 */
+			inNumberKey = uszkey - 48;
+			/* 回到當初的index */
+			inAlphaKeyIndex = 0;
+			break;
+		case _KEY_ALPHA_:
+			if (inNumberKey == -1)
+				continue;
+
+			inAlphaKeyIndex++;
+
+			switch (inNumberKey)
+			{
+			case 0:
+			case 1:
+			case 2:
+			case 3:
+			case 4:
+			case 5:
+			case 6:
+			case 7:
+			case 8:
+			case 9:
+				if (inAlphaKeyIndex >= strlen(CharSet[inNumberKey]))
+					inAlphaKeyIndex = 0;
+				break;
+			}
+
+			/* 至Array中抓取對應位置的符號再塞到srDispObj->szOutput */
+			memcpy(&srDispObj->szOutput[srDispObj->inOutputLen - 1], &CharSet[inNumberKey][inAlphaKeyIndex], 1);
+
+			break;
+		case _MENUKEYIN_EVENT_:
+			/* 將inMenuKeyIn初始化 */
+			srDispObj->inMenuKeyIn = -1;
+			break;
+		default:
+			continue;
+		}
+
+		inDISP_Timer_Start(_TIMER_NEXSYS_1_, inFinalTimeOut);
+
+		/* 如果長度大於16，將8X16轉8X23顯示 */
+		if (srDispObj->inOutputLen + strlen(srDispObj->szPromptMsg) <= 19 && srDispObj->inOutputLen + strlen(srDispObj->szPromptMsg) > 16)
+		{
+			/* 將8行模式顯示轉換成10行模式 */
+			inY_12X19 = (srDispObj->inY * 3) / 2;
+			/* 設定螢幕字型大小 */
+			srDispObj->inFoneSize = _ENGLISH_FONT_8X22_;
+			/* 一律先把畫面清掉後再顯示輸入訊息 */
+			if (srDispObj->inX != 0)
+				inDISP_Clear_Area(srDispObj->inX, srDispObj->inY, 16, srDispObj->inY, srDispObj->inFoneSize);
+			else
+				inDISP_Clear_Area(1, srDispObj->inY, 16, srDispObj->inY, srDispObj->inFoneSize);
+
+			if (srDispObj->inR_L == _DISP_LEFT_)
+			{
+				memset(szTemplate, 0x00, sizeof(szTemplate));
+
+				if (srDispObj->inMask == VS_TRUE)
+				{
+					/* 將要Mask字數存起來，就memset幾個* */
+					memset(szMaskOutput, 0x00, sizeof(szMaskOutput));
+					memset(szMaskOutput, '*', srDispObj->inOutputLen);
+
+					if (strlen(srDispObj->szPromptMsg) > 0)
+					{
+						/* 如果有提示字串將顯示 */
+						strcpy(szTemplate, srDispObj->szPromptMsg);
+						strcat(szTemplate, szMaskOutput);
+					}
+					else
+					{
+						strcat(szTemplate, szMaskOutput);
+					}
+				}
+				else
+				{
+					if (strlen(srDispObj->szPromptMsg) > 0)
+					{
+						/* 如果有提示字串將顯示 */
+						strcpy(szTemplate, srDispObj->szPromptMsg);
+						strcat(szTemplate, srDispObj->szOutput);
+					}
+					else
+					{
+						strcpy(szTemplate, srDispObj->szOutput);
+					}
+				}
+
+				inDISP_EnglishFont_Color(szTemplate, _FONTSIZE_12X19_, inY_12X19, inColor, _DISP_LEFT_);
+			}
+			else if (srDispObj->inR_L == _DISP_RIGHT_)
+			{
+				memset(szTemplate, 0x00, sizeof(szTemplate));
+
+				if (srDispObj->inMask == VS_TRUE)
+				{
+					/* 將要Mask字數存起來，就memset幾個* */
+					memset(szMaskOutput, 0x00, sizeof(szMaskOutput));
+					memset(szMaskOutput, '*', srDispObj->inOutputLen);
+
+					if (strlen(srDispObj->szPromptMsg) > 0)
+					{
+						/* 如果有提示字串將顯示 */
+						strcpy(szTemplate, srDispObj->szPromptMsg);
+						strcat(szTemplate, szMaskOutput);
+					}
+					else
+					{
+						strcpy(szTemplate, szMaskOutput);
+					}
+				}
+				else
+				{
+					if (strlen(srDispObj->szPromptMsg) > 0)
+					{
+						/* 如果有提示字串將顯示 */
+						strcpy(szTemplate, srDispObj->szPromptMsg);
+						strcat(szTemplate, srDispObj->szOutput);
+					}
+					else
+					{
+						strcpy(szTemplate, srDispObj->szOutput);
+					}
+				}
+
+				inDISP_EnglishFont_Color(szTemplate, _FONTSIZE_12X19_, inY_12X19, inColor, _DISP_RIGHT_);
+			}
+		}
+		else if (srDispObj->inOutputLen + strlen(srDispObj->szPromptMsg) <= 22 && srDispObj->inOutputLen + strlen(srDispObj->szPromptMsg) > 19)
+		{
+			/* 將8行模式顯示轉換成16行模式 */
+			inY_16X22 = srDispObj->inY * 2 - 1;
+			/* 一律先把畫面清掉後再顯示輸入訊息 */
+			if (srDispObj->inX != 0)
+				inDISP_Clear_Area(srDispObj->inX, srDispObj->inY, 16, srDispObj->inY, srDispObj->inFoneSize);
+			else
+				inDISP_Clear_Area(1, srDispObj->inY, 16, srDispObj->inY, srDispObj->inFoneSize);
+
+			memset(szTemplate, 0x00, sizeof(szTemplate));
+			if (srDispObj->inR_L == _DISP_LEFT_)
+			{
+				if (srDispObj->inMask == VS_TRUE)
+				{
+					/* 將要Mask字數存起來，就memset幾個* */
+					memset(szMaskOutput, 0x00, sizeof(szMaskOutput));
+					memset(szMaskOutput, '*', srDispObj->inOutputLen);
+
+					if (strlen(srDispObj->szPromptMsg) > 0)
+					{
+						/* 如果有提示字串將顯示 */
+						strcpy(szTemplate, srDispObj->szPromptMsg);
+						strcat(szTemplate, szMaskOutput);
+					}
+					else
+					{
+						strcpy(szTemplate, szMaskOutput);
+					}
+				}
+				else
+				{
+					if (strlen(srDispObj->szPromptMsg) > 0)
+					{
+						/* 如果有提示字串將顯示 */
+						strcpy(szTemplate, srDispObj->szPromptMsg);
+						strcat(szTemplate, srDispObj->szOutput);
+					}
+					else
+					{
+						strcpy(szTemplate, srDispObj->szOutput);
+					}
+				}
+
+				inDISP_EnglishFont_Color(szTemplate, _FONTSIZE_16X22_, inY_16X22, inColor, _DISP_LEFT_);
+			}
+			else if (srDispObj->inR_L == _DISP_RIGHT_)
+			{
+				if (srDispObj->inMask == VS_TRUE)
+				{
+					/* 將要Mask字數存起來，就memset幾個* */
+					memset(szMaskOutput, 0x00, sizeof(szMaskOutput));
+					memset(szMaskOutput, '*', srDispObj->inOutputLen);
+
+					if (strlen(srDispObj->szPromptMsg) > 0)
+					{
+						/* 如果有提示字串將顯示 */
+						strcpy(szTemplate, srDispObj->szPromptMsg);
+						strcat(szTemplate, szMaskOutput);
+					}
+					else
+					{
+						strcpy(szTemplate, szMaskOutput);
+					}
+				}
+				else
+				{
+					if (strlen(srDispObj->szPromptMsg) > 0)
+					{
+						/* 如果有提示字串將顯示 */
+						strcpy(szTemplate, srDispObj->szPromptMsg);
+						strcat(szTemplate, srDispObj->szOutput);
+					}
+					else
+					{
+						strcpy(szTemplate, srDispObj->szOutput);
+					}
+				}
+
+				inDISP_EnglishFont_Color(szTemplate, _FONTSIZE_16X22_, inY_16X22, inColor, _DISP_RIGHT_);
+			}
+		}
+		else if (srDispObj->inOutputLen + strlen(srDispObj->szPromptMsg) > 22)
+		{
+			/* 將8行模式顯示轉換成16行模式 */
+			inY_16X22 = srDispObj->inY * 2 - 1;
+			inY_16X22_2 = srDispObj->inY * 2;
+			/* 一律先把畫面清掉後再顯示輸入訊息 */
+			if (srDispObj->inX != 0)
+				inDISP_Clear_Area(srDispObj->inX, srDispObj->inY, 16, srDispObj->inY, srDispObj->inFoneSize);
+			else
+				inDISP_Clear_Area(1, srDispObj->inY, 16, srDispObj->inY, srDispObj->inFoneSize);
+
+			memset(szTemplate, 0x00, sizeof(szTemplate));
+			memset(szTemplate2, 0x00, sizeof(szTemplate2));
+			inPart1Len = 22 - strlen(srDispObj->szPromptMsg);
+			inPart2Len = srDispObj->inOutputLen + strlen(srDispObj->szPromptMsg) - 22;
+
+			if (srDispObj->inR_L == _DISP_LEFT_)
+			{
+				if (srDispObj->inMask == VS_TRUE)
+				{
+
+					/* 將要Mask字數存起來，就memset幾個* */
+					memset(szMaskOutput, 0x00, sizeof(szMaskOutput));
+					memset(szMaskOutput, '*', inPart1Len);
+
+					memset(szMaskOutput2, 0x00, sizeof(szMaskOutput));
+					memset(szMaskOutput2, '*', inPart2Len);
+
+					if (strlen(srDispObj->szPromptMsg) > 0)
+					{
+						/* 如果有提示字串將顯示 */
+						strcpy(szTemplate, srDispObj->szPromptMsg);
+						strcat(szTemplate, szMaskOutput);
+						strcpy(szTemplate2, szMaskOutput2);
+					}
+					else
+					{
+						strcpy(szTemplate, szMaskOutput);
+						strcpy(szTemplate2, szMaskOutput2);
+					}
+				}
+				else
+				{
+					memset(szTemp, 0x00, sizeof(szTemp));
+					memcpy(szTemp, srDispObj->szOutput, inPart1Len);
+
+					memset(szTemp2, 0x00, sizeof(szTemp2));
+					memcpy(szTemp2, &srDispObj->szOutput[inPart1Len], inPart2Len);
+
+					if (strlen(srDispObj->szPromptMsg) > 0)
+					{
+						/* 如果有提示字串將顯示 */
+						strcpy(szTemplate, srDispObj->szPromptMsg);
+						strcat(szTemplate, szTemp);
+						strcpy(szTemplate2, szTemp2);
+					}
+					else
+					{
+						strcpy(szTemplate, szTemp);
+						strcpy(szTemplate2, szTemp2);
+					}
+				}
+
+				inDISP_EnglishFont_Color(szTemplate, _FONTSIZE_16X22_, inY_16X22, inColor, _DISP_LEFT_);
+				inDISP_EnglishFont_Color(szTemplate2, _FONTSIZE_16X22_, inY_16X22_2, inColor, _DISP_LEFT_);
+			}
+			else if (srDispObj->inR_L == _DISP_RIGHT_)
+			{
+				if (srDispObj->inMask == VS_TRUE)
+				{
+					/* 將要Mask字數存起來，就memset幾個* */
+					memset(szMaskOutput, 0x00, sizeof(szMaskOutput));
+					memset(szMaskOutput, '*', inPart1Len);
+
+					memset(szMaskOutput2, 0x00, sizeof(szMaskOutput));
+					memset(szMaskOutput2, '*', inPart2Len);
+
+					if (strlen(srDispObj->szPromptMsg) > 0)
+					{
+						/* 如果有提示字串將顯示 */
+						strcpy(szTemplate, srDispObj->szPromptMsg);
+						strcat(szTemplate, szMaskOutput);
+						strcpy(szTemplate2, szMaskOutput2);
+					}
+					else
+					{
+						strcpy(szTemplate, szMaskOutput);
+						strcpy(szTemplate2, szMaskOutput2);
+					}
+				}
+				else
+				{
+					memset(szTemp, 0x00, sizeof(szTemp));
+					memcpy(szTemp, srDispObj->szOutput, inPart1Len);
+
+					memset(szTemp2, 0x00, sizeof(szTemp2));
+					memcpy(szTemp2, &srDispObj->szOutput[inPart1Len], inPart2Len);
+
+					if (strlen(srDispObj->szPromptMsg) > 0)
+					{
+						/* 如果有提示字串將顯示 */
+						strcpy(szTemplate, srDispObj->szPromptMsg);
+						strcat(szTemplate, szTemp);
+						strcpy(szTemplate2, szTemp2);
+					}
+					else
+					{
+						strcpy(szTemplate, szTemp);
+						strcpy(szTemplate2, szTemp2);
+					}
+				}
+
+				inDISP_EnglishFont_Color(szTemplate, _FONTSIZE_16X22_, inY_16X22, inColor, _DISP_RIGHT_);
+				inDISP_EnglishFont_Color(szTemplate2, _FONTSIZE_16X22_, inY_16X22_2, inColor, _DISP_RIGHT_);
+			}
+		}
+		else
+		{
+			/* 設定螢幕字型大小 */
+			srDispObj->inFoneSize = _ENGLISH_FONT_8X16_;
+			/* 一律先把畫面清掉後再顯示輸入訊息 */
+			if (srDispObj->inX != 0)
+				inDISP_Clear_Area(srDispObj->inX, srDispObj->inY, 16, srDispObj->inY, srDispObj->inFoneSize);
+			else
+				inDISP_Clear_Area(1, srDispObj->inY, 16, srDispObj->inY, srDispObj->inFoneSize);
 
 			memset(szTemplate, 0x00, sizeof(szTemplate));
 			if (srDispObj->inR_L == _DISP_LEFT_)
@@ -3073,10 +3028,8 @@ int inDISP_Enter8x16_Character_Mask (DISPLAY_OBJECT  *srDispObj)
 				}
 				inDISP_EnglishFont_Color(szTemplate, _FONTSIZE_8X16_, srDispObj->inY, inColor, _DISP_RIGHT_);
 			}
-
 		}
 	}
-
 }
 
 /*
@@ -3084,33 +3037,31 @@ Function	:inDISP_Enter8x16_Character_Mask_And_DisTouch
 Date&Time	:2017/8/24 下午 5:39
 Describe	:再加入觸控的界面
 */
-int inDISP_Enter8x16_Character_Mask_And_DisTouch (DISPLAY_OBJECT  *srDispObj)
+int inDISP_Enter8x16_Character_Mask_And_DisTouch(DISPLAY_OBJECT *srDispObj)
 {
-	int	inChoice = 0;
-	int	inColor = _COLOR_RED_;
-        int	inNumberKey = -1, inAlphaKeyIndex = 1;
-	int	inFinalTimeOut, inY_16X22, inY_12X19, inY_16X22_2;
-	int	inPart1Len = 0, inPart2Len = 0;
-	char	szTemplate[_DISP_MSG_SIZE_ + 1], szMaskOutput[_DISP_MSG_SIZE_ + 1];
-	char	szTemplate2[_DISP_MSG_SIZE_ + 1], szMaskOutput2[_DISP_MSG_SIZE_ + 1];
-	char	szTemp[_DISP_MSG_SIZE_ + 1], szTemp2[_DISP_MSG_SIZE_ + 1];
-        char	CharSet[10][15] = {{"0.,@* -:/_"},{"1QZqz"},{"2ABCabc"},{"3DEFdef"},
-                                  {"4GHIghi"},{"5JKLjkl"},{"6MNOmno"},
-                                  {"7PRSprs"},{"8TUVtuv"},{"9WXYwxy"}};
-        unsigned char	uszkey = 0x00;
-	unsigned char	uszFindAlpha = VS_FALSE;
+	int inChoice = 0;
+	int inColor = _COLOR_RED_;
+	int inNumberKey = -1, inAlphaKeyIndex = 1;
+	int inFinalTimeOut, inY_16X22, inY_12X19, inY_16X22_2;
+	int inPart1Len = 0, inPart2Len = 0;
+	char szTemplate[_DISP_MSG_SIZE_ + 1], szMaskOutput[_DISP_MSG_SIZE_ + 1];
+	char szTemplate2[_DISP_MSG_SIZE_ + 1], szMaskOutput2[_DISP_MSG_SIZE_ + 1];
+	char szTemp[_DISP_MSG_SIZE_ + 1], szTemp2[_DISP_MSG_SIZE_ + 1];
+	char CharSet[10][15] = {{"0.,@* -:/_"}, {"1QZqz"}, {"2ABCabc"}, {"3DEFdef"}, {"4GHIghi"}, {"5JKLjkl"}, {"6MNOmno"}, {"7PRSprs"}, {"8TUVtuv"}, {"9WXYwxy"}};
+	unsigned char uszkey = 0x00;
+	unsigned char uszFindAlpha = VS_FALSE;
 
-        memset(szMaskOutput, 0x00, sizeof(szMaskOutput));
+	memset(szMaskOutput, 0x00, sizeof(szMaskOutput));
 
 	if (srDispObj->inMenuKeyIn > 0)
-        {
-                /* 將輸入第一碼先存起來 */
-                sprintf(&srDispObj->szOutput[srDispObj->inOutputLen], "%c", srDispObj->inMenuKeyIn);
-                srDispObj->inOutputLen ++;
-        }
+	{
+		/* 將輸入第一碼先存起來 */
+		sprintf(&srDispObj->szOutput[srDispObj->inOutputLen], "%c", srDispObj->inMenuKeyIn);
+		srDispObj->inOutputLen++;
+	}
 
 	/* 若TIMEOUT時間大於0時用傳進來的TimeOut，否則用EDC.dat的 */
-        if (srDispObj->inTimeout > 0)
+	if (srDispObj->inTimeout > 0)
 	{
 		inFinalTimeOut = srDispObj->inTimeout;
 	}
@@ -3124,21 +3075,20 @@ int inDISP_Enter8x16_Character_Mask_And_DisTouch (DISPLAY_OBJECT  *srDispObj)
 	inDISP_Timer_Start(_TIMER_NEXSYS_1_, inFinalTimeOut);
 	while (1)
 	{
-                uszkey = -1;
+		uszkey = -1;
 
 		if (srDispObj->inMenuKeyIn > 0)
-                {
+		{
 			/* 如果為MenuKeyIn，第一個數字要顯示 */
-                        uszkey = _MENUKEYIN_EVENT_;
-                }
-                else
-                {
+			uszkey = _MENUKEYIN_EVENT_;
+		}
+		else
+		{
 			inChoice = inDisTouch_TouchSensor_Click_Slide(srDispObj->inTouchSensorFunc);
 			uszkey = uszKBD_Key();
-                }
+		}
 
-
-		if (inChoice ==  _CUPLogOn_Touch_KEY_2_)
+		if (inChoice == _CUPLogOn_Touch_KEY_2_)
 		{
 			uszkey = _KEY_ENTER_;
 		}
@@ -3149,87 +3099,78 @@ int inDISP_Enter8x16_Character_Mask_And_DisTouch (DISPLAY_OBJECT  *srDispObj)
 			uszkey = _KEY_TIMEOUT_;
 		}
 
-                switch (uszkey)
-                {
-                        case _KEY_CANCEL_ :
-                                srDispObj->inOutputLen = 0;
-                                memset(srDispObj->szOutput, 0x00, sizeof(srDispObj->szOutput));
-                                return (VS_USER_CANCEL);
-                        case _KEY_TIMEOUT_ :
-                                srDispObj->inOutputLen = 0;
-                                memset(srDispObj->szOutput, 0x00, sizeof(srDispObj->szOutput));
-                                return(VS_TIMEOUT);
-                        case _KEY_ENTER_ :
-                                /* 先確認該部份是否可輸入0 和 ByPass */
-				if (srDispObj->inCanNotZero != VS_TRUE && srDispObj->inCanNotBypass != VS_TRUE)
+		switch (uszkey)
+		{
+		case _KEY_CANCEL_:
+			srDispObj->inOutputLen = 0;
+			memset(srDispObj->szOutput, 0x00, sizeof(srDispObj->szOutput));
+			return (VS_USER_CANCEL);
+		case _KEY_TIMEOUT_:
+			srDispObj->inOutputLen = 0;
+			memset(srDispObj->szOutput, 0x00, sizeof(srDispObj->szOutput));
+			return (VS_TIMEOUT);
+		case _KEY_ENTER_:
+			/* 先確認該部份是否可輸入0 和 ByPass */
+			if (srDispObj->inCanNotZero != VS_TRUE && srDispObj->inCanNotBypass != VS_TRUE)
+			{
+				return (srDispObj->inOutputLen);
+			}
+			/* 不能ByPass但可以輸入0 */
+			else if (srDispObj->inCanNotZero != VS_TRUE && srDispObj->inCanNotBypass == VS_TRUE)
+			{
+				if (srDispObj->inOutputLen == 0)
+				{
+					inDISP_BEEP(1, 0);
+					continue;
+				}
+				else
 				{
 					return (srDispObj->inOutputLen);
 				}
-				/* 不能ByPass但可以輸入0 */
-				else if (srDispObj->inCanNotZero != VS_TRUE && srDispObj->inCanNotBypass == VS_TRUE)
+			}
+			/* 不能輸入0但可以ByPass */
+			else if (srDispObj->inCanNotZero == VS_TRUE && srDispObj->inCanNotBypass != VS_TRUE)
+			{
+				/* 判斷輸入為零 提示聲音+重新輸入 */
+				if (atol(srDispObj->szOutput) == 0L)
 				{
-					if (srDispObj->inOutputLen == 0)
-					{
-						inDISP_BEEP(1, 0);
-						continue;
-					}
-					else
-					{
-						return (srDispObj->inOutputLen);
-					}
+					inDISP_BEEP(1, 0);
+					continue;
 				}
-				/* 不能輸入0但可以ByPass */
-				else if (srDispObj->inCanNotZero == VS_TRUE && srDispObj->inCanNotBypass != VS_TRUE)
-				{
-					/* 判斷輸入為零 提示聲音+重新輸入 */
-					if (atol(srDispObj->szOutput) == 0L)
-					{
-						inDISP_BEEP(1, 0);
-						continue;
-					}
-					else
-					{
-						return (srDispObj->inOutputLen);
-					}
-
-				}
-				/* 不能輸入0也不能ByPass */
 				else
 				{
-					/* 判斷輸入為零 提示聲音+重新輸入 */
-					if (atol(srDispObj->szOutput) == 0L || srDispObj->inOutputLen == 0)
-					{
-						inDISP_BEEP(1, 0);
-						continue;
-					}
-					else
-					{
-						return (srDispObj->inOutputLen);
-					}
-
+					return (srDispObj->inOutputLen);
 				}
-                        case _KEY_CLEAR_ :
-                                if (srDispObj->inOutputLen > 1)
-                                {
-                                        srDispObj->szOutput[srDispObj->inOutputLen - 1] = 0x00;
-                                        szMaskOutput[srDispObj->inOutputLen - 1] = 0x00;
-                                        srDispObj->inOutputLen --;
+			}
+			/* 不能輸入0也不能ByPass */
+			else
+			{
+				/* 判斷輸入為零 提示聲音+重新輸入 */
+				if (atol(srDispObj->szOutput) == 0L || srDispObj->inOutputLen == 0)
+				{
+					inDISP_BEEP(1, 0);
+					continue;
+				}
+				else
+				{
+					return (srDispObj->inOutputLen);
+				}
+			}
+		case _KEY_CLEAR_:
+			if (srDispObj->inOutputLen > 1)
+			{
+				srDispObj->szOutput[srDispObj->inOutputLen - 1] = 0x00;
+				szMaskOutput[srDispObj->inOutputLen - 1] = 0x00;
+				srDispObj->inOutputLen--;
 
-					uszFindAlpha = VS_FALSE;
-					for (inNumberKey = 0; inNumberKey < 10; inNumberKey++)
+				uszFindAlpha = VS_FALSE;
+				for (inNumberKey = 0; inNumberKey < 10; inNumberKey++)
+				{
+					for (inAlphaKeyIndex = 0; inAlphaKeyIndex < 15; inAlphaKeyIndex++)
 					{
-						for (inAlphaKeyIndex = 0; inAlphaKeyIndex < 15; inAlphaKeyIndex++)
+						if (CharSet[inNumberKey][inAlphaKeyIndex] == srDispObj->szOutput[srDispObj->inOutputLen - 1])
 						{
-							if (CharSet[inNumberKey][inAlphaKeyIndex] == srDispObj->szOutput[srDispObj->inOutputLen - 1])
-							{
-								uszFindAlpha = VS_TRUE;
-							}
-
-							/* 找到就一路break出去 */
-							if (uszFindAlpha == VS_TRUE)
-							{
-								break;
-							}
+							uszFindAlpha = VS_TRUE;
 						}
 
 						/* 找到就一路break出去 */
@@ -3242,270 +3183,273 @@ int inDISP_Enter8x16_Character_Mask_And_DisTouch (DISPLAY_OBJECT  *srDispObj)
 					/* 找到就一路break出去 */
 					if (uszFindAlpha == VS_TRUE)
 					{
-
+						break;
 					}
-					else
-					{
-						inAlphaKeyIndex = 0;
-						inNumberKey = -1;
-					}
-                                        break;
-                                }
-                                else if (srDispObj->inOutputLen == 1)
-                                {
-                                        srDispObj->szOutput[srDispObj->inOutputLen - 1] = 0x00;
-                                        szMaskOutput[srDispObj->inOutputLen - 1] = 0x00;
-                                        srDispObj->inOutputLen --;
+				}
 
-					inAlphaKeyIndex = 0;
-					inNumberKey = -1;
-                                        break;
-                                }
-                                else
+				/* 找到就一路break出去 */
+				if (uszFindAlpha == VS_TRUE)
+				{
+				}
+				else
 				{
 					inAlphaKeyIndex = 0;
 					inNumberKey = -1;
-                                        continue;
 				}
-                        case _KEY_0_ :
-                        case _KEY_1_ :
-                        case _KEY_2_ :
-                        case _KEY_3_ :
-                        case _KEY_4_ :
-                        case _KEY_5_ :
-                        case _KEY_6_ :
-                        case _KEY_7_ :
-                        case _KEY_8_ :
-                        case _KEY_9_ :
-                                /* 若超過最大長度時長嗶一聲 */
-				if (srDispObj->inOutputLen >= srDispObj->inMaxLen)
-				{
-					inDISP_BEEP(1, 1);
-					continue;
-				}
+				break;
+			}
+			else if (srDispObj->inOutputLen == 1)
+			{
+				srDispObj->szOutput[srDispObj->inOutputLen - 1] = 0x00;
+				szMaskOutput[srDispObj->inOutputLen - 1] = 0x00;
+				srDispObj->inOutputLen--;
 
-                                sprintf(&srDispObj->szOutput[srDispObj->inOutputLen], "%c", uszkey);
-                                srDispObj->inOutputLen ++;
+				inAlphaKeyIndex = 0;
+				inNumberKey = -1;
+				break;
+			}
+			else
+			{
+				inAlphaKeyIndex = 0;
+				inNumberKey = -1;
+				continue;
+			}
+		case _KEY_0_:
+		case _KEY_1_:
+		case _KEY_2_:
+		case _KEY_3_:
+		case _KEY_4_:
+		case _KEY_5_:
+		case _KEY_6_:
+		case _KEY_7_:
+		case _KEY_8_:
+		case _KEY_9_:
+			/* 若超過最大長度時長嗶一聲 */
+			if (srDispObj->inOutputLen >= srDispObj->inMaxLen)
+			{
+				inDISP_BEEP(1, 1);
+				continue;
+			}
 
-                                /* 將當下的Array存起來，以便切換Alpha鍵 */
-                                inNumberKey = uszkey - 48;
-                                /* 回到當初的index */
-                                inAlphaKeyIndex = 0;
-                                break;
-                        case _KEY_ALPHA_ :
-                                if (inNumberKey == -1)
-                                        continue;
+			sprintf(&srDispObj->szOutput[srDispObj->inOutputLen], "%c", uszkey);
+			srDispObj->inOutputLen++;
 
-				inAlphaKeyIndex++;
+			/* 將當下的Array存起來，以便切換Alpha鍵 */
+			inNumberKey = uszkey - 48;
+			/* 回到當初的index */
+			inAlphaKeyIndex = 0;
+			break;
+		case _KEY_ALPHA_:
+			if (inNumberKey == -1)
+				continue;
 
-                                switch (inNumberKey)
-                                {
-                                        case 0 :
-					case 1 :
-                                        case 2 :
-                                        case 3 :
-                                        case 4 :
-                                        case 5 :
-                                        case 6 :
-                                        case 7 :
-                                        case 8 :
-                                        case 9 :
-                                                if (inAlphaKeyIndex >= strlen(CharSet[inNumberKey]))
-                                                        inAlphaKeyIndex = 0;
-                                                break;
-                                }
+			inAlphaKeyIndex++;
 
+			switch (inNumberKey)
+			{
+			case 0:
+			case 1:
+			case 2:
+			case 3:
+			case 4:
+			case 5:
+			case 6:
+			case 7:
+			case 8:
+			case 9:
+				if (inAlphaKeyIndex >= strlen(CharSet[inNumberKey]))
+					inAlphaKeyIndex = 0;
+				break;
+			}
 
-				/* 至Array中抓取對應位置的符號再塞到srDispObj->szOutput */
-                                memcpy(&srDispObj->szOutput[srDispObj->inOutputLen - 1], &CharSet[inNumberKey][inAlphaKeyIndex], 1);
+			/* 至Array中抓取對應位置的符號再塞到srDispObj->szOutput */
+			memcpy(&srDispObj->szOutput[srDispObj->inOutputLen - 1], &CharSet[inNumberKey][inAlphaKeyIndex], 1);
 
-                                break;
-			case _MENUKEYIN_EVENT_:
-                                /* 將inMenuKeyIn初始化 */
-                                srDispObj->inMenuKeyIn = -1;
-                                break;
-                        default :
-                                continue;
-                }
+			break;
+		case _MENUKEYIN_EVENT_:
+			/* 將inMenuKeyIn初始化 */
+			srDispObj->inMenuKeyIn = -1;
+			break;
+		default:
+			continue;
+		}
 
-                /* 如果長度大於16，將8X16轉8X23顯示 */
-                if (srDispObj->inOutputLen + strlen(srDispObj->szPromptMsg) <= 19  && srDispObj->inOutputLen + strlen(srDispObj->szPromptMsg) > 16)
-                {
-                        /* 將8行模式顯示轉換成10行模式 */
-                        inY_12X19 = (srDispObj->inY * 3) / 2;
-                        /* 設定螢幕字型大小 */
-                        srDispObj->inFoneSize = _ENGLISH_FONT_8X22_;
-                        /* 一律先把畫面清掉後再顯示輸入訊息 */
+		/* 如果長度大於16，將8X16轉8X23顯示 */
+		if (srDispObj->inOutputLen + strlen(srDispObj->szPromptMsg) <= 19 && srDispObj->inOutputLen + strlen(srDispObj->szPromptMsg) > 16)
+		{
+			/* 將8行模式顯示轉換成10行模式 */
+			inY_12X19 = (srDispObj->inY * 3) / 2;
+			/* 設定螢幕字型大小 */
+			srDispObj->inFoneSize = _ENGLISH_FONT_8X22_;
+			/* 一律先把畫面清掉後再顯示輸入訊息 */
 			if (srDispObj->inX != 0)
 				inDISP_Clear_Area(srDispObj->inX, srDispObj->inY, 16, srDispObj->inY, srDispObj->inFoneSize);
 			else
 				inDISP_Clear_Area(1, srDispObj->inY, 16, srDispObj->inY, srDispObj->inFoneSize);
 
 			if (srDispObj->inR_L == _DISP_LEFT_)
-                        {
+			{
 				memset(szTemplate, 0x00, sizeof(szTemplate));
 
-                                if (srDispObj->inMask == VS_TRUE)
-                                {
+				if (srDispObj->inMask == VS_TRUE)
+				{
 					/* 將要Mask字數存起來，就memset幾個* */
-                                        memset(szMaskOutput, 0x00, sizeof(szMaskOutput));
-                                        memset(szMaskOutput, '*', srDispObj->inOutputLen);
+					memset(szMaskOutput, 0x00, sizeof(szMaskOutput));
+					memset(szMaskOutput, '*', srDispObj->inOutputLen);
 
-                                        if (strlen(srDispObj->szPromptMsg) > 0)
-                                        {
-                                                /* 如果有提示字串將顯示 */
-                                                strcpy(szTemplate, srDispObj->szPromptMsg);
-                                                strcat(szTemplate, szMaskOutput);
-                                        }
-                                        else
-                                        {
-						strcat(szTemplate, szMaskOutput);
-                                        }
-                                }
-                                else
-                                {
 					if (strlen(srDispObj->szPromptMsg) > 0)
-                                        {
-                                                /* 如果有提示字串將顯示 */
-                                                strcpy(szTemplate, srDispObj->szPromptMsg);
-                                                strcat(szTemplate, srDispObj->szOutput);
-                                        }
-                                        else
-                                        {
-                                                strcpy(szTemplate, srDispObj->szOutput);
-                                        }
-                                }
+					{
+						/* 如果有提示字串將顯示 */
+						strcpy(szTemplate, srDispObj->szPromptMsg);
+						strcat(szTemplate, szMaskOutput);
+					}
+					else
+					{
+						strcat(szTemplate, szMaskOutput);
+					}
+				}
+				else
+				{
+					if (strlen(srDispObj->szPromptMsg) > 0)
+					{
+						/* 如果有提示字串將顯示 */
+						strcpy(szTemplate, srDispObj->szPromptMsg);
+						strcat(szTemplate, srDispObj->szOutput);
+					}
+					else
+					{
+						strcpy(szTemplate, srDispObj->szOutput);
+					}
+				}
 
 				inDISP_EnglishFont_Color(szTemplate, _FONTSIZE_12X19_, inY_12X19, inColor, _DISP_LEFT_);
-                        }
-                        else if (srDispObj->inR_L == _DISP_RIGHT_)
-                        {
-                                memset(szTemplate, 0x00, sizeof(szTemplate));
+			}
+			else if (srDispObj->inR_L == _DISP_RIGHT_)
+			{
+				memset(szTemplate, 0x00, sizeof(szTemplate));
 
-                                if (srDispObj->inMask == VS_TRUE)
-                                {
+				if (srDispObj->inMask == VS_TRUE)
+				{
 					/* 將要Mask字數存起來，就memset幾個* */
-                                        memset(szMaskOutput, 0x00, sizeof(szMaskOutput));
-                                        memset(szMaskOutput, '*', srDispObj->inOutputLen);
+					memset(szMaskOutput, 0x00, sizeof(szMaskOutput));
+					memset(szMaskOutput, '*', srDispObj->inOutputLen);
 
-                                        if (strlen(srDispObj->szPromptMsg) > 0)
-                                        {
-                                                /* 如果有提示字串將顯示 */
-                                                strcpy(szTemplate, srDispObj->szPromptMsg);
-                                                strcat(szTemplate, szMaskOutput);
-                                        }
-                                        else
-                                        {
-                                                strcpy(szTemplate, szMaskOutput);
-                                        }
-                                }
-                                else
-                                {
-                                        if (strlen(srDispObj->szPromptMsg) > 0)
-                                        {
-                                                /* 如果有提示字串將顯示 */
-                                                strcpy(szTemplate, srDispObj->szPromptMsg);
-                                                strcat(szTemplate, srDispObj->szOutput);
-                                        }
-                                        else
-                                        {
-                                                strcpy(szTemplate, srDispObj->szOutput);
-                                        }
-                                }
+					if (strlen(srDispObj->szPromptMsg) > 0)
+					{
+						/* 如果有提示字串將顯示 */
+						strcpy(szTemplate, srDispObj->szPromptMsg);
+						strcat(szTemplate, szMaskOutput);
+					}
+					else
+					{
+						strcpy(szTemplate, szMaskOutput);
+					}
+				}
+				else
+				{
+					if (strlen(srDispObj->szPromptMsg) > 0)
+					{
+						/* 如果有提示字串將顯示 */
+						strcpy(szTemplate, srDispObj->szPromptMsg);
+						strcat(szTemplate, srDispObj->szOutput);
+					}
+					else
+					{
+						strcpy(szTemplate, srDispObj->szOutput);
+					}
+				}
 
-                                inDISP_EnglishFont_Color(szTemplate, _FONTSIZE_12X19_, inY_12X19, inColor, _DISP_RIGHT_);
-                        }
-
-                }
-                else if (srDispObj->inOutputLen + strlen(srDispObj->szPromptMsg) <= 22 && srDispObj->inOutputLen + strlen(srDispObj->szPromptMsg) > 19)
-                {
-                        /* 將8行模式顯示轉換成16行模式 */
-                        inY_16X22 = srDispObj->inY * 2 - 1;
-                        /* 一律先把畫面清掉後再顯示輸入訊息 */
+				inDISP_EnglishFont_Color(szTemplate, _FONTSIZE_12X19_, inY_12X19, inColor, _DISP_RIGHT_);
+			}
+		}
+		else if (srDispObj->inOutputLen + strlen(srDispObj->szPromptMsg) <= 22 && srDispObj->inOutputLen + strlen(srDispObj->szPromptMsg) > 19)
+		{
+			/* 將8行模式顯示轉換成16行模式 */
+			inY_16X22 = srDispObj->inY * 2 - 1;
+			/* 一律先把畫面清掉後再顯示輸入訊息 */
 			if (srDispObj->inX != 0)
 				inDISP_Clear_Area(srDispObj->inX, srDispObj->inY, 16, srDispObj->inY, srDispObj->inFoneSize);
 			else
 				inDISP_Clear_Area(1, srDispObj->inY, 16, srDispObj->inY, srDispObj->inFoneSize);
 
 			memset(szTemplate, 0x00, sizeof(szTemplate));
-                        if (srDispObj->inR_L == _DISP_LEFT_)
-                        {
-                                if (srDispObj->inMask == VS_TRUE)
-                                {
+			if (srDispObj->inR_L == _DISP_LEFT_)
+			{
+				if (srDispObj->inMask == VS_TRUE)
+				{
 					/* 將要Mask字數存起來，就memset幾個* */
-                                        memset(szMaskOutput, 0x00, sizeof(szMaskOutput));
-                                        memset(szMaskOutput, '*', srDispObj->inOutputLen);
+					memset(szMaskOutput, 0x00, sizeof(szMaskOutput));
+					memset(szMaskOutput, '*', srDispObj->inOutputLen);
 
-                                        if (strlen(srDispObj->szPromptMsg) > 0)
-                                        {
-                                                /* 如果有提示字串將顯示 */
-                                                strcpy(szTemplate, srDispObj->szPromptMsg);
-                                                strcat(szTemplate, szMaskOutput);
-                                        }
-                                        else
-                                        {
+					if (strlen(srDispObj->szPromptMsg) > 0)
+					{
+						/* 如果有提示字串將顯示 */
+						strcpy(szTemplate, srDispObj->szPromptMsg);
+						strcat(szTemplate, szMaskOutput);
+					}
+					else
+					{
 						strcpy(szTemplate, szMaskOutput);
-                                        }
-                                }
-                                else
-                                {
-                                        if (strlen(srDispObj->szPromptMsg) > 0)
-                                        {
-                                                /* 如果有提示字串將顯示 */
-                                                strcpy(szTemplate, srDispObj->szPromptMsg);
-                                                strcat(szTemplate, srDispObj->szOutput);
-                                        }
-                                        else
-                                        {
-                                                strcpy(szTemplate, srDispObj->szOutput);
-                                        }
-                                }
+					}
+				}
+				else
+				{
+					if (strlen(srDispObj->szPromptMsg) > 0)
+					{
+						/* 如果有提示字串將顯示 */
+						strcpy(szTemplate, srDispObj->szPromptMsg);
+						strcat(szTemplate, srDispObj->szOutput);
+					}
+					else
+					{
+						strcpy(szTemplate, srDispObj->szOutput);
+					}
+				}
 
 				inDISP_EnglishFont_Color(szTemplate, _FONTSIZE_16X22_, inY_16X22, inColor, _DISP_LEFT_);
-                        }
-                        else if (srDispObj->inR_L == _DISP_RIGHT_)
-                        {
-                                if (srDispObj->inMask == VS_TRUE)
-                                {
+			}
+			else if (srDispObj->inR_L == _DISP_RIGHT_)
+			{
+				if (srDispObj->inMask == VS_TRUE)
+				{
 					/* 將要Mask字數存起來，就memset幾個* */
-                                        memset(szMaskOutput, 0x00, sizeof(szMaskOutput));
-                                        memset(szMaskOutput, '*', srDispObj->inOutputLen);
+					memset(szMaskOutput, 0x00, sizeof(szMaskOutput));
+					memset(szMaskOutput, '*', srDispObj->inOutputLen);
 
-                                        if (strlen(srDispObj->szPromptMsg) > 0)
-                                        {
-                                                /* 如果有提示字串將顯示 */
-                                                strcpy(szTemplate, srDispObj->szPromptMsg);
-                                                strcat(szTemplate, szMaskOutput);
-                                        }
-                                        else
-                                        {
-                                                strcpy(szTemplate, szMaskOutput);
-                                        }
-                                }
-                                else
-                                {
-                                        if (strlen(srDispObj->szPromptMsg) > 0)
-                                        {
-                                                /* 如果有提示字串將顯示 */
-                                                strcpy(szTemplate, srDispObj->szPromptMsg);
-                                                strcat(szTemplate, srDispObj->szOutput);
-                                        }
-                                        else
-                                        {
-                                                strcpy(szTemplate, srDispObj->szOutput);
-                                        }
-                                }
+					if (strlen(srDispObj->szPromptMsg) > 0)
+					{
+						/* 如果有提示字串將顯示 */
+						strcpy(szTemplate, srDispObj->szPromptMsg);
+						strcat(szTemplate, szMaskOutput);
+					}
+					else
+					{
+						strcpy(szTemplate, szMaskOutput);
+					}
+				}
+				else
+				{
+					if (strlen(srDispObj->szPromptMsg) > 0)
+					{
+						/* 如果有提示字串將顯示 */
+						strcpy(szTemplate, srDispObj->szPromptMsg);
+						strcat(szTemplate, srDispObj->szOutput);
+					}
+					else
+					{
+						strcpy(szTemplate, srDispObj->szOutput);
+					}
+				}
 
-                                inDISP_EnglishFont_Color(szTemplate, _FONTSIZE_16X22_, inY_16X22, inColor, _DISP_RIGHT_);
-                        }
-
-                }
+				inDISP_EnglishFont_Color(szTemplate, _FONTSIZE_16X22_, inY_16X22, inColor, _DISP_RIGHT_);
+			}
+		}
 		else if (srDispObj->inOutputLen + strlen(srDispObj->szPromptMsg) > 22)
-                {
-                        /* 將8行模式顯示轉換成16行模式 */
-                        inY_16X22 = srDispObj->inY * 2 - 1;
+		{
+			/* 將8行模式顯示轉換成16行模式 */
+			inY_16X22 = srDispObj->inY * 2 - 1;
 			inY_16X22_2 = srDispObj->inY * 2;
-                        /* 一律先把畫面清掉後再顯示輸入訊息 */
+			/* 一律先把畫面清掉後再顯示輸入訊息 */
 			if (srDispObj->inX != 0)
 				inDISP_Clear_Area(srDispObj->inX, srDispObj->inY, 16, srDispObj->inY, srDispObj->inFoneSize);
 			else
@@ -3516,196 +3460,191 @@ int inDISP_Enter8x16_Character_Mask_And_DisTouch (DISPLAY_OBJECT  *srDispObj)
 			inPart1Len = 22 - strlen(srDispObj->szPromptMsg);
 			inPart2Len = srDispObj->inOutputLen + strlen(srDispObj->szPromptMsg) - 22;
 
-                        if (srDispObj->inR_L == _DISP_LEFT_)
-                        {
-                                if (srDispObj->inMask == VS_TRUE)
-                                {
+			if (srDispObj->inR_L == _DISP_LEFT_)
+			{
+				if (srDispObj->inMask == VS_TRUE)
+				{
 
 					/* 將要Mask字數存起來，就memset幾個* */
-                                        memset(szMaskOutput, 0x00, sizeof(szMaskOutput));
-                                        memset(szMaskOutput, '*', inPart1Len);
+					memset(szMaskOutput, 0x00, sizeof(szMaskOutput));
+					memset(szMaskOutput, '*', inPart1Len);
 
 					memset(szMaskOutput2, 0x00, sizeof(szMaskOutput));
-                                        memset(szMaskOutput2, '*', inPart2Len);
+					memset(szMaskOutput2, '*', inPart2Len);
 
-                                        if (strlen(srDispObj->szPromptMsg) > 0)
-                                        {
-                                                /* 如果有提示字串將顯示 */
-                                                strcpy(szTemplate, srDispObj->szPromptMsg);
-                                                strcat(szTemplate, szMaskOutput);
+					if (strlen(srDispObj->szPromptMsg) > 0)
+					{
+						/* 如果有提示字串將顯示 */
+						strcpy(szTemplate, srDispObj->szPromptMsg);
+						strcat(szTemplate, szMaskOutput);
 						strcpy(szTemplate2, szMaskOutput2);
-                                        }
-                                        else
-                                        {
+					}
+					else
+					{
 						strcpy(szTemplate, szMaskOutput);
 						strcpy(szTemplate2, szMaskOutput2);
-                                        }
-                                }
-                                else
-                                {
+					}
+				}
+				else
+				{
 					memset(szTemp, 0x00, sizeof(szTemp));
 					memcpy(szTemp, srDispObj->szOutput, inPart1Len);
 
 					memset(szTemp2, 0x00, sizeof(szTemp2));
 					memcpy(szTemp2, &srDispObj->szOutput[inPart1Len], inPart2Len);
 
-                                        if (strlen(srDispObj->szPromptMsg) > 0)
-                                        {
-                                                /* 如果有提示字串將顯示 */
-                                                strcpy(szTemplate, srDispObj->szPromptMsg);
-                                                strcat(szTemplate, szTemp);
+					if (strlen(srDispObj->szPromptMsg) > 0)
+					{
+						/* 如果有提示字串將顯示 */
+						strcpy(szTemplate, srDispObj->szPromptMsg);
+						strcat(szTemplate, szTemp);
 						strcpy(szTemplate2, szTemp2);
-                                        }
-                                        else
-                                        {
-                                                strcpy(szTemplate, szTemp);
+					}
+					else
+					{
+						strcpy(szTemplate, szTemp);
 						strcpy(szTemplate2, szTemp2);
-                                        }
-                                }
+					}
+				}
 
 				inDISP_EnglishFont_Color(szTemplate, _FONTSIZE_16X22_, inY_16X22, inColor, _DISP_LEFT_);
 				inDISP_EnglishFont_Color(szTemplate2, _FONTSIZE_16X22_, inY_16X22_2, inColor, _DISP_LEFT_);
-                        }
-                        else if (srDispObj->inR_L == _DISP_RIGHT_)
-                        {
-                                if (srDispObj->inMask == VS_TRUE)
-                                {
+			}
+			else if (srDispObj->inR_L == _DISP_RIGHT_)
+			{
+				if (srDispObj->inMask == VS_TRUE)
+				{
 					/* 將要Mask字數存起來，就memset幾個* */
-                                        memset(szMaskOutput, 0x00, sizeof(szMaskOutput));
-                                        memset(szMaskOutput, '*', inPart1Len);
+					memset(szMaskOutput, 0x00, sizeof(szMaskOutput));
+					memset(szMaskOutput, '*', inPart1Len);
 
 					memset(szMaskOutput2, 0x00, sizeof(szMaskOutput));
-                                        memset(szMaskOutput2, '*', inPart2Len);
+					memset(szMaskOutput2, '*', inPart2Len);
 
-                                        if (strlen(srDispObj->szPromptMsg) > 0)
-                                        {
-                                                /* 如果有提示字串將顯示 */
-                                                strcpy(szTemplate, srDispObj->szPromptMsg);
-                                                strcat(szTemplate, szMaskOutput);
+					if (strlen(srDispObj->szPromptMsg) > 0)
+					{
+						/* 如果有提示字串將顯示 */
+						strcpy(szTemplate, srDispObj->szPromptMsg);
+						strcat(szTemplate, szMaskOutput);
 						strcpy(szTemplate2, szMaskOutput2);
-                                        }
-                                        else
-                                        {
-                                                strcpy(szTemplate, szMaskOutput);
+					}
+					else
+					{
+						strcpy(szTemplate, szMaskOutput);
 						strcpy(szTemplate2, szMaskOutput2);
-                                        }
-                                }
-                                else
-                                {
-                                        memset(szTemp, 0x00, sizeof(szTemp));
+					}
+				}
+				else
+				{
+					memset(szTemp, 0x00, sizeof(szTemp));
 					memcpy(szTemp, srDispObj->szOutput, inPart1Len);
 
 					memset(szTemp2, 0x00, sizeof(szTemp2));
 					memcpy(szTemp2, &srDispObj->szOutput[inPart1Len], inPart2Len);
 
-                                        if (strlen(srDispObj->szPromptMsg) > 0)
-                                        {
-                                                /* 如果有提示字串將顯示 */
-                                                strcpy(szTemplate, srDispObj->szPromptMsg);
-                                                strcat(szTemplate, szTemp);
+					if (strlen(srDispObj->szPromptMsg) > 0)
+					{
+						/* 如果有提示字串將顯示 */
+						strcpy(szTemplate, srDispObj->szPromptMsg);
+						strcat(szTemplate, szTemp);
 						strcpy(szTemplate2, szTemp2);
-                                        }
-                                        else
-                                        {
-                                                strcpy(szTemplate, szTemp);
+					}
+					else
+					{
+						strcpy(szTemplate, szTemp);
 						strcpy(szTemplate2, szTemp2);
-                                        }
-                                }
+					}
+				}
 
-                                inDISP_EnglishFont_Color(szTemplate, _FONTSIZE_16X22_, inY_16X22, inColor, _DISP_RIGHT_);
+				inDISP_EnglishFont_Color(szTemplate, _FONTSIZE_16X22_, inY_16X22, inColor, _DISP_RIGHT_);
 				inDISP_EnglishFont_Color(szTemplate2, _FONTSIZE_16X22_, inY_16X22_2, inColor, _DISP_RIGHT_);
-                        }
-
-                }
-                else
-                {
-                        /* 設定螢幕字型大小 */
-                        srDispObj->inFoneSize = _ENGLISH_FONT_8X16_;
-                        /* 一律先把畫面清掉後再顯示輸入訊息 */
+			}
+		}
+		else
+		{
+			/* 設定螢幕字型大小 */
+			srDispObj->inFoneSize = _ENGLISH_FONT_8X16_;
+			/* 一律先把畫面清掉後再顯示輸入訊息 */
 			if (srDispObj->inX != 0)
 				inDISP_Clear_Area(srDispObj->inX, srDispObj->inY, 16, srDispObj->inY, srDispObj->inFoneSize);
 			else
 				inDISP_Clear_Area(1, srDispObj->inY, 16, srDispObj->inY, srDispObj->inFoneSize);
 
 			memset(szTemplate, 0x00, sizeof(szTemplate));
-                        if (srDispObj->inR_L == _DISP_LEFT_)
-                        {
+			if (srDispObj->inR_L == _DISP_LEFT_)
+			{
 
-                                if (srDispObj->inMask == VS_TRUE)
-                                {
+				if (srDispObj->inMask == VS_TRUE)
+				{
 					/* 將要Mask字數存起來，就memset幾個* */
-                                        memset(szMaskOutput, 0x00, sizeof(szMaskOutput));
-                                        memset(szMaskOutput, '*', srDispObj->inOutputLen);
+					memset(szMaskOutput, 0x00, sizeof(szMaskOutput));
+					memset(szMaskOutput, '*', srDispObj->inOutputLen);
 
-                                        if (strlen(srDispObj->szPromptMsg) > 0)
-                                        {
-                                                /* 如果有提示字串將顯示 */
-                                                strcpy(szTemplate, srDispObj->szPromptMsg);
-                                                strcat(szTemplate, szMaskOutput);
-                                        }
-                                        else
-                                        {
+					if (strlen(srDispObj->szPromptMsg) > 0)
+					{
+						/* 如果有提示字串將顯示 */
+						strcpy(szTemplate, srDispObj->szPromptMsg);
 						strcat(szTemplate, szMaskOutput);
-                                        }
-                                }
-                                else
-                                {
-                                        if (strlen(srDispObj->szPromptMsg) > 0)
-                                        {
-                                                /* 如果有提示字串將顯示 */
-                                                strcpy(szTemplate, srDispObj->szPromptMsg);
-                                                strcat(szTemplate, srDispObj->szOutput);
-                                        }
-                                        else
-                                        {
+					}
+					else
+					{
+						strcat(szTemplate, szMaskOutput);
+					}
+				}
+				else
+				{
+					if (strlen(srDispObj->szPromptMsg) > 0)
+					{
+						/* 如果有提示字串將顯示 */
+						strcpy(szTemplate, srDispObj->szPromptMsg);
+						strcat(szTemplate, srDispObj->szOutput);
+					}
+					else
+					{
 						strcpy(szTemplate, srDispObj->szOutput);
-                                        }
-
-                                }
+					}
+				}
 
 				inDISP_EnglishFont_Color(szTemplate, _FONTSIZE_8X16_, srDispObj->inY, inColor, _DISP_LEFT_);
-                        }
-                        else if (srDispObj->inR_L == _DISP_RIGHT_)
-                        {
+			}
+			else if (srDispObj->inR_L == _DISP_RIGHT_)
+			{
 
-                                if (srDispObj->inMask == VS_TRUE)
-                                {
-                                        /* 將要Mask字數存起來，就memset幾個* */
+				if (srDispObj->inMask == VS_TRUE)
+				{
+					/* 將要Mask字數存起來，就memset幾個* */
 					memset(szMaskOutput, 0x00, sizeof(szMaskOutput));
-                                        memset(szMaskOutput, '*', srDispObj->inOutputLen);
+					memset(szMaskOutput, '*', srDispObj->inOutputLen);
 
-                                        if (strlen(srDispObj->szPromptMsg) > 0)
-                                        {
-                                                /* 如果有提示字串將顯示 */
-                                                strcpy(szTemplate, srDispObj->szPromptMsg);
-                                                strcat(szTemplate, szMaskOutput);
-                                        }
-                                        else
-                                        {
-                                                strcpy(szTemplate, szMaskOutput);
-                                        }
-                                }
-                                else
-                                {
-                                        if (strlen(srDispObj->szPromptMsg) > 0)
-                                        {
-                                                /* 如果有提示字串將顯示 */
-                                                strcpy(szTemplate, srDispObj->szPromptMsg);
-                                                strcat(szTemplate, srDispObj->szOutput);
-                                        }
-                                        else
-                                        {
-                                                strcpy(szTemplate, srDispObj->szOutput);
-                                        }
-                                }
+					if (strlen(srDispObj->szPromptMsg) > 0)
+					{
+						/* 如果有提示字串將顯示 */
+						strcpy(szTemplate, srDispObj->szPromptMsg);
+						strcat(szTemplate, szMaskOutput);
+					}
+					else
+					{
+						strcpy(szTemplate, szMaskOutput);
+					}
+				}
+				else
+				{
+					if (strlen(srDispObj->szPromptMsg) > 0)
+					{
+						/* 如果有提示字串將顯示 */
+						strcpy(szTemplate, srDispObj->szPromptMsg);
+						strcat(szTemplate, srDispObj->szOutput);
+					}
+					else
+					{
+						strcpy(szTemplate, srDispObj->szOutput);
+					}
+				}
 
-                                inDISP_EnglishFont_Color(szTemplate, _FONTSIZE_8X16_, srDispObj->inY, inColor, _DISP_RIGHT_);
-                        }
-
-                }
-
-    	}
-
+				inDISP_EnglishFont_Color(szTemplate, _FONTSIZE_8X16_, srDispObj->inY, inColor, _DISP_RIGHT_);
+			}
+		}
+	}
 }
 
 /*
@@ -3713,19 +3652,19 @@ Function	:inDISP_Enter8x16_GetAmount
 Date&Time	:2016/9/29 上午 9:53
 Describe	:輸入金額
 */
-int inDISP_Enter8x16_GetAmount(DISPLAY_OBJECT  *srDispObj)
+int inDISP_Enter8x16_GetAmount(DISPLAY_OBJECT *srDispObj)
 {
-int		inChoice = 0;
-int		inColor;
-int		inFinalTimeOut;
-char		szTemplate[32 + 1];
-unsigned char   uszkey;
+	int inChoice = 0;
+	int inColor;
+	int inFinalTimeOut;
+	char szTemplate[32 + 1];
+	unsigned char uszkey;
 
 	if (srDispObj->inMenuKeyIn > 0)
 	{
 		/* 將輸入第一碼先存起來 */
 		sprintf(&srDispObj->szOutput[srDispObj->inOutputLen], "%c", srDispObj->inMenuKeyIn);
-		srDispObj->inOutputLen ++;
+		srDispObj->inOutputLen++;
 	}
 
 	/* 若TIMEOUT時間大於0時用傳進來的TimeOut，否則用EDC.dat的 */
@@ -3773,103 +3712,101 @@ unsigned char   uszkey;
 
 		switch (uszkey)
 		{
-			case _KEY_CANCEL_ :
-				srDispObj->inOutputLen = 0;
-				memset(srDispObj->szOutput, 0x00, sizeof(srDispObj->szOutput));
-				return (VS_USER_CANCEL);
-			case _KEY_TIMEOUT_ :
-				srDispObj->inOutputLen = 0;
-				memset(srDispObj->szOutput, 0x00, sizeof(srDispObj->szOutput));
-				return(VS_TIMEOUT);
-			case _KEY_ENTER_ :
-				/* 先確認該部份是否可輸入0 和 ByPass */
-				if (srDispObj->inCanNotZero != VS_TRUE && srDispObj->inCanNotBypass != VS_TRUE)
+		case _KEY_CANCEL_:
+			srDispObj->inOutputLen = 0;
+			memset(srDispObj->szOutput, 0x00, sizeof(srDispObj->szOutput));
+			return (VS_USER_CANCEL);
+		case _KEY_TIMEOUT_:
+			srDispObj->inOutputLen = 0;
+			memset(srDispObj->szOutput, 0x00, sizeof(srDispObj->szOutput));
+			return (VS_TIMEOUT);
+		case _KEY_ENTER_:
+			/* 先確認該部份是否可輸入0 和 ByPass */
+			if (srDispObj->inCanNotZero != VS_TRUE && srDispObj->inCanNotBypass != VS_TRUE)
+			{
+				return (srDispObj->inOutputLen);
+			}
+			/* 不能ByPass但可以輸入0 */
+			else if (srDispObj->inCanNotZero != VS_TRUE && srDispObj->inCanNotBypass == VS_TRUE)
+			{
+				if (srDispObj->inOutputLen == 0)
+				{
+					inDISP_BEEP(1, 0);
+					continue;
+				}
+				else
 				{
 					return (srDispObj->inOutputLen);
 				}
-				/* 不能ByPass但可以輸入0 */
-				else if (srDispObj->inCanNotZero != VS_TRUE && srDispObj->inCanNotBypass == VS_TRUE)
+			}
+			/* 不能輸入0但可以ByPass */
+			else if (srDispObj->inCanNotZero == VS_TRUE && srDispObj->inCanNotBypass != VS_TRUE)
+			{
+				/* 判斷輸入為零 提示聲音+重新輸入 */
+				if (atol(srDispObj->szOutput) == 0L)
 				{
-					if (srDispObj->inOutputLen == 0)
-					{
-						inDISP_BEEP(1, 0);
-						continue;
-					}
-					else
-					{
-						return (srDispObj->inOutputLen);
-					}
+					inDISP_BEEP(1, 0);
+					continue;
 				}
-				/* 不能輸入0但可以ByPass */
-				else if (srDispObj->inCanNotZero == VS_TRUE && srDispObj->inCanNotBypass != VS_TRUE)
-				{
-					/* 判斷輸入為零 提示聲音+重新輸入 */
-					if (atol(srDispObj->szOutput) == 0L)
-					{
-						inDISP_BEEP(1, 0);
-						continue;
-					}
-					else
-					{
-						return (srDispObj->inOutputLen);
-					}
-
-				}
-				/* 不能輸入0也不能ByPass */
 				else
 				{
-					/* 判斷輸入為零 提示聲音+重新輸入 */
-					if (atol(srDispObj->szOutput) == 0L || srDispObj->inOutputLen == 0)
-					{
-						inDISP_BEEP(1, 0);
-						continue;
-					}
-					else
-					{
-						return (srDispObj->inOutputLen);
-					}
-
+					return (srDispObj->inOutputLen);
 				}
-			case _KEY_CLEAR_ :
-				if (srDispObj->inOutputLen > 0)
+			}
+			/* 不能輸入0也不能ByPass */
+			else
+			{
+				/* 判斷輸入為零 提示聲音+重新輸入 */
+				if (atol(srDispObj->szOutput) == 0L || srDispObj->inOutputLen == 0)
 				{
-					srDispObj->szOutput[srDispObj->inOutputLen - 1] = 0x00;
-					srDispObj->inOutputLen --;
-					break;
+					inDISP_BEEP(1, 0);
+					continue;
 				}
 				else
-					continue;
-			case _KEY_0_ :
-			case _KEY_1_ :
-			case _KEY_2_ :
-			case _KEY_3_ :
-			case _KEY_4_ :
-			case _KEY_5_ :
-			case _KEY_6_ :
-			case _KEY_7_ :
-			case _KEY_8_ :
-			case _KEY_9_ :
-				/* 金額第一位數不能為0 */
-				if (srDispObj->inOutputLen == 0 && uszkey - 48 == 0)
 				{
-					continue;
+					return (srDispObj->inOutputLen);
 				}
-				/* 若超過最大長度時長嗶一聲 */
-				else if (srDispObj->inOutputLen >= srDispObj->inMaxLen)
-				{
-					inDISP_BEEP(1, 1);
-					continue;
-				}
-
-				sprintf(&srDispObj->szOutput[srDispObj->inOutputLen], "%c", uszkey);
-				srDispObj->inOutputLen ++;
+			}
+		case _KEY_CLEAR_:
+			if (srDispObj->inOutputLen > 0)
+			{
+				srDispObj->szOutput[srDispObj->inOutputLen - 1] = 0x00;
+				srDispObj->inOutputLen--;
 				break;
-			case _MENUKEYIN_EVENT_:
-				/* 將inMenuKeyIn初始化 */
-				srDispObj->inMenuKeyIn = -1;
-				break;
-			default :
+			}
+			else
 				continue;
+		case _KEY_0_:
+		case _KEY_1_:
+		case _KEY_2_:
+		case _KEY_3_:
+		case _KEY_4_:
+		case _KEY_5_:
+		case _KEY_6_:
+		case _KEY_7_:
+		case _KEY_8_:
+		case _KEY_9_:
+			/* 金額第一位數不能為0 */
+			if (srDispObj->inOutputLen == 0 && uszkey - 48 == 0)
+			{
+				continue;
+			}
+			/* 若超過最大長度時長嗶一聲 */
+			else if (srDispObj->inOutputLen >= srDispObj->inMaxLen)
+			{
+				inDISP_BEEP(1, 1);
+				continue;
+			}
+
+			sprintf(&srDispObj->szOutput[srDispObj->inOutputLen], "%c", uszkey);
+			srDispObj->inOutputLen++;
+			break;
+		case _MENUKEYIN_EVENT_:
+			/* 將inMenuKeyIn初始化 */
+			srDispObj->inMenuKeyIn = -1;
+			break;
+		default:
+			continue;
 		}
 
 		/* 設定螢幕字型大小 */
@@ -3899,7 +3836,6 @@ unsigned char   uszkey;
 			inFunc_Amount_Comma(szTemplate, srDispObj->szPromptMsg, 0x00, _SIGNED_NONE_, 16, _PAD_LEFT_FILL_RIGHT_);
 			inDISP_EnglishFont_Color(szTemplate, _FONTSIZE_8X16_, srDispObj->inY, inColor, _DISP_RIGHT_);
 		}
-
 	}
 }
 
@@ -3908,22 +3844,22 @@ Function	:inDISP_Enter8x16_GetDCCAmount
 Date&Time	:2016/9/29 上午 9:26
 Describe	:輸入金額 DCC小費用
 */
-int inDISP_Enter8x16_GetDCCAmount(DISPLAY_OBJECT  *srDispObj)
+int inDISP_Enter8x16_GetDCCAmount(DISPLAY_OBJECT *srDispObj)
 {
-	int		inColor;
-	int		inFinalTimeOut;
-	char		szTemplate[32 + 1];
-        unsigned char   uszkey;
+	int inColor;
+	int inFinalTimeOut;
+	char szTemplate[32 + 1];
+	unsigned char uszkey;
 
-        if (srDispObj->inMenuKeyIn > 0)
-        {
-                /* 將輸入第一碼先存起來 */
-                sprintf(&srDispObj->szOutput[srDispObj->inOutputLen], "%c", srDispObj->inMenuKeyIn);
-                srDispObj->inOutputLen ++;
-        }
+	if (srDispObj->inMenuKeyIn > 0)
+	{
+		/* 將輸入第一碼先存起來 */
+		sprintf(&srDispObj->szOutput[srDispObj->inOutputLen], "%c", srDispObj->inMenuKeyIn);
+		srDispObj->inOutputLen++;
+	}
 
 	/* 若TIMEOUT時間大於0時用傳進來的TimeOut，否則用EDC.dat的 */
-        if (srDispObj->inTimeout > 0)
+	if (srDispObj->inTimeout > 0)
 	{
 		inFinalTimeOut = srDispObj->inTimeout;
 	}
@@ -3936,124 +3872,122 @@ int inDISP_Enter8x16_GetDCCAmount(DISPLAY_OBJECT  *srDispObj)
 
 	while (1)
 	{
-                uszkey = -1;
+		uszkey = -1;
 
-                if (srDispObj->inMenuKeyIn > 0)
-                {
-                /* 如果為MenuKeyIn，第一個數字要顯示 */
-                        uszkey = _MENUKEYIN_EVENT_;
-                }
-                else
-                {
+		if (srDispObj->inMenuKeyIn > 0)
+		{
+			/* 如果為MenuKeyIn，第一個數字要顯示 */
+			uszkey = _MENUKEYIN_EVENT_;
+		}
+		else
+		{
 			uszkey = uszKBD_GetKey(inFinalTimeOut);
-                }
+		}
 
-                switch (uszkey)
-                {
-                        case _KEY_CANCEL_ :
-                                srDispObj->inOutputLen = 0;
-                                memset(srDispObj->szOutput, 0x00, sizeof(srDispObj->szOutput));
-                                return (VS_USER_CANCEL);
-                        case _KEY_TIMEOUT_ :
-                                srDispObj->inOutputLen = 0;
-                                memset(srDispObj->szOutput, 0x00, sizeof(srDispObj->szOutput));
-                                return(VS_TIMEOUT);
-                        case _KEY_ENTER_ :
-                                /* 先確認該部份是否可輸入0 和 ByPass */
-				if (srDispObj->inCanNotZero != VS_TRUE && srDispObj->inCanNotBypass != VS_TRUE)
+		switch (uszkey)
+		{
+		case _KEY_CANCEL_:
+			srDispObj->inOutputLen = 0;
+			memset(srDispObj->szOutput, 0x00, sizeof(srDispObj->szOutput));
+			return (VS_USER_CANCEL);
+		case _KEY_TIMEOUT_:
+			srDispObj->inOutputLen = 0;
+			memset(srDispObj->szOutput, 0x00, sizeof(srDispObj->szOutput));
+			return (VS_TIMEOUT);
+		case _KEY_ENTER_:
+			/* 先確認該部份是否可輸入0 和 ByPass */
+			if (srDispObj->inCanNotZero != VS_TRUE && srDispObj->inCanNotBypass != VS_TRUE)
+			{
+				return (srDispObj->inOutputLen);
+			}
+			/* 不能ByPass但可以輸入0 */
+			else if (srDispObj->inCanNotZero != VS_TRUE && srDispObj->inCanNotBypass == VS_TRUE)
+			{
+				if (srDispObj->inOutputLen == 0)
+				{
+					inDISP_BEEP(1, 0);
+					continue;
+				}
+				else
 				{
 					return (srDispObj->inOutputLen);
 				}
-				/* 不能ByPass但可以輸入0 */
-				else if (srDispObj->inCanNotZero != VS_TRUE && srDispObj->inCanNotBypass == VS_TRUE)
+			}
+			/* 不能輸入0但可以ByPass */
+			else if (srDispObj->inCanNotZero == VS_TRUE && srDispObj->inCanNotBypass != VS_TRUE)
+			{
+				/* 判斷輸入為零 提示聲音+重新輸入 */
+				if (atol(srDispObj->szOutput) == 0L)
 				{
-					if (srDispObj->inOutputLen == 0)
-					{
-						inDISP_BEEP(1, 0);
-						continue;
-					}
-					else
-					{
-						return (srDispObj->inOutputLen);
-					}
-				}
-				/* 不能輸入0但可以ByPass */
-				else if (srDispObj->inCanNotZero == VS_TRUE && srDispObj->inCanNotBypass != VS_TRUE)
-				{
-					/* 判斷輸入為零 提示聲音+重新輸入 */
-					if (atol(srDispObj->szOutput) == 0L)
-					{
-						inDISP_BEEP(1, 0);
-						continue;
-					}
-					else
-					{
-						return (srDispObj->inOutputLen);
-					}
-
-				}
-				/* 不能輸入0也不能ByPass */
-				else
-				{
-					/* 判斷輸入為零 提示聲音+重新輸入 */
-					if (atol(srDispObj->szOutput) == 0L || srDispObj->inOutputLen == 0)
-					{
-						inDISP_BEEP(1, 0);
-						continue;
-					}
-					else
-					{
-						return (srDispObj->inOutputLen);
-					}
-
-				}
-                        case _KEY_CLEAR_ :
-                                if (srDispObj->inOutputLen > 0)
-                                {
-                                        srDispObj->szOutput[srDispObj->inOutputLen - 1] = 0x00;
-                                        srDispObj->inOutputLen --;
-                                        break;
-                                }
-                                else
-                                        continue;
-                        case _KEY_0_ :
-                        case _KEY_1_ :
-                        case _KEY_2_ :
-                        case _KEY_3_ :
-                        case _KEY_4_ :
-                        case _KEY_5_ :
-                        case _KEY_6_ :
-                        case _KEY_7_ :
-                        case _KEY_8_ :
-                        case _KEY_9_ :
-				/* 金額第一位數不能為0 */
-                                if (srDispObj->inOutputLen == 0 && uszkey - 48 == 0)
-                                {
-                                        continue;
-                                }
-				/* 若超過最大長度時長嗶一聲 */
-				else if (srDispObj->inOutputLen >= srDispObj->inMaxLen)
-				{
-					inDISP_BEEP(1, 1);
+					inDISP_BEEP(1, 0);
 					continue;
 				}
+				else
+				{
+					return (srDispObj->inOutputLen);
+				}
+			}
+			/* 不能輸入0也不能ByPass */
+			else
+			{
+				/* 判斷輸入為零 提示聲音+重新輸入 */
+				if (atol(srDispObj->szOutput) == 0L || srDispObj->inOutputLen == 0)
+				{
+					inDISP_BEEP(1, 0);
+					continue;
+				}
+				else
+				{
+					return (srDispObj->inOutputLen);
+				}
+			}
+		case _KEY_CLEAR_:
+			if (srDispObj->inOutputLen > 0)
+			{
+				srDispObj->szOutput[srDispObj->inOutputLen - 1] = 0x00;
+				srDispObj->inOutputLen--;
+				break;
+			}
+			else
+				continue;
+		case _KEY_0_:
+		case _KEY_1_:
+		case _KEY_2_:
+		case _KEY_3_:
+		case _KEY_4_:
+		case _KEY_5_:
+		case _KEY_6_:
+		case _KEY_7_:
+		case _KEY_8_:
+		case _KEY_9_:
+			/* 金額第一位數不能為0 */
+			if (srDispObj->inOutputLen == 0 && uszkey - 48 == 0)
+			{
+				continue;
+			}
+			/* 若超過最大長度時長嗶一聲 */
+			else if (srDispObj->inOutputLen >= srDispObj->inMaxLen)
+			{
+				inDISP_BEEP(1, 1);
+				continue;
+			}
 
-                                sprintf(&srDispObj->szOutput[srDispObj->inOutputLen], "%c", uszkey);
-                                srDispObj->inOutputLen ++;
-                                break;
-                        case _MENUKEYIN_EVENT_:
-                                /* 將inMenuKeyIn初始化 */
-                                srDispObj->inMenuKeyIn = -1;
-                                break;
-                        default :
-                                continue;
-                }
+			sprintf(&srDispObj->szOutput[srDispObj->inOutputLen], "%c", uszkey);
+			srDispObj->inOutputLen++;
+			break;
+		case _MENUKEYIN_EVENT_:
+			/* 將inMenuKeyIn初始化 */
+			srDispObj->inMenuKeyIn = -1;
+			break;
+		default:
+			continue;
+		}
 
-                /* 設定螢幕字型大小 */
-                srDispObj->inFoneSize = _ENGLISH_FONT_8X16_;
+		/* 設定螢幕字型大小 */
+		srDispObj->inFoneSize = _ENGLISH_FONT_8X16_;
 
-                /* 一律先把畫面清掉後再顯示輸入訊息 */
-                if (srDispObj->inX != 0)
+		/* 一律先把畫面清掉後再顯示輸入訊息 */
+		if (srDispObj->inX != 0)
 			inDISP_Clear_Area(srDispObj->inX, srDispObj->inY, 16, srDispObj->inY, srDispObj->inFoneSize);
 		else
 			inDISP_Clear_Area(1, srDispObj->inY, 16, srDispObj->inY, srDispObj->inFoneSize);
@@ -4066,19 +4000,18 @@ int inDISP_Enter8x16_GetDCCAmount(DISPLAY_OBJECT  *srDispObj)
 			strcat(szTemplate, "0");
 		}
 
-                if (srDispObj->inR_L == _DISP_LEFT_)
-                {
+		if (srDispObj->inR_L == _DISP_LEFT_)
+		{
 			inFunc_Amount_Comma_DCC(szTemplate, srDispObj->szPromptMsg, 0x00, _SIGNED_NONE_, 16, _PAD_LEFT_FILL_RIGHT_, srDispObj->szMinorUnit, srDispObj->szCurrencyCode, szTemplate);
-                        inDISP_EnglishFont_Color(szTemplate, _FONTSIZE_8X16_, srDispObj->inY, inColor, _DISP_LEFT_);
-                }
-                else if (srDispObj->inR_L == _DISP_RIGHT_)
-                {
-                        /* 將輸入的字右靠左補空白 */
+			inDISP_EnglishFont_Color(szTemplate, _FONTSIZE_8X16_, srDispObj->inY, inColor, _DISP_LEFT_);
+		}
+		else if (srDispObj->inR_L == _DISP_RIGHT_)
+		{
+			/* 將輸入的字右靠左補空白 */
 			inFunc_Amount_Comma_DCC(szTemplate, srDispObj->szPromptMsg, 0x00, _SIGNED_NONE_, 16, _PAD_LEFT_FILL_RIGHT_, srDispObj->szMinorUnit, srDispObj->szCurrencyCode, szTemplate);
-                        inDISP_EnglishFont_Color(szTemplate, _FONTSIZE_8X16_, srDispObj->inY, inColor, _DISP_RIGHT_);
-                }
-
-    	}
+			inDISP_EnglishFont_Color(szTemplate, _FONTSIZE_8X16_, srDispObj->inY, inColor, _DISP_RIGHT_);
+		}
+	}
 }
 
 /*
@@ -4086,18 +4019,18 @@ Function	:inDISP_Enter8x23
 Date&Time	:2017/4/26 下午 3:32
 Describe	:輸入字元
 */
-int inDISP_Enter8x23 (DISPLAY_OBJECT  *srDispObj)
+int inDISP_Enter8x23(DISPLAY_OBJECT *srDispObj)
 {
-	int		inColor;
-	int		inFinalTimeOut;
-        int		inNumberKey = -1, inAlphaKeyIndex = 1;
-	char		szTemplate[_DISP_MSG_SIZE_ + 1], szMaskOutput[_DISP_MSG_SIZE_ + 1];
-        unsigned char	uszkey;
+	int inColor;
+	int inFinalTimeOut;
+	int inNumberKey = -1, inAlphaKeyIndex = 1;
+	char szTemplate[_DISP_MSG_SIZE_ + 1], szMaskOutput[_DISP_MSG_SIZE_ + 1];
+	unsigned char uszkey;
 
-        memset(szMaskOutput, 0x00, sizeof(szMaskOutput));
+	memset(szMaskOutput, 0x00, sizeof(szMaskOutput));
 
 	/* 若TIMEOUT時間大於0時用傳進來的TimeOut，否則用EDC.dat的 */
-        if (srDispObj->inTimeout > 0)
+	if (srDispObj->inTimeout > 0)
 	{
 		inFinalTimeOut = srDispObj->inTimeout;
 	}
@@ -4110,131 +4043,129 @@ int inDISP_Enter8x23 (DISPLAY_OBJECT  *srDispObj)
 
 	while (1)
 	{
-                uszkey = -1;
+		uszkey = -1;
 
 		if (srDispObj->inMenuKeyIn > 0)
-                {
+		{
 			/* 如果為MenuKeyIn，第一個數字要顯示 */
-                        uszkey = _MENUKEYIN_EVENT_;
-                }
-                else
-                {
+			uszkey = _MENUKEYIN_EVENT_;
+		}
+		else
+		{
 			uszkey = uszKBD_GetKey(inFinalTimeOut);
-                }
+		}
 
-                switch (uszkey)
-                {
-                        case _KEY_CANCEL_ :
-                                srDispObj->inOutputLen = 0;
-                                memset(srDispObj->szOutput, 0x00, sizeof(srDispObj->szOutput));
-                                return (VS_USER_CANCEL);
-                        case _KEY_TIMEOUT_ :
-                                srDispObj->inOutputLen = 0;
-                                memset(srDispObj->szOutput, 0x00, sizeof(srDispObj->szOutput));
-                                return(VS_TIMEOUT);
-                        case _KEY_ENTER_ :
-                                /* 先確認該部份是否可輸入0 和 ByPass */
-				if (srDispObj->inCanNotZero != VS_TRUE && srDispObj->inCanNotBypass != VS_TRUE)
+		switch (uszkey)
+		{
+		case _KEY_CANCEL_:
+			srDispObj->inOutputLen = 0;
+			memset(srDispObj->szOutput, 0x00, sizeof(srDispObj->szOutput));
+			return (VS_USER_CANCEL);
+		case _KEY_TIMEOUT_:
+			srDispObj->inOutputLen = 0;
+			memset(srDispObj->szOutput, 0x00, sizeof(srDispObj->szOutput));
+			return (VS_TIMEOUT);
+		case _KEY_ENTER_:
+			/* 先確認該部份是否可輸入0 和 ByPass */
+			if (srDispObj->inCanNotZero != VS_TRUE && srDispObj->inCanNotBypass != VS_TRUE)
+			{
+				return (srDispObj->inOutputLen);
+			}
+			/* 不能ByPass但可以輸入0 */
+			else if (srDispObj->inCanNotZero != VS_TRUE && srDispObj->inCanNotBypass == VS_TRUE)
+			{
+				if (srDispObj->inOutputLen == 0)
+				{
+					inDISP_BEEP(1, 0);
+					continue;
+				}
+				else
 				{
 					return (srDispObj->inOutputLen);
 				}
-				/* 不能ByPass但可以輸入0 */
-				else if (srDispObj->inCanNotZero != VS_TRUE && srDispObj->inCanNotBypass == VS_TRUE)
+			}
+			/* 不能輸入0但可以ByPass */
+			else if (srDispObj->inCanNotZero == VS_TRUE && srDispObj->inCanNotBypass != VS_TRUE)
+			{
+				/* 判斷輸入為零 提示聲音+重新輸入 */
+				if (atol(srDispObj->szOutput) == 0L)
 				{
-					if (srDispObj->inOutputLen == 0)
-					{
-						inDISP_BEEP(1, 0);
-						continue;
-					}
-					else
-					{
-						return (srDispObj->inOutputLen);
-					}
-				}
-				/* 不能輸入0但可以ByPass */
-				else if (srDispObj->inCanNotZero == VS_TRUE && srDispObj->inCanNotBypass != VS_TRUE)
-				{
-					/* 判斷輸入為零 提示聲音+重新輸入 */
-					if (atol(srDispObj->szOutput) == 0L)
-					{
-						inDISP_BEEP(1, 0);
-						continue;
-					}
-					else
-					{
-						return (srDispObj->inOutputLen);
-					}
-
-				}
-				/* 不能輸入0也不能ByPass */
-				else
-				{
-					/* 判斷輸入為零 提示聲音+重新輸入 */
-					if (atol(srDispObj->szOutput) == 0L || srDispObj->inOutputLen == 0)
-					{
-						inDISP_BEEP(1, 0);
-						continue;
-					}
-					else
-					{
-						return (srDispObj->inOutputLen);
-					}
-
-				}
-                        case _KEY_CLEAR_ :
-                                inAlphaKeyIndex = 1;
-                                inNumberKey = -1;
-
-                                if (srDispObj->inOutputLen > 0)
-                                {
-                                        srDispObj->szOutput[srDispObj->inOutputLen - 1] = 0x00;
-                                        szMaskOutput[srDispObj->inOutputLen - 1] = 0x00;
-                                        srDispObj->inOutputLen --;
-                                        break;
-                                }
-                                else
-                                        continue;
-                        case _KEY_0_ :
-                        case _KEY_1_ :
-                        case _KEY_2_ :
-                        case _KEY_3_ :
-                        case _KEY_4_ :
-                        case _KEY_5_ :
-                        case _KEY_6_ :
-                        case _KEY_7_ :
-                        case _KEY_8_ :
-                        case _KEY_9_ :
-				/* 若超過最大長度時長嗶一聲 */
-				if (srDispObj->inOutputLen >= srDispObj->inMaxLen)
-				{
-					inDISP_BEEP(1, 1);
+					inDISP_BEEP(1, 0);
 					continue;
 				}
+				else
+				{
+					return (srDispObj->inOutputLen);
+				}
+			}
+			/* 不能輸入0也不能ByPass */
+			else
+			{
+				/* 判斷輸入為零 提示聲音+重新輸入 */
+				if (atol(srDispObj->szOutput) == 0L || srDispObj->inOutputLen == 0)
+				{
+					inDISP_BEEP(1, 0);
+					continue;
+				}
+				else
+				{
+					return (srDispObj->inOutputLen);
+				}
+			}
+		case _KEY_CLEAR_:
+			inAlphaKeyIndex = 1;
+			inNumberKey = -1;
 
-                                sprintf(&srDispObj->szOutput[srDispObj->inOutputLen], "%c", uszkey);
-                                srDispObj->inOutputLen ++;
+			if (srDispObj->inOutputLen > 0)
+			{
+				srDispObj->szOutput[srDispObj->inOutputLen - 1] = 0x00;
+				szMaskOutput[srDispObj->inOutputLen - 1] = 0x00;
+				srDispObj->inOutputLen--;
+				break;
+			}
+			else
+				continue;
+		case _KEY_0_:
+		case _KEY_1_:
+		case _KEY_2_:
+		case _KEY_3_:
+		case _KEY_4_:
+		case _KEY_5_:
+		case _KEY_6_:
+		case _KEY_7_:
+		case _KEY_8_:
+		case _KEY_9_:
+			/* 若超過最大長度時長嗶一聲 */
+			if (srDispObj->inOutputLen >= srDispObj->inMaxLen)
+			{
+				inDISP_BEEP(1, 1);
+				continue;
+			}
 
-                                /* 將當下的Array存起來，以便切換Alpha鍵 */
-                                inNumberKey = uszkey - 48;
-                                /* 回到當初的index */
-                                inAlphaKeyIndex = 1;
-                                break;
-			case _MENUKEYIN_EVENT_:
-                                /* 將inMenuKeyIn初始化 */
-                                srDispObj->inMenuKeyIn = -1;
-                                break;
-                        default :
-                                continue;
-                }
+			sprintf(&srDispObj->szOutput[srDispObj->inOutputLen], "%c", uszkey);
+			srDispObj->inOutputLen++;
 
-                /* 設定螢幕字型大小 */
-                srDispObj->inFoneSize = _ENGLISH_FONT_8X22_;
-          	/* 一律先把畫面清掉後再顯示輸入訊息 */
-          	inDISP_Clear_Area(1, srDispObj->inY, 23, srDispObj->inY, srDispObj->inFoneSize);
+			/* 將當下的Array存起來，以便切換Alpha鍵 */
+			inNumberKey = uszkey - 48;
+			/* 回到當初的index */
+			inAlphaKeyIndex = 1;
+			break;
+		case _MENUKEYIN_EVENT_:
+			/* 將inMenuKeyIn初始化 */
+			srDispObj->inMenuKeyIn = -1;
+			break;
+		default:
+			continue;
+		}
+
+		/* 設定螢幕字型大小 */
+		srDispObj->inFoneSize = _ENGLISH_FONT_8X22_;
+		/* 一律先把畫面清掉後再顯示輸入訊息 */
+		inDISP_Clear_Area(1, srDispObj->inY, 23, srDispObj->inY, srDispObj->inFoneSize);
 
 		memset(szTemplate, 0x00, sizeof(szTemplate));
-                if (srDispObj->inR_L == _DISP_LEFT_)
-                {
+		if (srDispObj->inR_L == _DISP_LEFT_)
+		{
 			if (srDispObj->inMask == VS_TRUE)
 			{
 				/* 將要Mask字數存起來，就memset幾個* */
@@ -4267,10 +4198,10 @@ int inDISP_Enter8x23 (DISPLAY_OBJECT  *srDispObj)
 			}
 
 			inDISP_EnglishFont_Color(srDispObj->szOutput, _FONTSIZE_8X22_, srDispObj->inY, inColor, _DISP_LEFT_);
-                }
-                else if (srDispObj->inR_L == _DISP_RIGHT_)
-                {
-                        if (srDispObj->inMask == VS_TRUE)
+		}
+		else if (srDispObj->inR_L == _DISP_RIGHT_)
+		{
+			if (srDispObj->inMask == VS_TRUE)
 			{
 				/* 將要Mask字數存起來，就memset幾個* */
 				memset(szMaskOutput, 0x00, sizeof(szMaskOutput));
@@ -4301,9 +4232,9 @@ int inDISP_Enter8x23 (DISPLAY_OBJECT  *srDispObj)
 				}
 			}
 
-                        inDISP_EnglishFont_Color(szTemplate, _FONTSIZE_8X22_, srDispObj->inY, inColor, _DISP_RIGHT_);
-                }
-    	}
+			inDISP_EnglishFont_Color(szTemplate, _FONTSIZE_8X22_, srDispObj->inY, inColor, _DISP_RIGHT_);
+		}
+	}
 }
 
 /*
@@ -4311,22 +4242,20 @@ Function	:inDISP_Enter8x23_Character_Mask
 Date&Time	:2015/8/12 上午 10:03
 Describe	:輸入字元包含Mask
 */
-int inDISP_Enter8x23_Character_Mask (DISPLAY_OBJECT  *srDispObj)
+int inDISP_Enter8x23_Character_Mask(DISPLAY_OBJECT *srDispObj)
 {
-	int	inColor;
-	int	inFinalTimeOut;
-        int     inNumberKey = -1, inAlphaKeyIndex = 0;
-	char	szTemplate[_DISP_MSG_SIZE_ + 1], szMaskOutput[_DISP_MSG_SIZE_ + 1];
-        char    CharSet[10][15] = {{"0.,@* -"},{"1QZqz"},{"2ABCabc"},{"3DEFdef"},
-                                  {"4GHIghi"},{"5JKLjkl"},{"6MNOmno"},
-                                  {"7PRSprs"},{"8TUVtuv"},{"9WXYwxy"}};
-        unsigned char	uszkey = 0x00;
-	unsigned char	uszFindAlpha = VS_FALSE;
+	int inColor;
+	int inFinalTimeOut;
+	int inNumberKey = -1, inAlphaKeyIndex = 0;
+	char szTemplate[_DISP_MSG_SIZE_ + 1], szMaskOutput[_DISP_MSG_SIZE_ + 1];
+	char CharSet[10][15] = {{"0.,@* -"}, {"1QZqz"}, {"2ABCabc"}, {"3DEFdef"}, {"4GHIghi"}, {"5JKLjkl"}, {"6MNOmno"}, {"7PRSprs"}, {"8TUVtuv"}, {"9WXYwxy"}};
+	unsigned char uszkey = 0x00;
+	unsigned char uszFindAlpha = VS_FALSE;
 
-        memset(szMaskOutput, 0x00, sizeof(szMaskOutput));
+	memset(szMaskOutput, 0x00, sizeof(szMaskOutput));
 
 	/* 若TIMEOUT時間大於0時用傳進來的TimeOut，否則用EDC.dat的 */
-        if (srDispObj->inTimeout > 0)
+	if (srDispObj->inTimeout > 0)
 	{
 		inFinalTimeOut = srDispObj->inTimeout;
 	}
@@ -4339,99 +4268,90 @@ int inDISP_Enter8x23_Character_Mask (DISPLAY_OBJECT  *srDispObj)
 
 	while (1)
 	{
-                uszkey = -1;
+		uszkey = -1;
 
 		if (srDispObj->inMenuKeyIn > 0)
-                {
+		{
 			/* 如果為MenuKeyIn，第一個數字要顯示 */
-                        uszkey = _MENUKEYIN_EVENT_;
-                }
-                else
-                {
+			uszkey = _MENUKEYIN_EVENT_;
+		}
+		else
+		{
 			uszkey = uszKBD_GetKey(inFinalTimeOut);
-                }
+		}
 
-                switch (uszkey)
-                {
-                        case _KEY_CANCEL_ :
-                                srDispObj->inOutputLen = 0;
-                                memset(srDispObj->szOutput, 0x00, sizeof(srDispObj->szOutput));
-                                return (VS_USER_CANCEL);
-                        case _KEY_TIMEOUT_ :
-                                srDispObj->inOutputLen = 0;
-                                memset(srDispObj->szOutput, 0x00, sizeof(srDispObj->szOutput));
-                                return(VS_TIMEOUT);
-                        case _KEY_ENTER_ :
-                                /* 先確認該部份是否可輸入0 和 ByPass */
-				if (srDispObj->inCanNotZero != VS_TRUE && srDispObj->inCanNotBypass != VS_TRUE)
+		switch (uszkey)
+		{
+		case _KEY_CANCEL_:
+			srDispObj->inOutputLen = 0;
+			memset(srDispObj->szOutput, 0x00, sizeof(srDispObj->szOutput));
+			return (VS_USER_CANCEL);
+		case _KEY_TIMEOUT_:
+			srDispObj->inOutputLen = 0;
+			memset(srDispObj->szOutput, 0x00, sizeof(srDispObj->szOutput));
+			return (VS_TIMEOUT);
+		case _KEY_ENTER_:
+			/* 先確認該部份是否可輸入0 和 ByPass */
+			if (srDispObj->inCanNotZero != VS_TRUE && srDispObj->inCanNotBypass != VS_TRUE)
+			{
+				return (srDispObj->inOutputLen);
+			}
+			/* 不能ByPass但可以輸入0 */
+			else if (srDispObj->inCanNotZero != VS_TRUE && srDispObj->inCanNotBypass == VS_TRUE)
+			{
+				if (srDispObj->inOutputLen == 0)
+				{
+					inDISP_BEEP(1, 0);
+					continue;
+				}
+				else
 				{
 					return (srDispObj->inOutputLen);
 				}
-				/* 不能ByPass但可以輸入0 */
-				else if (srDispObj->inCanNotZero != VS_TRUE && srDispObj->inCanNotBypass == VS_TRUE)
+			}
+			/* 不能輸入0但可以ByPass */
+			else if (srDispObj->inCanNotZero == VS_TRUE && srDispObj->inCanNotBypass != VS_TRUE)
+			{
+				/* 判斷輸入為零 提示聲音+重新輸入 */
+				if (atol(srDispObj->szOutput) == 0L)
 				{
-					if (srDispObj->inOutputLen == 0)
-					{
-						inDISP_BEEP(1, 0);
-						continue;
-					}
-					else
-					{
-						return (srDispObj->inOutputLen);
-					}
+					inDISP_BEEP(1, 0);
+					continue;
 				}
-				/* 不能輸入0但可以ByPass */
-				else if (srDispObj->inCanNotZero == VS_TRUE && srDispObj->inCanNotBypass != VS_TRUE)
-				{
-					/* 判斷輸入為零 提示聲音+重新輸入 */
-					if (atol(srDispObj->szOutput) == 0L)
-					{
-						inDISP_BEEP(1, 0);
-						continue;
-					}
-					else
-					{
-						return (srDispObj->inOutputLen);
-					}
-
-				}
-				/* 不能輸入0也不能ByPass */
 				else
 				{
-					/* 判斷輸入為零 提示聲音+重新輸入 */
-					if (atol(srDispObj->szOutput) == 0L || srDispObj->inOutputLen == 0)
-					{
-						inDISP_BEEP(1, 0);
-						continue;
-					}
-					else
-					{
-						return (srDispObj->inOutputLen);
-					}
-
+					return (srDispObj->inOutputLen);
 				}
-                        case _KEY_CLEAR_ :
-                                if (srDispObj->inOutputLen > 1)
-                                {
-                                        srDispObj->szOutput[srDispObj->inOutputLen - 1] = 0x00;
-                                        szMaskOutput[srDispObj->inOutputLen - 1] = 0x00;
-                                        srDispObj->inOutputLen --;
+			}
+			/* 不能輸入0也不能ByPass */
+			else
+			{
+				/* 判斷輸入為零 提示聲音+重新輸入 */
+				if (atol(srDispObj->szOutput) == 0L || srDispObj->inOutputLen == 0)
+				{
+					inDISP_BEEP(1, 0);
+					continue;
+				}
+				else
+				{
+					return (srDispObj->inOutputLen);
+				}
+			}
+		case _KEY_CLEAR_:
+			if (srDispObj->inOutputLen > 1)
+			{
+				srDispObj->szOutput[srDispObj->inOutputLen - 1] = 0x00;
+				szMaskOutput[srDispObj->inOutputLen - 1] = 0x00;
+				srDispObj->inOutputLen--;
 
-					uszFindAlpha = VS_FALSE;
-					for (inNumberKey = 0; inNumberKey < 10; inNumberKey++)
+				uszFindAlpha = VS_FALSE;
+				for (inNumberKey = 0; inNumberKey < 10; inNumberKey++)
+				{
+					for (inAlphaKeyIndex = 0; inAlphaKeyIndex < 15; inAlphaKeyIndex++)
 					{
-						for (inAlphaKeyIndex = 0; inAlphaKeyIndex < 15; inAlphaKeyIndex++)
+						if (CharSet[inNumberKey][inAlphaKeyIndex] == srDispObj->szOutput[srDispObj->inOutputLen - 1])
 						{
-							if (CharSet[inNumberKey][inAlphaKeyIndex] == srDispObj->szOutput[srDispObj->inOutputLen - 1])
-							{
-								uszFindAlpha = VS_TRUE;
-							}
-
-							/* 找到就一路break出去 */
-							if (uszFindAlpha == VS_TRUE)
-							{
-								break;
-							}
+							uszFindAlpha = VS_TRUE;
 						}
 
 						/* 找到就一路break出去 */
@@ -4444,99 +4364,105 @@ int inDISP_Enter8x23_Character_Mask (DISPLAY_OBJECT  *srDispObj)
 					/* 找到就一路break出去 */
 					if (uszFindAlpha == VS_TRUE)
 					{
-
+						break;
 					}
-					else
-					{
-						inAlphaKeyIndex = 0;
-						inNumberKey = -1;
-					}
-                                        break;
-                                }
-                                else if (srDispObj->inOutputLen == 1)
-                                {
-                                        srDispObj->szOutput[srDispObj->inOutputLen - 1] = 0x00;
-                                        szMaskOutput[srDispObj->inOutputLen - 1] = 0x00;
-                                        srDispObj->inOutputLen --;
+				}
 
-					inAlphaKeyIndex = 0;
-					inNumberKey = -1;
-                                        break;
-                                }
-                                else
+				/* 找到就一路break出去 */
+				if (uszFindAlpha == VS_TRUE)
+				{
+				}
+				else
 				{
 					inAlphaKeyIndex = 0;
 					inNumberKey = -1;
-                                        continue;
 				}
-                        case _KEY_0_ :
-                        case _KEY_1_ :
-                        case _KEY_2_ :
-                        case _KEY_3_ :
-                        case _KEY_4_ :
-                        case _KEY_5_ :
-                        case _KEY_6_ :
-                        case _KEY_7_ :
-                        case _KEY_8_ :
-                        case _KEY_9_ :
-                                /* 若超過最大長度時長嗶一聲 */
-				if (srDispObj->inOutputLen >= srDispObj->inMaxLen)
-				{
-					inDISP_BEEP(1, 1);
-					continue;
-				}
+				break;
+			}
+			else if (srDispObj->inOutputLen == 1)
+			{
+				srDispObj->szOutput[srDispObj->inOutputLen - 1] = 0x00;
+				szMaskOutput[srDispObj->inOutputLen - 1] = 0x00;
+				srDispObj->inOutputLen--;
 
-                                sprintf(&srDispObj->szOutput[srDispObj->inOutputLen], "%c", uszkey);
-                                srDispObj->inOutputLen ++;
+				inAlphaKeyIndex = 0;
+				inNumberKey = -1;
+				break;
+			}
+			else
+			{
+				inAlphaKeyIndex = 0;
+				inNumberKey = -1;
+				continue;
+			}
+		case _KEY_0_:
+		case _KEY_1_:
+		case _KEY_2_:
+		case _KEY_3_:
+		case _KEY_4_:
+		case _KEY_5_:
+		case _KEY_6_:
+		case _KEY_7_:
+		case _KEY_8_:
+		case _KEY_9_:
+			/* 若超過最大長度時長嗶一聲 */
+			if (srDispObj->inOutputLen >= srDispObj->inMaxLen)
+			{
+				inDISP_BEEP(1, 1);
+				continue;
+			}
 
-                                /* 將當下的Array存起來，以便切換Alpha鍵 */
-                                inNumberKey = uszkey - 48;
-                                /* 回到當初的index */
-                                inAlphaKeyIndex = 0;
-                                break;
-                        case _KEY_ALPHA_ :
-                                if (inNumberKey == -1)
-                                        continue;
+			sprintf(&srDispObj->szOutput[srDispObj->inOutputLen], "%c", uszkey);
+			srDispObj->inOutputLen++;
 
-				inAlphaKeyIndex++;
+			/* 將當下的Array存起來，以便切換Alpha鍵 */
+			inNumberKey = uszkey - 48;
+			/* 回到當初的index */
+			inAlphaKeyIndex = 0;
+			break;
+		case _KEY_ALPHA_:
+			if (inNumberKey == -1)
+				continue;
 
-				switch (inNumberKey)
-                                {
-                                        case 0 :
-					case 1 :
-                                        case 2 :
-                                        case 3 :
-                                        case 4 :
-                                        case 5 :
-                                        case 6 :
-                                        case 7 :
-                                        case 8 :
-                                        case 9 :
-                                                if (inAlphaKeyIndex >= strlen(CharSet[inNumberKey]))
-                                                        inAlphaKeyIndex = 0;
-                                                break;
-                                }
+			inAlphaKeyIndex++;
 
-                                /* 至Array中抓取對應位置的符號再塞到srDispObj->szOutput */
-                                memcpy(&srDispObj->szOutput[srDispObj->inOutputLen - 1], &CharSet[inNumberKey][inAlphaKeyIndex], 1);
+			switch (inNumberKey)
+			{
+			case 0:
+			case 1:
+			case 2:
+			case 3:
+			case 4:
+			case 5:
+			case 6:
+			case 7:
+			case 8:
+			case 9:
+				if (inAlphaKeyIndex >= strlen(CharSet[inNumberKey]))
+					inAlphaKeyIndex = 0;
+				break;
+			}
 
-                                break;
-			case _MENUKEYIN_EVENT_:
-                                /* 將inMenuKeyIn初始化 */
-                                srDispObj->inMenuKeyIn = -1;
-                                break;
-                        default :
-                                continue;
-                }
+			/* 至Array中抓取對應位置的符號再塞到srDispObj->szOutput */
+			memcpy(&srDispObj->szOutput[srDispObj->inOutputLen - 1], &CharSet[inNumberKey][inAlphaKeyIndex], 1);
 
-                /* 設定螢幕字型大小 */
-                srDispObj->inFoneSize = _ENGLISH_FONT_8X22_;
-          	/* 一律先把畫面清掉後再顯示輸入訊息 */
-          	inDISP_Clear_Area(1, srDispObj->inY, 23, srDispObj->inY, srDispObj->inFoneSize);
+			break;
+		case _MENUKEYIN_EVENT_:
+			/* 將inMenuKeyIn初始化 */
+			srDispObj->inMenuKeyIn = -1;
+			break;
+		default:
+			continue;
+		}
+
+		/* 設定螢幕字型大小 */
+		srDispObj->inFoneSize = _ENGLISH_FONT_8X22_;
+		/* 一律先把畫面清掉後再顯示輸入訊息 */
+		inDISP_Clear_Area(1, srDispObj->inY, 23, srDispObj->inY, srDispObj->inFoneSize);
 
 		memset(szTemplate, 0x00, sizeof(szTemplate));
-                if (srDispObj->inR_L == _DISP_LEFT_)
-                {
+		if (srDispObj->inR_L == _DISP_LEFT_)
+		{
 			if (srDispObj->inMask == VS_TRUE)
 			{
 				/* 將要Mask字數存起來，就memset幾個* */
@@ -4569,10 +4495,10 @@ int inDISP_Enter8x23_Character_Mask (DISPLAY_OBJECT  *srDispObj)
 			}
 
 			inDISP_EnglishFont_Color(srDispObj->szOutput, _FONTSIZE_8X22_, srDispObj->inY, inColor, _DISP_LEFT_);
-                }
-                else if (srDispObj->inR_L == _DISP_RIGHT_)
-                {
-                        if (srDispObj->inMask == VS_TRUE)
+		}
+		else if (srDispObj->inR_L == _DISP_RIGHT_)
+		{
+			if (srDispObj->inMask == VS_TRUE)
 			{
 				/* 將要Mask字數存起來，就memset幾個* */
 				memset(szMaskOutput, 0x00, sizeof(szMaskOutput));
@@ -4603,9 +4529,9 @@ int inDISP_Enter8x23_Character_Mask (DISPLAY_OBJECT  *srDispObj)
 				}
 			}
 
-                        inDISP_EnglishFont_Color(szTemplate, _FONTSIZE_8X22_, srDispObj->inY, inColor, _DISP_RIGHT_);
-                }
-    	}
+			inDISP_EnglishFont_Color(szTemplate, _FONTSIZE_8X22_, srDispObj->inY, inColor, _DISP_RIGHT_);
+		}
+	}
 }
 
 /*
@@ -4616,19 +4542,19 @@ Describe	:IDLE畫面顯示
 int inDISP_DisplayIdleMessage(void)
 {
 	int inFunc = 0;
-        int inTouchSensorFunc;
+	int inTouchSensorFunc;
 
-        /* 開啟IDLE畫面的偵測 */
-        inTouchSensorFunc = _Touch_IDLE_;
-        inFunc = inDisTouch_TouchSensor_Click_Slide(inTouchSensorFunc);
+	/* 開啟IDLE畫面的偵測 */
+	inTouchSensorFunc = _Touch_IDLE_;
+	inFunc = inDisTouch_TouchSensor_Click_Slide(inTouchSensorFunc);
 
 	/*
 	 * _IdleTouch_KEY_1_: 開啟MENU畫面觸控
 	 * _IdleTouch_KEY_2_: 開啟銀聯交易畫面觸控
 	 * _IdleTouch_KEY_3_: 開啟其他交易畫面觸控
-	*/
+	 */
 
-        return(inFunc);
+	return (inFunc);
 }
 
 /*
@@ -4638,20 +4564,20 @@ Describe	: IDLE畫面顯示
 */
 int inDISP_DisplayIdleMessage_NewUI(void)
 {
-	int	inFunc = 0;
-        int	inTouchSensorFunc = _Touch_NONE_;
+	int inFunc = 0;
+	int inTouchSensorFunc = _Touch_NONE_;
 
-        /* 開啟IDLE畫面的偵測 */
-        inTouchSensorFunc = _Touch_NEWUI_IDLE_;
-        inFunc = inDisTouch_TouchSensor_Click_Slide(inTouchSensorFunc);
+	/* 開啟IDLE畫面的偵測 */
+	inTouchSensorFunc = _Touch_NEWUI_IDLE_;
+	inFunc = inDisTouch_TouchSensor_Click_Slide(inTouchSensorFunc);
 
 	/*
 	 * _IdleTouch_KEY_1_: 開啟MENU畫面觸控
 	 * _IdleTouch_KEY_2_: 開啟銀聯交易畫面觸控
 	 * _IdleTouch_KEY_3_: 開啟其他交易畫面觸控
-	*/
+	 */
 
-        return(inFunc);
+	return (inFunc);
 }
 
 /*
@@ -4659,19 +4585,19 @@ Function	:inDISP_ErrorMsg
 Date&Time	:2015/8/21 下午 1:29
 Describe	:顯示ERROR MSG
 */
-int inDISP_ErrorMsg(DISPLAY_OBJECT  *srDispObj)
+int inDISP_ErrorMsg(DISPLAY_OBJECT *srDispObj)
 {
-	int		inFinalTimeOut;
-        unsigned char	uszKey;
+	int inFinalTimeOut;
+	unsigned char uszKey;
 
-        /* 清下排 */
-        inDISP_Clear_Line(_LINE_8_4_, _LINE_8_8_);
+	/* 清下排 */
+	inDISP_Clear_Line(_LINE_8_4_, _LINE_8_8_);
 
-        inDISP_ChineseFont(srDispObj->szErrMsg1, _FONTSIZE_8X16_, _LINE_8_5_, _DISP_LEFT_);
-        inDISP_ChineseFont(srDispObj->szErrMsg2, _FONTSIZE_8X16_, _LINE_8_6_, _DISP_LEFT_);
+	inDISP_ChineseFont(srDispObj->szErrMsg1, _FONTSIZE_8X16_, _LINE_8_5_, _DISP_LEFT_);
+	inDISP_ChineseFont(srDispObj->szErrMsg2, _FONTSIZE_8X16_, _LINE_8_6_, _DISP_LEFT_);
 
 	/* 若TIMEOUT時間大於0時用傳進來的TimeOut，否則用EDC.dat的 */
-        if (srDispObj->inTimeout > 0)
+	if (srDispObj->inTimeout > 0)
 	{
 		inFinalTimeOut = srDispObj->inTimeout;
 	}
@@ -4680,33 +4606,32 @@ int inDISP_ErrorMsg(DISPLAY_OBJECT  *srDispObj)
 		inFinalTimeOut = _EDC_TIMEOUT_;
 	}
 
-        if (srDispObj->inMsgType == _CLEAR_KEY_MSG_)
+	if (srDispObj->inMsgType == _CLEAR_KEY_MSG_)
 	{
-                inDISP_ChineseFont_Color("請按清除鍵", _FONTSIZE_8X16_, _LINE_8_7_, _COLOR_RED_, _DISP_LEFT_);
-                inDISP_BEEP(1, 0);
+		inDISP_ChineseFont_Color("請按清除鍵", _FONTSIZE_8X16_, _LINE_8_7_, _COLOR_RED_, _DISP_LEFT_);
+		inDISP_BEEP(1, 0);
 
 		while (1)
 		{
-                        uszKey = uszKBD_GetKey(inFinalTimeOut);
+			uszKey = uszKBD_GetKey(inFinalTimeOut);
 
-                        if (uszKey == _KEY_CANCEL_ || uszKey == _KEY_TIMEOUT_)
-                        {
+			if (uszKey == _KEY_CANCEL_ || uszKey == _KEY_TIMEOUT_)
+			{
 				inDISP_Clear_Line(_LINE_8_4_, _LINE_8_8_);
-                                break;
-                        }
-                        else
-                        {
-                                continue;
-                        }
-
-	   	}
+				break;
+			}
+			else
+			{
+				continue;
+			}
+		}
 	}
 	else if (srDispObj->inMsgType == _BEEP_3TIMES_MSG_)
 		inDISP_BEEP(3, 500);
 	else
 		inDISP_Wait(3000);
 
-        return (VS_SUCCESS);
+	return (VS_SUCCESS);
 }
 
 /*
@@ -4715,15 +4640,14 @@ Date&Time	:2016/2/23 下午 4:16
 Describe	:圖片提示並指定清除鍵確認鍵或聲音提示
  *szAdditonalMsg:當有要顯示額外資訊的時候,不顯示時，填入""，inAdditonalMsgLine，填入0
 */
-int inDISP_Msg_BMP(char* szFileName, int inYPosition, int inMsgType, int inTimeOut, char* szAdditonalMsg, int inAdditonalMsgLine)
+int inDISP_Msg_BMP(char *szFileName, int inYPosition, int inMsgType, int inTimeOut, char *szAdditonalMsg, int inAdditonalMsgLine)
 {
 
-        int		inRetVal = VS_SUCCESS;
-        int		inFinalTimeOut = 0;
-        char		szCustomerIndicator[3 + 1] = {0};
-        unsigned char   uszKey;
+	int inRetVal = VS_SUCCESS;
+	int inFinalTimeOut = 0;
+	char szCustomerIndicator[3 + 1] = {0};
+	unsigned char uszKey;
 
-        
 	/* 清下排 */
 	inDISP_Clear_Line(_LINE_8_4_, _LINE_8_8_);
 	if (strlen(szFileName) > 0)
@@ -4741,9 +4665,9 @@ int inDISP_Msg_BMP(char* szFileName, int inYPosition, int inMsgType, int inTimeO
 	/* 客製化107需求，顯示錯誤訊息Timeout2秒 */
 	if (!memcmp(szCustomerIndicator, _CUSTOMER_INDICATOR_107_BUMPER_, strlen(_CUSTOMER_INDICATOR_107_BUMPER_)))
 	{
-		if (inMsgType == _CLEAR_KEY_MSG_	||
-		    inMsgType == _ENTER_KEY_MSG_	||
-		    inMsgType == _0_KEY_MSG_)
+		if (inMsgType == _CLEAR_KEY_MSG_ ||
+			inMsgType == _ENTER_KEY_MSG_ ||
+			inMsgType == _0_KEY_MSG_)
 		{
 			inFinalTimeOut = _CUSTOMER_107_BUMPER_GET_CARD_TIMEOUT_;
 		}
@@ -4770,9 +4694,9 @@ int inDISP_Msg_BMP(char* szFileName, int inYPosition, int inMsgType, int inTimeO
 			inFinalTimeOut = _EDC_TIMEOUT_;
 		}
 	}
-		
+
 	/* 抓取 KioskFlag的值，如為 TRUE 就不用確認畫面 2020/3/6 下午 4:28 [SAM] */
-	if(inFunc_GetKisokFlag() == VS_TRUE)
+	if (inFunc_GetKisokFlag() == VS_TRUE)
 	{
 		if (inMsgType == _CLEAR_KEY_MSG_)
 		{
@@ -4780,21 +4704,18 @@ int inDISP_Msg_BMP(char* szFileName, int inYPosition, int inMsgType, int inTimeO
 			/* 因不需要等待，所以都停一秒 */
 			inDISP_Wait(1000);
 			inRetVal = VS_USER_CANCEL;
-
 		}
 		else if (inMsgType == _ENTER_KEY_MSG_)
 		{
 			inDISP_BEEP(1, 0);
 			/* 因不需要等待，所以都停一秒 */
 			inDISP_Wait(1000);
-
 		}
 		else if (inMsgType == _0_KEY_MSG_)
 		{
 			inDISP_BEEP(1, 0);
 			/* 因不需要等待，所以都停一秒 */
 			inDISP_Wait(1000);
-
 		}
 		else if (inMsgType == _BEEP_1TIMES_MSG_)
 		{
@@ -4808,11 +4729,12 @@ int inDISP_Msg_BMP(char* szFileName, int inYPosition, int inMsgType, int inTimeO
 		{
 			inDISP_Wait(inFinalTimeOut * 1000);
 		}
-		
+
 		inDISP_LogPrintfWithFlag("  Kiosk DispMsgBmp Line[%d]", __LINE__);
-	}else
+	}
+	else
 	{
-	
+
 		if (inMsgType == _CLEAR_KEY_MSG_)
 		{
 			inDISP_PutGraphic(_ERR_CLEAR_, 0, _COORDINATE_Y_LINE_8_7_);
@@ -4902,10 +4824,8 @@ int inDISP_Msg_BMP(char* szFileName, int inYPosition, int inMsgType, int inTimeO
 	/* 離開時再清一次下排 把錯誤訊息洗掉*/
 	inDISP_Clear_Line(_LINE_8_4_, _LINE_8_8_);
 
-        return (inRetVal);
+	return (inRetVal);
 }
-
-
 
 /*
 Function	: inDISP_Msg_NewBMP
@@ -4914,20 +4834,20 @@ Describe	:圖片提示並指定清除鍵確認鍵或聲音提示
  *szAdditonalMsg:當有要顯示額外資訊的時候,不顯示時，填入""，inAdditonalMsgLine，填入0
  * [新增電票悠遊卡功能]  [SAM] 2022/6/8 下午 5:56
 */
-int inDISP_Msg_NewBMP(DISPLAY_OBJECT* srDispMsgObj)
+int inDISP_Msg_NewBMP(DISPLAY_OBJECT *srDispMsgObj)
 {
-	int		inOrgMsgType = _NO_KEY_MSG_;	/* For 107 or 111這種會中途改變MsgType使用 */
-	int		inRetVal = VS_SUCCESS;
-	int		inFinalTimeOut = 0;
-	int		inFontSize1 = 0;
-	int		inFontSize2 = 0;
-	int		inFontSize3 = 0;
-	char		szCustomerIndicator[3 + 1] = {0};
-	char		szTimeOut[3 + 1] = {0};
-        unsigned char   uszKey;
+	int inOrgMsgType = _NO_KEY_MSG_; /* For 107 or 111這種會中途改變MsgType使用 */
+	int inRetVal = VS_SUCCESS;
+	int inFinalTimeOut = 0;
+	int inFontSize1 = 0;
+	int inFontSize2 = 0;
+	int inFontSize3 = 0;
+	char szCustomerIndicator[3 + 1] = {0};
+	char szTimeOut[3 + 1] = {0};
+	unsigned char uszKey;
 
-        /* 清下排 */
-        inDISP_Clear_Line(_LINE_8_4_, _LINE_8_8_);
+	/* 清下排 */
+	inDISP_Clear_Line(_LINE_8_4_, _LINE_8_8_);
 	if (strlen(srDispMsgObj->szDispPic1Name) > 0)
 	{
 		inDISP_PutGraphic(srDispMsgObj->szDispPic1Name, srDispMsgObj->inDispPic1XPosition, srDispMsgObj->inDispPic1YPosition);
@@ -4943,10 +4863,10 @@ int inDISP_Msg_NewBMP(DISPLAY_OBJECT* srDispMsgObj)
 		{
 			inFontSize1 = _FONTSIZE_8X16_;
 		}
-		
+
 		inDISP_ChineseFont(srDispMsgObj->szErrMsg1, inFontSize1, srDispMsgObj->inErrMsg1Line, _DISP_CENTER_);
 	}
-	
+
 	if (strlen(srDispMsgObj->szErrMsg2) > 0)
 	{
 		if (srDispMsgObj->inErrMsg2FontSize > 0)
@@ -4957,10 +4877,10 @@ int inDISP_Msg_NewBMP(DISPLAY_OBJECT* srDispMsgObj)
 		{
 			inFontSize2 = _FONTSIZE_8X16_;
 		}
-		
+
 		inDISP_ChineseFont(srDispMsgObj->szErrMsg2, inFontSize2, srDispMsgObj->inErrMsg2Line, _DISP_CENTER_);
 	}
-	
+
 	if (strlen(srDispMsgObj->szErrMsg3) > 0)
 	{
 		if (srDispMsgObj->inErrMsg3FontSize > 0)
@@ -4973,11 +4893,11 @@ int inDISP_Msg_NewBMP(DISPLAY_OBJECT* srDispMsgObj)
 		}
 		inDISP_ChineseFont(srDispMsgObj->szErrMsg3, inFontSize3, srDispMsgObj->inErrMsg3Line, _DISP_CENTER_);
 	}
-	
+
 	/* 若TIMEOUT時間大於0時用傳進來的TimeOut，否則用EDC.dat的 */
 	memset(szCustomerIndicator, 0x00, sizeof(szCustomerIndicator));
 	inGetCustomIndicator(szCustomerIndicator);
-	
+
 	{
 		if (srDispMsgObj->inTimeout >= 0)
 		{
@@ -4990,91 +4910,91 @@ int inDISP_Msg_NewBMP(DISPLAY_OBJECT* srDispMsgObj)
 			inFinalTimeOut = atoi(szTimeOut);
 		}
 	}
-	
-        if (srDispMsgObj->inMsgType == _CLEAR_KEY_MSG_)
+
+	if (srDispMsgObj->inMsgType == _CLEAR_KEY_MSG_)
 	{
 		inDISP_PutGraphic(_ERR_CLEAR_, 0, _COORDINATE_Y_LINE_8_7_);
 		if (srDispMsgObj->inBeepTimes > 0)
 		{
 			inDISP_BEEP(srDispMsgObj->inBeepTimes, srDispMsgObj->inBeepInterval);
 		}
-		
-                while (1)
-                {
-                        uszKey = uszKBD_GetKey(inFinalTimeOut);
-			
-                        if (uszKey == _KEY_CANCEL_)
-                        {
+
+		while (1)
+		{
+			uszKey = uszKBD_GetKey(inFinalTimeOut);
+
+			if (uszKey == _KEY_CANCEL_)
+			{
 				inRetVal = VS_USER_CANCEL;
-                                break;
-                        }
+				break;
+			}
 			else if (uszKey == _KEY_TIMEOUT_)
 			{
 				inRetVal = VS_TIMEOUT;
 				break;
 			}
-                        else
-                        {
-                                continue;
-                        }
-                }
+			else
+			{
+				continue;
+			}
+		}
 	}
-        else if (srDispMsgObj->inMsgType == _ENTER_KEY_MSG_)
-        {
+	else if (srDispMsgObj->inMsgType == _ENTER_KEY_MSG_)
+	{
 		inDISP_PutGraphic(_ERR_OK_, 0, _COORDINATE_Y_LINE_8_7_);
-                if (srDispMsgObj->inBeepTimes > 0)
+		if (srDispMsgObj->inBeepTimes > 0)
 		{
 			inDISP_BEEP(srDispMsgObj->inBeepTimes, srDispMsgObj->inBeepInterval);
 		}
-                
-                while (1)
-                {
-                        uszKey = uszKBD_GetKey(inFinalTimeOut);
 
-                        if (uszKey == _KEY_ENTER_)
-                        {
+		while (1)
+		{
+			uszKey = uszKBD_GetKey(inFinalTimeOut);
+
+			if (uszKey == _KEY_ENTER_)
+			{
 				inRetVal = VS_SUCCESS;
-                                break;
-                        }
+				break;
+			}
 			else if (uszKey == _KEY_TIMEOUT_)
 			{
 				inRetVal = VS_TIMEOUT;
 				break;
 			}
-                        else
-                        {
-                                continue;
-                        }
-                }   
-        }
+			else
+			{
+				continue;
+			}
+		}
+	}
 	else if (srDispMsgObj->inMsgType == _0_KEY_MSG_)
-        {
+	{
 		inDISP_PutGraphic(_ERR_0_, 0, _COORDINATE_Y_LINE_8_7_);
-                if (srDispMsgObj->inBeepTimes > 0)
+		if (srDispMsgObj->inBeepTimes > 0)
 		{
 			inDISP_BEEP(srDispMsgObj->inBeepTimes, srDispMsgObj->inBeepInterval);
 		}
-		
-                while (1)
-                {
-                        uszKey = uszKBD_GetKey(inFinalTimeOut);
 
-                        if (uszKey == _KEY_0_)
-                        {
+		while (1)
+		{
+			uszKey = uszKBD_GetKey(inFinalTimeOut);
+
+			if (uszKey == _KEY_0_)
+			{
 				inRetVal = VS_SUCCESS;
-                                break;
-                        }
+				break;
+			}
 			else if (uszKey == _KEY_TIMEOUT_)
 			{
 				inRetVal = VS_TIMEOUT;
 				break;
 			}
-                        else
-                        {
-                                continue;
-                        }
-                }   
-        }
+			else
+			{
+				continue;
+			}
+		}
+	}
 	else if (srDispMsgObj->inMsgType == _ANY_KEY_MSG_)
 	{
 		inDISP_ChineseFont("請按任意鍵", _FONTSIZE_8X16_, _LINE_8_7_, _DISP_CENTER_);
@@ -5082,22 +5002,22 @@ int inDISP_Msg_NewBMP(DISPLAY_OBJECT* srDispMsgObj)
 		{
 			inDISP_BEEP(srDispMsgObj->inBeepTimes, srDispMsgObj->inBeepInterval);
 		}
-		
-                while (1)
-                {
-                        uszKey = uszKBD_GetKey(inFinalTimeOut);
-			
-                        if (uszKey == _KEY_TIMEOUT_)
+
+		while (1)
+		{
+			uszKey = uszKBD_GetKey(inFinalTimeOut);
+
+			if (uszKey == _KEY_TIMEOUT_)
 			{
 				inRetVal = VS_TIMEOUT;
 				break;
 			}
-                        else
-                        {
+			else
+			{
 				inRetVal = VS_SUCCESS;
-                                break;
-                        }
-                }
+				break;
+			}
+		}
 	}
 	else if (srDispMsgObj->inMsgType == _NO_KEY_MSG_)
 	{
@@ -5110,7 +5030,7 @@ int inDISP_Msg_NewBMP(DISPLAY_OBJECT* srDispMsgObj)
 		{
 			inDISP_Wait(inFinalTimeOut * 1000);
 		}
-		
+
 		if (inOrgMsgType == _CLEAR_KEY_MSG_)
 		{
 			inRetVal = VS_USER_CANCEL;
@@ -5128,15 +5048,12 @@ int inDISP_Msg_NewBMP(DISPLAY_OBJECT* srDispMsgObj)
 			inRetVal = VS_SUCCESS;
 		}
 	}
-	
+
 	/* 離開時再清一次下排 把錯誤訊息洗掉*/
 	inDISP_Clear_Line(_LINE_8_4_, _LINE_8_8_);
-	
-        return (inRetVal);
+
+	return (inRetVal);
 }
-
-
-
 
 /*
 Function	:inDISP_Ente8x14_MenuKeyIn
@@ -5144,21 +5061,21 @@ Date&Time	:2015/9/11 下午 8:13
 Describe	:輸入數字
 Note            :輸入超過長度大於16時，顯示會轉換為9X19
 */
-int inDISP_Enter8x16_MenuKeyIn(DISPLAY_OBJECT  *srDispObj)
+int inDISP_Enter8x16_MenuKeyIn(DISPLAY_OBJECT *srDispObj)
 {
-        int		inY_12X19;
-	int		inFinalTimeOut;
-        unsigned char   uszkey;
+	int inY_12X19;
+	int inFinalTimeOut;
+	unsigned char uszkey;
 
-        if (srDispObj->inMenuKeyIn > 0)
-        {
-                /* 將輸入第一碼先存起來 */
-                sprintf(&srDispObj->szOutput[srDispObj->inOutputLen], "%c", srDispObj->inMenuKeyIn);
-                srDispObj->inOutputLen ++;
-        }
+	if (srDispObj->inMenuKeyIn > 0)
+	{
+		/* 將輸入第一碼先存起來 */
+		sprintf(&srDispObj->szOutput[srDispObj->inOutputLen], "%c", srDispObj->inMenuKeyIn);
+		srDispObj->inOutputLen++;
+	}
 
 	/* 若TIMEOUT時間大於0時用傳進來的TimeOut，否則用EDC.dat的 */
-        if (srDispObj->inTimeout > 0)
+	if (srDispObj->inTimeout > 0)
 	{
 		inFinalTimeOut = srDispObj->inTimeout;
 	}
@@ -5169,112 +5086,110 @@ int inDISP_Enter8x16_MenuKeyIn(DISPLAY_OBJECT  *srDispObj)
 
 	while (1)
 	{
-                uszkey = -1;
+		uszkey = -1;
 
 		if (srDispObj->inMenuKeyIn > 0)
 		{
 			/* 如果為MenuKeyIn，第一個數字要顯示 */
 			uszkey = _MENUKEYIN_EVENT_;
 		}
-                else
-                {
+		else
+		{
 			uszkey = uszKBD_GetKey(inFinalTimeOut);
 		}
 
-                switch (uszkey)
-                {
-                        case _KEY_CANCEL_ :
-                                srDispObj->inOutputLen = 0;
-                                memset(srDispObj->szOutput, 0x00, sizeof(srDispObj->szOutput));
-                                return (VS_USER_CANCEL);
-                        case _KEY_TIMEOUT_ :
-                                srDispObj->inOutputLen = 0;
-                                memset(srDispObj->szOutput, 0x00, sizeof(srDispObj->szOutput));
-                                //inDISP_Msg_BMP(_ERR_PLEASE_FOLLOW_RIGHT_OPT_, _COORDINATE_Y_LINE_8_5_, _CLEAR_KEY_MSG_, _EDC_TIMEOUT_, "", 0);
-                                return(VS_TIMEOUT);
-                        case _KEY_ENTER_ :
-                                return(srDispObj->inOutputLen);
-                        case _KEY_CLEAR_ :
-                                if (srDispObj->inOutputLen > 0)
-                                {
-                                        srDispObj->szOutput[srDispObj->inOutputLen - 1] = 0x00;
-                                        srDispObj->inOutputLen --;
-                                        break;
-                                }
-                                else
-                                        continue;
-                        case _KEY_0_ :
-                        case _KEY_1_ :
-                        case _KEY_2_ :
-                        case _KEY_3_ :
-                        case _KEY_4_ :
-                        case _KEY_5_ :
-                        case _KEY_6_ :
-                        case _KEY_7_ :
-                        case _KEY_8_ :
-                        case _KEY_9_ :
-                                /* 若超過最大長度時長嗶一聲 */
-				if (srDispObj->inOutputLen >= srDispObj->inMaxLen)
-				{
-					inDISP_BEEP(1, 1);
-					continue;
-				}
+		switch (uszkey)
+		{
+		case _KEY_CANCEL_:
+			srDispObj->inOutputLen = 0;
+			memset(srDispObj->szOutput, 0x00, sizeof(srDispObj->szOutput));
+			return (VS_USER_CANCEL);
+		case _KEY_TIMEOUT_:
+			srDispObj->inOutputLen = 0;
+			memset(srDispObj->szOutput, 0x00, sizeof(srDispObj->szOutput));
+			// inDISP_Msg_BMP(_ERR_PLEASE_FOLLOW_RIGHT_OPT_, _COORDINATE_Y_LINE_8_5_, _CLEAR_KEY_MSG_, _EDC_TIMEOUT_, "", 0);
+			return (VS_TIMEOUT);
+		case _KEY_ENTER_:
+			return (srDispObj->inOutputLen);
+		case _KEY_CLEAR_:
+			if (srDispObj->inOutputLen > 0)
+			{
+				srDispObj->szOutput[srDispObj->inOutputLen - 1] = 0x00;
+				srDispObj->inOutputLen--;
+				break;
+			}
+			else
+				continue;
+		case _KEY_0_:
+		case _KEY_1_:
+		case _KEY_2_:
+		case _KEY_3_:
+		case _KEY_4_:
+		case _KEY_5_:
+		case _KEY_6_:
+		case _KEY_7_:
+		case _KEY_8_:
+		case _KEY_9_:
+			/* 若超過最大長度時長嗶一聲 */
+			if (srDispObj->inOutputLen >= srDispObj->inMaxLen)
+			{
+				inDISP_BEEP(1, 1);
+				continue;
+			}
 
-                                sprintf(&srDispObj->szOutput[srDispObj->inOutputLen], "%c", uszkey);
-                                srDispObj->inOutputLen ++;
-                                break;
-                        case _MENUKEYIN_EVENT_:
-                                /* 將inMenuKeyIn初始化 */
-                                srDispObj->inMenuKeyIn = -1;
-                                break;
-                        default :
-                                continue;
-                }
+			sprintf(&srDispObj->szOutput[srDispObj->inOutputLen], "%c", uszkey);
+			srDispObj->inOutputLen++;
+			break;
+		case _MENUKEYIN_EVENT_:
+			/* 將inMenuKeyIn初始化 */
+			srDispObj->inMenuKeyIn = -1;
+			break;
+		default:
+			continue;
+		}
 
-                /* 如果長度大於16，將8X16轉12X19顯示 */
-                if (srDispObj->inOutputLen > 16)
-                {
-                        /* 將4行模式顯示轉換成10行模式 */
-                        inY_12X19 = _LINE_12_10_;
-                        /* 設定螢幕字型大小 */
-                        srDispObj->inFoneSize = _ENGLISH_FONT_8X16_;
-                        /* 一律先把畫面清掉後再顯示輸入訊息 */
-                        if (srDispObj->inX != 0)
+		/* 如果長度大於16，將8X16轉12X19顯示 */
+		if (srDispObj->inOutputLen > 16)
+		{
+			/* 將4行模式顯示轉換成10行模式 */
+			inY_12X19 = _LINE_12_10_;
+			/* 設定螢幕字型大小 */
+			srDispObj->inFoneSize = _ENGLISH_FONT_8X16_;
+			/* 一律先把畫面清掉後再顯示輸入訊息 */
+			if (srDispObj->inX != 0)
 				inDISP_Clear_Area(srDispObj->inX, srDispObj->inY, 16, srDispObj->inY, srDispObj->inFoneSize);
 			else
 				inDISP_Clear_Area(1, srDispObj->inY, 16, srDispObj->inY, srDispObj->inFoneSize);
 
-                        if (srDispObj->inR_L == _DISP_LEFT_)
+			if (srDispObj->inR_L == _DISP_LEFT_)
 			{
-                                inDISP_EnglishFont_Color(srDispObj->szOutput, _FONTSIZE_12X19_, inY_12X19, _COLOR_RED_, _DISP_LEFT_);
+				inDISP_EnglishFont_Color(srDispObj->szOutput, _FONTSIZE_12X19_, inY_12X19, _COLOR_RED_, _DISP_LEFT_);
 			}
-                        else if (srDispObj->inR_L == _DISP_RIGHT_)
-                        {
-                                inDISP_EnglishFont_Color(srDispObj->szOutput, _FONTSIZE_12X19_, inY_12X19, _COLOR_RED_, _DISP_RIGHT_);
-                        }
-                }
-                else
-                {
-                        /* 設定螢幕字型大小 */
-                        srDispObj->inFoneSize = _ENGLISH_FONT_8X16_;
-                        /* 一律先把畫面清掉後再顯示輸入訊息 */
-                        if (srDispObj->inX != 0)
+			else if (srDispObj->inR_L == _DISP_RIGHT_)
+			{
+				inDISP_EnglishFont_Color(srDispObj->szOutput, _FONTSIZE_12X19_, inY_12X19, _COLOR_RED_, _DISP_RIGHT_);
+			}
+		}
+		else
+		{
+			/* 設定螢幕字型大小 */
+			srDispObj->inFoneSize = _ENGLISH_FONT_8X16_;
+			/* 一律先把畫面清掉後再顯示輸入訊息 */
+			if (srDispObj->inX != 0)
 				inDISP_Clear_Area(srDispObj->inX, srDispObj->inY, 16, srDispObj->inY, srDispObj->inFoneSize);
 			else
 				inDISP_Clear_Area(1, srDispObj->inY, 16, srDispObj->inY, srDispObj->inFoneSize);
 
-                        if (srDispObj->inR_L == _DISP_LEFT_)
+			if (srDispObj->inR_L == _DISP_LEFT_)
 			{
-                                inDISP_EnglishFont_Color(srDispObj->szOutput, _FONTSIZE_8X16_ , srDispObj->inY, _COLOR_RED_, _DISP_LEFT_);
+				inDISP_EnglishFont_Color(srDispObj->szOutput, _FONTSIZE_8X16_, srDispObj->inY, _COLOR_RED_, _DISP_LEFT_);
 			}
-                        else if (srDispObj->inR_L == _DISP_RIGHT_)
-                        {
-                                inDISP_EnglishFont_Color(srDispObj->szOutput, _FONTSIZE_8X16_ , srDispObj->inY, _COLOR_RED_, _DISP_RIGHT_);
-                        }
-                }
-
-    	}
-
+			else if (srDispObj->inR_L == _DISP_RIGHT_)
+			{
+				inDISP_EnglishFont_Color(srDispObj->szOutput, _FONTSIZE_8X16_, srDispObj->inY, _COLOR_RED_, _DISP_RIGHT_);
+			}
+		}
+	}
 }
 
 /*
@@ -5284,8 +5199,8 @@ Describe        :當lnDelay設為-1，使用EDC.dat內的TimeOut
 */
 int inDISP_Timer_Start(int inTimerNumber, long lnDelay)
 {
-	int	inEnterTimeout = 0;
-	char	szEnterTimeout[3 + 1];
+	int inEnterTimeout = 0;
+	char szEnterTimeout[3 + 1];
 
 	if (lnDelay == _EDC_TIMEOUT_)
 	{
@@ -5316,8 +5231,8 @@ Describe        :當lnDelay設為-1，使用EDC.dat內的TimeOut，時間單位�
 */
 int inDISP_Timer_Start_MicroSecond(int inTimerNumber, long lnDelay)
 {
-	int	inEnterTimeout = 0;
-	char	szEnterTimeout[3 + 1];
+	int inEnterTimeout = 0;
+	char szEnterTimeout[3 + 1];
 
 	if (lnDelay == _EDC_TIMEOUT_)
 	{
@@ -5366,11 +5281,11 @@ Describe	:Debug Printf
 */
 int inDISP_LogPrintf(char *szStr, ...)
 {
-	char		szTemplate[20 + 1] = {0};
-	char		szDebugMsg[15000 + 1] = {0};	
-//	char		szDebugMsg[5000 + 1] = {0};
-	RTC_NEXSYS	srRTC = {0};
-	va_list		list;				/* 加入不定參數作法 2018/5/29 上午 11:06 */
+	char szTemplate[20 + 1] = {0};
+	char szDebugMsg[15000 + 1] = {0};
+	//	char		szDebugMsg[5000 + 1] = {0};
+	RTC_NEXSYS srRTC = {0};
+	va_list list; /* 加入不定參數作法 2018/5/29 上午 11:06 */
 
 	/* 加入測試訊息時間 2018/3/13 上午 10:19 */
 	inFunc_GetSystemDateAndTime(&srRTC);
@@ -5385,32 +5300,32 @@ int inDISP_LogPrintf(char *szStr, ...)
 
 	return (VS_SUCCESS);
 }
-void inDISP_LogPrintfArea(char fDebugFlag,char *chMsg,int inMsgLen,BYTE *chData,int inDataLen)
+void inDISP_LogPrintfArea(char fDebugFlag, char *chMsg, int inMsgLen, BYTE *chData, int inDataLen)
 {
-        BYTE *bBuf;
-        int i;
+	BYTE *bBuf;
+	int i;
 
-        if (ginDebug == VS_TRUE)
-        {
-                bBuf = (BYTE *)calloc(1, inDataLen * 4 + inMsgLen + 10);
-                memset(bBuf, 0x00, inDataLen * 3 + inMsgLen + 10);
-                memcpy(bBuf,chMsg,inMsgLen);
-                sprintf((char *)&bBuf[strlen((char *)bBuf)]," (%d):",inDataLen);
-                for(i=0;i<inDataLen;i++)
-                {
-                        if(fDebugFlag ==FALSE)
-                        {
-                                if(chData[i] >= 0x20 && chData[i] <= 0x7F)
-                                        bBuf[strlen((char *)bBuf)] = chData[i];
-                                else
-                                        sprintf((char *)&bBuf[strlen((char *)bBuf)],"[%02X]",chData[i]);
-                        }
-                        else
-                                sprintf((char *)&bBuf[strlen((char *)bBuf)],"%02X",chData[i]);
-                }
-                inDISP_LogPrintf((char *)bBuf);
-                free(bBuf);
-        }
+	if (ginDebug == VS_TRUE)
+	{
+		bBuf = (BYTE *)calloc(1, inDataLen * 4 + inMsgLen + 10);
+		memset(bBuf, 0x00, inDataLen * 3 + inMsgLen + 10);
+		memcpy(bBuf, chMsg, inMsgLen);
+		sprintf((char *)&bBuf[strlen((char *)bBuf)], " (%d):", inDataLen);
+		for (i = 0; i < inDataLen; i++)
+		{
+			if (fDebugFlag == FALSE)
+			{
+				if (chData[i] >= 0x20 && chData[i] <= 0x7F)
+					bBuf[strlen((char *)bBuf)] = chData[i];
+				else
+					sprintf((char *)&bBuf[strlen((char *)bBuf)], "[%02X]", chData[i]);
+			}
+			else
+				sprintf((char *)&bBuf[strlen((char *)bBuf)], "%02X", chData[i]);
+		}
+		inDISP_LogPrintf((char *)bBuf);
+		free(bBuf);
+	}
 }
 
 /*
@@ -5418,10 +5333,10 @@ Function        :inDISP_LogPrintf_Format
 Date&Time       :2017/1/10 上午 10:35
 Describe        :達到一定長度後自動切斷
 */
-int inDISP_LogPrintf_Format(char* szPrintBuffer, char* szPadData, int inOneLineLen)
+int inDISP_LogPrintf_Format(char *szPrintBuffer, char *szPadData, int inOneLineLen)
 {
-	int	inPrintLineCnt = 0;
-	char	szPrtBuf[50 + 1], szPrintLineData[36 + 1];
+	int inPrintLineCnt = 0;
+	char szPrtBuf[50 + 1], szPrintLineData[36 + 1];
 
 	inPrintLineCnt = 0;
 	while ((inPrintLineCnt * inOneLineLen) < strlen(szPrintBuffer))
@@ -5440,7 +5355,7 @@ int inDISP_LogPrintf_Format(char* szPrintBuffer, char* szPadData, int inOneLineL
 		sprintf(szPrtBuf, "%s%s", szPadData, szPrintLineData);
 
 		inDISP_LogPrintf(szPrtBuf);
-		inPrintLineCnt ++;
+		inPrintLineCnt++;
 	};
 
 	return (VS_SUCCESS);
@@ -5453,8 +5368,8 @@ Describe	:等待時間(毫秒)
 */
 int inDISP_Wait(int inmSecond)
 {
-        CTOS_Delay(inmSecond);
-        return (VS_SUCCESS);
+	CTOS_Delay(inmSecond);
+	return (VS_SUCCESS);
 }
 
 /*
@@ -5464,15 +5379,15 @@ Describe	:BEEP聲（次數）
 */
 int inDISP_BEEP(int inCount, int inmSecond)
 {
-        int i;
+	int i;
 
-        for (i = 0 ; i < inCount ; i ++)
-        {
-                CTOS_Beep();
-                inDISP_Wait(inmSecond);
-        }
+	for (i = 0; i < inCount; i++)
+	{
+		CTOS_Beep();
+		inDISP_Wait(inmSecond);
+	}
 
-        return (VS_SUCCESS);
+	return (VS_SUCCESS);
 }
 
 /*
@@ -5521,37 +5436,37 @@ Describe	:CTLS Check是否TimeOut
 */
 int inDISP_TimeoutCheck(int inFontSize, int inLine, int inPlace)
 {
-        int		inRemainSecond = 0;
-         char		szTemplate[10 + 1];
-        unsigned long	ulSecond = 0;
-        unsigned long	ulMilliSecond = 0;
+	int inRemainSecond = 0;
+	char szTemplate[10 + 1];
+	unsigned long ulSecond = 0;
+	unsigned long ulMilliSecond = 0;
 
-        inFunc_GetRunTime(gulDispTimeStart, &ulSecond, &ulMilliSecond);
-        inRemainSecond = ginDispTimeOut - ulSecond;
+	inFunc_GetRunTime(gulDispTimeStart, &ulSecond, &ulMilliSecond);
+	inRemainSecond = ginDispTimeOut - ulSecond;
 
-        /* 檢查TIMEOUT，至少一秒才顯示差別 */
-        if (inTimerGet(_TIMER_NEXSYS_4_) == VS_SUCCESS)
-        {
-                /* 清空 */
-                inDISP_EnglishFont_Color("   ", inFontSize, inLine, _COLOR_RED_, inPlace);
-                memset(szTemplate, 0x00, sizeof(szTemplate));
-                sprintf(szTemplate, "%02d", inRemainSecond);
-                inDISP_EnglishFont_Color(szTemplate, inFontSize, inLine, _COLOR_RED_, inPlace);
-                
-                /*  [國泰車麻吉] 用來判斷是否要再接收ECR的資料，用在讀卡時的第二段交易 2022/2/18 [SAM] */
-                if(inRemainSecond < 5)
-                    inSetStopEcrReceive(VS_FALSE);
-                else
-                    inSetStopEcrReceive(VS_TRUE);
-                
-                inDISP_Timer_Start(_TIMER_NEXSYS_4_, 1);
-        }
+	/* 檢查TIMEOUT，至少一秒才顯示差別 */
+	if (inTimerGet(_TIMER_NEXSYS_4_) == VS_SUCCESS)
+	{
+		/* 清空 */
+		inDISP_EnglishFont_Color("   ", inFontSize, inLine, _COLOR_RED_, inPlace);
+		memset(szTemplate, 0x00, sizeof(szTemplate));
+		sprintf(szTemplate, "%02d", inRemainSecond);
+		inDISP_EnglishFont_Color(szTemplate, inFontSize, inLine, _COLOR_RED_, inPlace);
+
+		/*  [國泰車麻吉] 用來判斷是否要再接收ECR的資料，用在讀卡時的第二段交易 2022/2/18 [SAM] */
+		if (inRemainSecond < 5)
+			inSetStopEcrReceive(VS_FALSE);
+		else
+			inSetStopEcrReceive(VS_TRUE);
+
+		inDISP_Timer_Start(_TIMER_NEXSYS_4_, 1);
+	}
 
 	/* 0秒時為timeout */
 	if (inRemainSecond <= 0)
 		return (VS_TIMEOUT);
 	else
-                return (VS_SUCCESS);
+		return (VS_SUCCESS);
 }
 
 /*
@@ -5561,8 +5476,8 @@ Describe        :
 */
 int inDISP_BackLight_Set(unsigned char uszLED, unsigned char uszOnOff)
 {
-	char		szDebugMsg[100 + 1] = {0};
-	unsigned short	usRetVal = VS_ERROR;
+	char szDebugMsg[100 + 1] = {0};
+	unsigned short usRetVal = VS_ERROR;
 
 	usRetVal = CTOS_BackLightSet(uszLED, uszOnOff);
 	if (usRetVal != d_OK)
@@ -5588,8 +5503,6 @@ int inDISP_BackLight_Set(unsigned char uszLED, unsigned char uszOnOff)
 	return (VS_SUCCESS);
 }
 
-
-
 /*
 Function	:inDISP_LogPrintfWithFlag
 Date&Time	:  2018/10/11
@@ -5597,24 +5510,24 @@ Describe	:Debug inDISP_LogPrintfWithFlag
 */
 int inDISP_LogPrintfWithFlag(char *szStr, ...)
 {
-    char		szTemplate[20 + 1] = {0};
-    char		szDebugMsg[5000 + 1] = {0};
-    RTC_NEXSYS	srRTC = {0};
-    va_list		list;				/* 加入不定參數作法 2018/5/29 上午 11:06 */
-    if (ginDebug == VS_TRUE)
-    {
-        /* 加入測試訊息時間 2018/3/13 上午 10:19 */
-        inFunc_GetSystemDateAndTime(&srRTC);
-        sprintf(szTemplate, "%02d-%02d-%02d %02d:%02d:%02d ", srRTC.uszYear, srRTC.uszMonth, srRTC.uszDay, srRTC.uszHour, srRTC.uszMinute, srRTC.uszSecond);
-        printf(szTemplate);
-		
-        va_start(list, szStr);
-        vsprintf(szDebugMsg, szStr, list);
-        va_end(list);
-        printf(szDebugMsg);
-        printf("\n");
-    }
-    return (VS_SUCCESS);
+	char szTemplate[20 + 1] = {0};
+	char szDebugMsg[5000 + 1] = {0};
+	RTC_NEXSYS srRTC = {0};
+	va_list list; /* 加入不定參數作法 2018/5/29 上午 11:06 */
+	if (ginDebug == VS_TRUE)
+	{
+		/* 加入測試訊息時間 2018/3/13 上午 10:19 */
+		inFunc_GetSystemDateAndTime(&srRTC);
+		sprintf(szTemplate, "%02d-%02d-%02d %02d:%02d:%02d ", srRTC.uszYear, srRTC.uszMonth, srRTC.uszDay, srRTC.uszHour, srRTC.uszMinute, srRTC.uszSecond);
+		printf(szTemplate);
+
+		va_start(list, szStr);
+		vsprintf(szDebugMsg, szStr, list);
+		va_end(list);
+		printf(szDebugMsg);
+		printf("\n");
+	}
+	return (VS_SUCCESS);
 }
 
 /*
@@ -5624,27 +5537,25 @@ Describe	:Debug inDISP_LogPrintfWithFlagForTimeTest
 */
 int inDISP_LogPrintfWithFlagForTimeTest(char *szStr, ...)
 {
-    char		szTemplate[20 + 1] = {0};
-    char		szDebugMsg[5000 + 1] = {0};
-    RTC_NEXSYS	srRTC = {0};
-    va_list		list;	/* 加入不定參數作法 2018/5/29 上午 11:06 */
-    if (ginTimeLogDebug == VS_TRUE)
-    {
-        /* 加入測試訊息時間 2018/3/13 上午 10:19 */
-        inFunc_GetSystemDateAndTime(&srRTC);
-        sprintf(szTemplate, "%02d-%02d-%02d %02d:%02d:%02d ", srRTC.uszYear, srRTC.uszMonth, srRTC.uszDay, srRTC.uszHour, srRTC.uszMinute, srRTC.uszSecond);
-        printf(szTemplate);
-		
-        va_start(list, szStr);
-        vsprintf(szDebugMsg, szStr, list);
-        va_end(list);
-        printf(szDebugMsg);
-        printf("\n");
-    }
-    return (VS_SUCCESS);
+	char szTemplate[20 + 1] = {0};
+	char szDebugMsg[5000 + 1] = {0};
+	RTC_NEXSYS srRTC = {0};
+	va_list list; /* 加入不定參數作法 2018/5/29 上午 11:06 */
+	if (ginTimeLogDebug == VS_TRUE)
+	{
+		/* 加入測試訊息時間 2018/3/13 上午 10:19 */
+		inFunc_GetSystemDateAndTime(&srRTC);
+		sprintf(szTemplate, "%02d-%02d-%02d %02d:%02d:%02d ", srRTC.uszYear, srRTC.uszMonth, srRTC.uszDay, srRTC.uszHour, srRTC.uszMinute, srRTC.uszSecond);
+		printf(szTemplate);
+
+		va_start(list, szStr);
+		vsprintf(szDebugMsg, szStr, list);
+		va_end(list);
+		printf(szDebugMsg);
+		printf("\n");
+	}
+	return (VS_SUCCESS);
 }
-
-
 
 /*
 Function	 : inDISP_DispLogAndWriteFlie
@@ -5653,16 +5564,16 @@ Describe	 : 統一顯示及寫入檔案用，顯示還是需看全域變數 ginD
 */
 int inDISP_DispLogAndWriteFlie(char *szStr, ...)
 {
-#if 1	
-	char	szTemplate[25 + 1] = {0};
-	char	szDebugMsg[2048 + 1] = {0};
-	RTC_NEXSYS	srRTC = {0};
+#if 1
+	char szTemplate[25 + 1] = {0};
+	char szDebugMsg[2048 + 1] = {0};
+	RTC_NEXSYS srRTC = {0};
 	va_list list;
-	
-//	/* 用區域的時間計算 */
-//	unsigned long ulRunTime;
-//	inTIME_UNIT_InitCalculateRunTimeGlobal_Start(&ulRunTime, "DISP_5400 Write File INIT" );	
-	
+
+	//	/* 用區域的時間計算 */
+	//	unsigned long ulRunTime;
+	//	inTIME_UNIT_InitCalculateRunTimeGlobal_Start(&ulRunTime, "DISP_5400 Write File INIT" );
+
 	/* 加入測試訊息時間 2018/3/13 上午 10:19 */
 	inFunc_GetSystemDateAndTime(&srRTC);
 	sprintf(szTemplate, "%02d-%02d-%02d %02d:%02d:%02d F ", srRTC.uszYear, srRTC.uszMonth, srRTC.uszDay, srRTC.uszHour, srRTC.uszMinute, srRTC.uszSecond);
@@ -5670,21 +5581,20 @@ int inDISP_DispLogAndWriteFlie(char *szStr, ...)
 	va_start(list, szStr);
 	vsprintf(szDebugMsg, szStr, list);
 	va_end(list);
-	
+
 	inFILE_LOG_WriteLog(szTemplate, szDebugMsg);
-	
+
 	if (ginDebug == VS_TRUE)
 	{
 		printf(szTemplate);
 		printf(szDebugMsg);
 		printf("\n");
 	}
-	
+
 //	inTIME_UNIT_GetRunTimeGlobal(ulRunTime, "DISP_5400 Write File END");
-#endif	
+#endif
 	return (VS_SUCCESS);
 }
-
 
 /*
 Function	 : inDISP_LockEdcDispLogAndWriteFlie
@@ -5693,11 +5603,11 @@ Describe	 : 統一顯示及寫入檔案用，顯示還是需看全域變數 ginD
 */
 int inDISP_LockEdcDispLogAndWriteFlie(char *szStr, ...)
 {
-	char	szTemplate[25 + 1] = {0};
-	char	szDebugMsg[5000 + 1] = {0};
-	RTC_NEXSYS	srRTC = {0};
+	char szTemplate[25 + 1] = {0};
+	char szDebugMsg[5000 + 1] = {0};
+	RTC_NEXSYS srRTC = {0};
 	va_list list;
-	
+
 	/* 加入測試訊息時間 2018/3/13 上午 10:19 */
 	inFunc_GetSystemDateAndTime(&srRTC);
 	sprintf(szTemplate, "%02d-%02d-%02d %02d:%02d:%02d LF ", srRTC.uszYear, srRTC.uszMonth, srRTC.uszDay, srRTC.uszHour, srRTC.uszMinute, srRTC.uszSecond);
@@ -5705,9 +5615,9 @@ int inDISP_LockEdcDispLogAndWriteFlie(char *szStr, ...)
 	va_start(list, szStr);
 	vsprintf(szDebugMsg, szStr, list);
 	va_end(list);
-	
+
 	inFILE_LOG_WriteLog(szTemplate, szDebugMsg);
-	
+
 	if (ginDebug == VS_TRUE)
 	{
 		printf(szTemplate);
@@ -5716,10 +5626,9 @@ int inDISP_LockEdcDispLogAndWriteFlie(char *szStr, ...)
 	}
 
 	inFunc_EDCLock();
-	
+
 	return (VS_SUCCESS);
 }
-
 
 /*
 Function	:inDISP_TrunOnOffLightOnPanel
@@ -5730,22 +5639,23 @@ int inDISP_TrunOnOffLightOnPanel(unsigned char *srLightName, int inOpation)
 {
 	int i = 0;
 
-	while(1)
+	while (1)
 	{
 		inDISP_LogPrintfWithFlag("[%d] [%x] ", i, srLightName[i]);
-		if(srLightName[i] == 0xFF)
+		if (srLightName[i] == 0xFF)
 			break;
 
-		if(inOpation == _LIGHT_ON_)
+		if (inOpation == _LIGHT_ON_)
 		{
 			CTOS_Beep();
 			CTOS_LEDSet(srLightName[i], d_ON);
-		}else
+		}
+		else
 			CTOS_LEDSet(srLightName[i], d_OFF);
 		i++;
 	}
-        
-        return VS_SUCCESS;
+
+	return VS_SUCCESS;
 }
 
 /*
@@ -5753,193 +5663,190 @@ Function	 : inDISP_LogPrintf
 Date&Time : 2022/6/1 下午 2:16
 Describe	 : Debug Printf
 */
-int inLogPrintf(char* szlocation, char *szStr, ...)
+int inLogPrintf(char *szlocation, char *szStr, ...)
 {
-	char		szTemplate[20 + 1] = {0};
-	char		szDebugMsg[5000 + 1] = {0};
-	unsigned long	ulMileSecond = 0;
-	RTC_NEXSYS	srRTC = {0};
-	va_list		list;	/* 加入不定參數作法 2018/5/29 上午 11:06 */
-	
+	char szTemplate[20 + 1] = {0};
+	char szDebugMsg[5000 + 1] = {0};
+	unsigned long ulMileSecond = 0;
+	RTC_NEXSYS srRTC = {0};
+	va_list list; /* 加入不定參數作法 2018/5/29 上午 11:06 */
+
 	/* 加入測試訊息時間 2018/3/13 上午 10:19 */
 	inFunc_GetSystemDateAndTime(&srRTC);
 	ulMileSecond = ((CTOS_TickGet() - gulTickCorrection) % 100);
 	sprintf(szTemplate, "%02d-%02d-%02d %02d:%02d:%02d.%02lu ", srRTC.uszYear, srRTC.uszMonth, srRTC.uszDay, srRTC.uszHour, srRTC.uszMinute, srRTC.uszSecond, ulMileSecond);
 	printf(szTemplate);
-	
+
 	/* 加入FILE和行數定位 */
 	printf("%s", szlocation);
-	
+
 	va_start(list, szStr);
 	vsprintf(szDebugMsg, szStr, list);
 	va_end(list);
 	printf(szDebugMsg);
 	printf("\n");
-	
+
 	return (VS_SUCCESS);
 }
-
 
 /*
 Function        :inDISP_RTC_Tick_Correction
 Date&Time       :2019/6/26 上午 10:47
 Describe        :
- * 新增電票 log使用方法 2022/6/7  [SAM] 
+ * 新增電票 log使用方法 2022/6/7  [SAM]
 */
 int inDISP_RTC_Tick_Correction(void)
-{	
+{
 	if (ginDebug == VS_TRUE)
 	{
 		inLogPrintf(AT, "----------------------------------------");
 		inLogPrintf(AT, "inDISP_RTC_Tick_Correction() START !");
 	}
-	
+
 	gulTickCorrection = CTOS_TickGet() % 100;
-	
+
 	if (ginDebug == VS_TRUE)
 	{
 		inLogPrintf(AT, "gulTickCorrection:%lu", gulTickCorrection);
 	}
-	
+
 	if (ginDebug == VS_TRUE)
 	{
 		inLogPrintf(AT, "inDISP_RTC_Tick_Correction() END !");
 		inLogPrintf(AT, "----------------------------------------");
 	}
-	
+
 	return (VS_SUCCESS);
 }
 
-
-//TODO: 看要不要改名,目的是在顯示資料, DEBUG 用
-void PrintHexToStringFix(unsigned char* Input, int InputLen)
+// TODO: 看要不要改名,目的是在顯示資料, DEBUG 用
+void PrintHexToStringFix(unsigned char *Input, int InputLen)
 {
-    int i=0,j=0;
-    char Debugbuf[5000];
+	int i = 0, j = 0;
+	char Debugbuf[5000];
 
-    if(InputLen <= 500)
-    {
-            memset(Debugbuf, 0x00, sizeof(Debugbuf));
-            for(i = 0; i < InputLen; i++)
-            {
-                sprintf(&Debugbuf[i * 2], "%02X", *(Input + i));
-            }
-            inDISP_LogPrintfAt(AT,"Debugbuf:[ %s ]", &Debugbuf);
-    }
-    else if(InputLen <= 1000)
-    {
-            memset(Debugbuf, 0x00, sizeof(Debugbuf));
-            for(i = 0; i <= 500; i++)
-            {
-                sprintf(&Debugbuf[i * 2], "%02X", *(Input + i));
-            }
-            inDISP_LogPrintfAt(AT,"Debugbuf:[ %s ]", &Debugbuf);
+	if (InputLen <= 500)
+	{
+		memset(Debugbuf, 0x00, sizeof(Debugbuf));
+		for (i = 0; i < InputLen; i++)
+		{
+			sprintf(&Debugbuf[i * 2], "%02X", *(Input + i));
+		}
+		inDISP_LogPrintfAt(AT, "Debugbuf:[ %s ]", &Debugbuf);
+	}
+	else if (InputLen <= 1000)
+	{
+		memset(Debugbuf, 0x00, sizeof(Debugbuf));
+		for (i = 0; i <= 500; i++)
+		{
+			sprintf(&Debugbuf[i * 2], "%02X", *(Input + i));
+		}
+		inDISP_LogPrintfAt(AT, "Debugbuf:[ %s ]", &Debugbuf);
 
-            j = 0;
-            memset(Debugbuf, 0x00, sizeof(Debugbuf));
-            for(; i < InputLen; i++)
-            {
-                //sprintf(&Debugbuf[i * 2], "%02X", *(Input + i));
-                sprintf(&Debugbuf[j * 2], "%02X", *(Input + i));
-                j++;
-            }
-            inDISP_LogPrintfAt(AT,"Debugbuf2:[ %s ]", &Debugbuf);
-    }
-    else if(InputLen <= 2000 && InputLen > 1000)
-    {
-            memset(Debugbuf, 0x00, sizeof(Debugbuf));
-            for(i = 0; i <= 500; i++)
-            {
-                sprintf(&Debugbuf[i * 2], "%02X", *(Input + i));
-            }
-            inDISP_LogPrintfAt(AT,"Debugbuf:[ %s ]", &Debugbuf);
+		j = 0;
+		memset(Debugbuf, 0x00, sizeof(Debugbuf));
+		for (; i < InputLen; i++)
+		{
+			// sprintf(&Debugbuf[i * 2], "%02X", *(Input + i));
+			sprintf(&Debugbuf[j * 2], "%02X", *(Input + i));
+			j++;
+		}
+		inDISP_LogPrintfAt(AT, "Debugbuf2:[ %s ]", &Debugbuf);
+	}
+	else if (InputLen <= 2000 && InputLen > 1000)
+	{
+		memset(Debugbuf, 0x00, sizeof(Debugbuf));
+		for (i = 0; i <= 500; i++)
+		{
+			sprintf(&Debugbuf[i * 2], "%02X", *(Input + i));
+		}
+		inDISP_LogPrintfAt(AT, "Debugbuf:[ %s ]", &Debugbuf);
 
-            j = 0;
-            memset(Debugbuf, 0x00, sizeof(Debugbuf));
-            for(; i <= 1000; i++)
-            {
-                    sprintf(&Debugbuf[j * 2], "%02X", *(Input + i));
-                    j++;
-            }
-            inDISP_LogPrintfAt(AT,"Debugbuf2:[ %s ]", &Debugbuf);
+		j = 0;
+		memset(Debugbuf, 0x00, sizeof(Debugbuf));
+		for (; i <= 1000; i++)
+		{
+			sprintf(&Debugbuf[j * 2], "%02X", *(Input + i));
+			j++;
+		}
+		inDISP_LogPrintfAt(AT, "Debugbuf2:[ %s ]", &Debugbuf);
 
-            j = 0;
-            memset(Debugbuf, 0x00, sizeof(Debugbuf));
-            for(; i <= 1500; i++)
-            {
-                    sprintf(&Debugbuf[j * 2], "%02X", *(Input + i));
-                    j++;
-            }
-            inDISP_LogPrintfAt(AT,"Debugbuf3:[ %s ]", &Debugbuf);
+		j = 0;
+		memset(Debugbuf, 0x00, sizeof(Debugbuf));
+		for (; i <= 1500; i++)
+		{
+			sprintf(&Debugbuf[j * 2], "%02X", *(Input + i));
+			j++;
+		}
+		inDISP_LogPrintfAt(AT, "Debugbuf3:[ %s ]", &Debugbuf);
 
-            j = 0;
-            memset(Debugbuf, 0x00, sizeof(Debugbuf));
-            for(; i <= InputLen; i++)
-            {
-                    sprintf(&Debugbuf[j * 2], "%02X", *(Input + i));
-                    j++;
-            }
-            inDISP_LogPrintfAt(AT,"Debugbuf4:[ %s ]", &Debugbuf);
-    }
-    else if(InputLen <= 3000 && InputLen > 2000)
-    {
-            memset(Debugbuf, 0x00, sizeof(Debugbuf));
-            for(i = 0; i <= 500; i++)
-            {
-                    sprintf(&Debugbuf[i * 2], "%02X", *(Input + i));
-            }
-            inDISP_LogPrintfAt(AT,"Debugbuf:[ %s ]", &Debugbuf);
+		j = 0;
+		memset(Debugbuf, 0x00, sizeof(Debugbuf));
+		for (; i <= InputLen; i++)
+		{
+			sprintf(&Debugbuf[j * 2], "%02X", *(Input + i));
+			j++;
+		}
+		inDISP_LogPrintfAt(AT, "Debugbuf4:[ %s ]", &Debugbuf);
+	}
+	else if (InputLen <= 3000 && InputLen > 2000)
+	{
+		memset(Debugbuf, 0x00, sizeof(Debugbuf));
+		for (i = 0; i <= 500; i++)
+		{
+			sprintf(&Debugbuf[i * 2], "%02X", *(Input + i));
+		}
+		inDISP_LogPrintfAt(AT, "Debugbuf:[ %s ]", &Debugbuf);
 
-            j = 0;
-            memset(Debugbuf, 0x00, sizeof(Debugbuf));
-            for(; i <= 1000; i++)
-            {
-                    sprintf(&Debugbuf[j * 2], "%02X", *(Input + i));
-                    j++;
-            }
-            inDISP_LogPrintfAt(AT,"Debugbuf2:[ %s ]", &Debugbuf);
+		j = 0;
+		memset(Debugbuf, 0x00, sizeof(Debugbuf));
+		for (; i <= 1000; i++)
+		{
+			sprintf(&Debugbuf[j * 2], "%02X", *(Input + i));
+			j++;
+		}
+		inDISP_LogPrintfAt(AT, "Debugbuf2:[ %s ]", &Debugbuf);
 
-            j = 0;
-            memset(Debugbuf, 0x00, sizeof(Debugbuf));
-            for(; i <= 1500; i++)
-            {
-                    sprintf(&Debugbuf[j * 2], "%02X", *(Input + i));
-                    j++;
-            }
-            inDISP_LogPrintfAt(AT,"Debugbuf3:[ %s ]", &Debugbuf);
+		j = 0;
+		memset(Debugbuf, 0x00, sizeof(Debugbuf));
+		for (; i <= 1500; i++)
+		{
+			sprintf(&Debugbuf[j * 2], "%02X", *(Input + i));
+			j++;
+		}
+		inDISP_LogPrintfAt(AT, "Debugbuf3:[ %s ]", &Debugbuf);
 
-            j = 0;
-            memset(Debugbuf, 0x00, sizeof(Debugbuf));
-            for(; i <= 2000; i++)
-            {
-                    sprintf(&Debugbuf[j * 2], "%02X", *(Input + i));
-                    j++;
-            }
-            inDISP_LogPrintfAt(AT,"Debugbuf4:[ %s ]", &Debugbuf);
+		j = 0;
+		memset(Debugbuf, 0x00, sizeof(Debugbuf));
+		for (; i <= 2000; i++)
+		{
+			sprintf(&Debugbuf[j * 2], "%02X", *(Input + i));
+			j++;
+		}
+		inDISP_LogPrintfAt(AT, "Debugbuf4:[ %s ]", &Debugbuf);
 
-            j = 0;
-            memset(Debugbuf, 0x00, sizeof(Debugbuf));
-            for(; i <= 2500; i++)
-            {
-                    sprintf(&Debugbuf[j * 2], "%02X", *(Input + i));
-                    j++;
-            }
-            inDISP_LogPrintfAt(AT,"Debugbuf5:[ %s ]", &Debugbuf);
+		j = 0;
+		memset(Debugbuf, 0x00, sizeof(Debugbuf));
+		for (; i <= 2500; i++)
+		{
+			sprintf(&Debugbuf[j * 2], "%02X", *(Input + i));
+			j++;
+		}
+		inDISP_LogPrintfAt(AT, "Debugbuf5:[ %s ]", &Debugbuf);
 
-            j = 0;
-            memset(Debugbuf, 0x00, sizeof(Debugbuf));
-            for(; i <= InputLen; i++)
-            {
-                    sprintf(&Debugbuf[j * 2], "%02X", *(Input + i));
-                    j++;
-            }
-            inDISP_LogPrintfAt(AT,"Debugbuf6:[ %s ]", &Debugbuf);
-    }
-    else
-    {
-            inDISP_LogPrintfAt(AT,"not write!");
-    }
-
+		j = 0;
+		memset(Debugbuf, 0x00, sizeof(Debugbuf));
+		for (; i <= InputLen; i++)
+		{
+			sprintf(&Debugbuf[j * 2], "%02X", *(Input + i));
+			j++;
+		}
+		inDISP_LogPrintfAt(AT, "Debugbuf6:[ %s ]", &Debugbuf);
+	}
+	else
+	{
+		inDISP_LogPrintfAt(AT, "not write!");
+	}
 }
 
 /*
@@ -5947,21 +5854,21 @@ Function	:inDISP_LogPrintfAt
 Date&Time: 2022/6/10 下午 2:44
 Describe	:Debug Printf
 */
-int inDISP_LogPrintfAt(char* szlocation, char *szStr, ...)
+int inDISP_LogPrintfAt(char *szlocation, char *szStr, ...)
 {
-	char		szTemplate[50 + 1] = {0};/*20220119,浩瑋標記fix*/
-	char		szDebugMsg[5000 + 1] = {0};
-	unsigned long	ulMileSecond = 0;
-	RTC_NEXSYS	srRTC = {0};
-	va_list		list;	/* 加入不定參數作法 2018/5/29 上午 11:06 */
-	
-	memset(szTemplate, 0x00, sizeof(szTemplate));/*20220119,浩瑋標記fix*/
+	char szTemplate[50 + 1] = {0}; /*20220119,浩瑋標記fix*/
+	char szDebugMsg[5000 + 1] = {0};
+	unsigned long ulMileSecond = 0;
+	RTC_NEXSYS srRTC = {0};
+	va_list list; /* 加入不定參數作法 2018/5/29 上午 11:06 */
+
+	memset(szTemplate, 0x00, sizeof(szTemplate)); /*20220119,浩瑋標記fix*/
 	/* 加入測試訊息時間 2018/3/13 上午 10:19 */
 	inFunc_GetSystemDateAndTime(&srRTC);
 	ulMileSecond = ((CTOS_TickGet() - gulTickCorrection) % 100);
 	sprintf(szTemplate, "%02d-%02d-%02d %02d:%02d:%02d.%02lu ", srRTC.uszYear, srRTC.uszMonth, srRTC.uszDay, srRTC.uszHour, srRTC.uszMinute, srRTC.uszSecond, ulMileSecond);
 	printf(szTemplate);
-	
+
 	/* 加入FILE和行數定位 */
 	printf("%s", szlocation);
 
@@ -5970,101 +5877,100 @@ int inDISP_LogPrintfAt(char* szlocation, char *szStr, ...)
 	va_end(list);
 	printf(szDebugMsg);
 	printf("\n");
-	
+
 	return (VS_SUCCESS);
 }
-
 
 /*
 Function	: inDISP_SetMultiReceiveTimeout
 Date&Time	: 2022/11/29 上午 9:29
-Describe	: 
+Describe	:
  *  [外接設備設定] 新增
 */
 int inDISP_SetMultiReceiveTimeout()
 {
-	int		inRemainSecond = 0;
-	unsigned long	ulSecond = 0;
-	unsigned long	ulMilliSecond = 0;
+	int inRemainSecond = 0;
+	unsigned long ulSecond = 0;
+	unsigned long ulMilliSecond = 0;
 
 	inFunc_GetRunTime(gulDispTimeStart, &ulSecond, &ulMilliSecond);
 	inRemainSecond = ginDispTimeOut - ulSecond;
 	/* 少於3秒就不進行 ECR 接收 */
-	if(inRemainSecond <= 2)
+	if (inRemainSecond <= 2)
 	{
-		inDISP_LogPrintfWithFlag(" SetMultiReceiveTimeout [%d]  *Warning* Line[%d]",inRemainSecond,  __LINE__);
+		inDISP_LogPrintfWithFlag(" SetMultiReceiveTimeout [%d]  *Warning* Line[%d]", inRemainSecond, __LINE__);
 		return VS_TIMEOUT;
-	} else {
+	}
+	else
+	{
 		gstMultiOb.srSetting.inTimeout = inRemainSecond;
 		return VS_SUCCESS;
 	}
-		
 }
 
 /**
  * RESPONSE_V3
- * [新增SVC功能]  [SAM] 
+ * [新增SVC功能]  [SAM]
  * DEBUG使用，顯示對應的定義用
  */
-char * pszDisp_GetResponseV3Message(int inRespCode)
+char *pszDisp_GetResponseV3Message(int inRespCode)
 {
 	memset(st_szMsgTemp, 0x00, sizeof(st_szMsgTemp));
-	
-	if(inRespCode == VS_USER_CANCEL )
+
+	if (inRespCode == VS_USER_CANCEL)
 		strcat(st_szMsgTemp, "VS_USER_CANCEL");
-	else if(inRespCode == VS_WAVE_INVALID_SCHEME_ERR )
+	else if (inRespCode == VS_WAVE_INVALID_SCHEME_ERR)
 		strcat(st_szMsgTemp, "VS_WAVE_INVALID_SCHEME_ERR");
-	else if(inRespCode == VS_WAVE_AMOUNT_ERR )
+	else if (inRespCode == VS_WAVE_AMOUNT_ERR)
 		strcat(st_szMsgTemp, "VS_WAVE_AMOUNT_ERR");
-	else if(inRespCode == VS_WAVE_ERROR )
+	else if (inRespCode == VS_WAVE_ERROR)
 		strcat(st_szMsgTemp, "VS_WAVE_ERROR");
-	else if(inRespCode == VS_NO_CARD_BIN )
+	else if (inRespCode == VS_NO_CARD_BIN)
 		strcat(st_szMsgTemp, "VS_NO_CARD_BIN");
-	else if(inRespCode == VS_CARD_EXP_ERR )
+	else if (inRespCode == VS_CARD_EXP_ERR)
 		strcat(st_szMsgTemp, "VS_CARD_EXP_ERR");
-	else if(inRespCode == VS_LAST_PAGE )
+	else if (inRespCode == VS_LAST_PAGE)
 		strcat(st_szMsgTemp, "VS_LAST_PAGE");
-	else if(inRespCode == VS_PREVIOUS_PAGE )
+	else if (inRespCode == VS_PREVIOUS_PAGE)
 		strcat(st_szMsgTemp, "VS_PREVIOUS_PAGE");
-	else if(inRespCode == VS_NEXT_PAGE )
+	else if (inRespCode == VS_NEXT_PAGE)
 		strcat(st_szMsgTemp, "VS_NEXT_PAGE");
-	else if(inRespCode == VS_FUNC_CLOSE_ERR )
+	else if (inRespCode == VS_FUNC_CLOSE_ERR)
 		strcat(st_szMsgTemp, "VS_FUNC_CLOSE_ERR");
-	else if(inRespCode == VS_HG_REWARD_COMM_ERR )
+	else if (inRespCode == VS_HG_REWARD_COMM_ERR)
 		strcat(st_szMsgTemp, "VS_HG_REWARD_COMM_ERR");
-	else if(inRespCode == VS_PRINTER_OVER_HEAT )
+	else if (inRespCode == VS_PRINTER_OVER_HEAT)
 		strcat(st_szMsgTemp, "VS_PRINTER_OVER_HEAT");
-	else if(inRespCode == VS_PRINTER_PAPER_OUT )
+	else if (inRespCode == VS_PRINTER_PAPER_OUT)
 		strcat(st_szMsgTemp, "VS_PRINTER_PAPER_OUT");
-	else if(inRespCode == VS_CALLBANK )
+	else if (inRespCode == VS_CALLBANK)
 		strcat(st_szMsgTemp, "VS_CALLBANK");
-	else if(inRespCode == VS_ISO_PACK_ERR )
+	else if (inRespCode == VS_ISO_PACK_ERR)
 		strcat(st_szMsgTemp, "VS_ISO_PACK_ERR");
-	else if(inRespCode == VS_ISO_UNPACK_ERROR )
+	else if (inRespCode == VS_ISO_UNPACK_ERROR)
 		strcat(st_szMsgTemp, "VS_ISO_UNPACK_ERROR");
-	else if(inRespCode == VS_ICC_INSERT_ERROR )
+	else if (inRespCode == VS_ICC_INSERT_ERROR)
 		strcat(st_szMsgTemp, "VS_ICC_INSERT_ERROR");
-	else if(inRespCode == VS_SWIPE_ERROR )
+	else if (inRespCode == VS_SWIPE_ERROR)
 		strcat(st_szMsgTemp, "VS_SWIPE_ERROR");
-	else if(inRespCode == VS_FILE_ERROR )
+	else if (inRespCode == VS_FILE_ERROR)
 		strcat(st_szMsgTemp, "VS_FILE_ERROR");
-	else if(inRespCode == VS_READ_ERROR )
+	else if (inRespCode == VS_READ_ERROR)
 		strcat(st_szMsgTemp, "VS_READ_ERROR");
-	else if(inRespCode == VS_WRITE_ERROR )
+	else if (inRespCode == VS_WRITE_ERROR)
 		strcat(st_szMsgTemp, "VS_WRITE_ERROR");
-	else if(inRespCode == VS_USER_OPER_ERR )
+	else if (inRespCode == VS_USER_OPER_ERR)
 		strcat(st_szMsgTemp, "VS_USER_OPER_ERR");
-	else if(inRespCode == VS_CLOSE_ERROR )
+	else if (inRespCode == VS_CLOSE_ERROR)
 		strcat(st_szMsgTemp, "VS_CLOSE_ERROR");
-	else if(inRespCode == VS_ABORT )
+	else if (inRespCode == VS_ABORT)
 		strcat(st_szMsgTemp, "VS_ABORT");
-	else if(inRespCode == VS_EMV_CARD_OUT )
+	else if (inRespCode == VS_EMV_CARD_OUT)
 		strcat(st_szMsgTemp, "VS_EMV_CARD_OUT");
-	else if(inRespCode == VS_WAVE_NO_DATA )
+	else if (inRespCode == VS_WAVE_NO_DATA)
 		strcat(st_szMsgTemp, "VS_WAVE_NO_DATA");
 	else
-		sprintf(st_szMsgTemp,"%d Not Exist",inRespCode);
-	
+		sprintf(st_szMsgTemp, "%d Not Exist", inRespCode);
+
 	return &st_szMsgTemp;
 }
-

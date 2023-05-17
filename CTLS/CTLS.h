@@ -1,61 +1,55 @@
-/* 
+/*
  * File:   CTLS.h
  * Author: user
  *
  * Created on 2016年1月26日, 上午 11:34
  */
 
-#define _EMVCL_CONFIG_FILENAME_       		"CTLS_config.xml"
+#define _EMVCL_CONFIG_FILENAME_ "CTLS_config.xml"
 
 // Scheme ID
-#define _SID_VISA_OLD_US_			0x13
-//#define _SID_VISA_WAVE_2_			0x16
-//#define _SID_VISA_WAVE_QVSDC_                   0x17
-#define _SID_VISA_WAVE_MSD_			0x18
-//#define _SID_PAYPASS_MAG_STRIPE_		0x20
-//#define _SID_PAYPASS_MCHIP_			0x21
-//#define _SID_JCB_WAVE_2_			0x61
-#define _SID_JCB_WAVE_QVSDC_			0x62
-//#define _SID_NEW_JSPEEDY_                       0x63
-#define _SID_AE_EMV_				0x50
-#define _SID_AE_MAG_STRIPE_			0x52
-//#define _SID_QUICKPASS_                         0x91
+#define _SID_VISA_OLD_US_ 0x13
+// #define _SID_VISA_WAVE_2_			0x16
+// #define _SID_VISA_WAVE_QVSDC_                   0x17
+#define _SID_VISA_WAVE_MSD_ 0x18
+// #define _SID_PAYPASS_MAG_STRIPE_		0x20
+// #define _SID_PAYPASS_MCHIP_			0x21
+// #define _SID_JCB_WAVE_2_			0x61
+#define _SID_JCB_WAVE_QVSDC_ 0x62
+// #define _SID_NEW_JSPEEDY_                       0x63
+#define _SID_AE_EMV_ 0x50
+#define _SID_AE_MAG_STRIPE_ 0x52
+// #define _SID_QUICKPASS_                         0x91
 
-#define SCHEME_ID_16_WAVE1			0x16
-#define SCHEME_ID_17_WAVE3			0x17
-#define SCHEME_ID_42_DPAS			0x42
-#define SCHEME_ID_43_DISCOVER_DPAS_MAG_STRIPE	0x43
-#define SCHEME_ID_50_EXPRESSSPAY		0x50
-#define SCHEME_ID_52_EXPRESSSPAY_MAG_STRIPE	0x52
-#define SCHEME_ID_61_JSPEEDY			0x61	/* OLD JSpeedy */
-#define SCHEME_ID_63_NEWJSPEEDY_EMV		0x63	/* NEW JSpeedy A卡 */
-#define SCHEME_ID_64_NEWJSPEEDY_MSD		0x64	/* NEW JSpeedy B卡 */
-#define SCHEME_ID_65_NEWJSPEEDY_LEGACY		0x65	/* NEW JSpeedy C卡 */
-#define SCHEME_ID_20_PAYPASS_MAG_STRIPE		0x20
-#define SCHEME_ID_21_PAYPASS_MCHIP		0x21
-#define SCHEME_ID_91_QUICKPASS			0x91
+#define SCHEME_ID_16_WAVE1 0x16
+#define SCHEME_ID_17_WAVE3 0x17
+#define SCHEME_ID_42_DPAS 0x42
+#define SCHEME_ID_43_DISCOVER_DPAS_MAG_STRIPE 0x43
+#define SCHEME_ID_50_EXPRESSSPAY 0x50
+#define SCHEME_ID_52_EXPRESSSPAY_MAG_STRIPE 0x52
+#define SCHEME_ID_61_JSPEEDY 0x61           /* OLD JSpeedy */
+#define SCHEME_ID_63_NEWJSPEEDY_EMV 0x63    /* NEW JSpeedy A卡 */
+#define SCHEME_ID_64_NEWJSPEEDY_MSD 0x64    /* NEW JSpeedy B卡 */
+#define SCHEME_ID_65_NEWJSPEEDY_LEGACY 0x65 /* NEW JSpeedy C卡 */
+#define SCHEME_ID_20_PAYPASS_MAG_STRIPE 0x20
+#define SCHEME_ID_21_PAYPASS_MCHIP 0x21
+#define SCHEME_ID_91_QUICKPASS 0x91
 
+#define SCHEME_ID_90_SMARTPAY 0x90
 
-#define SCHEME_ID_90_SMARTPAY			0x90
+#define _TIMER_CTLS_ _TIMER_NEXSYS_4_
 
-#define _TIMER_CTLS_			_TIMER_NEXSYS_4_
-
-#define _CTLS_LIGHT_NONE_		0
-#define _CTLS_LIGHT_RED_		1
-#define _CTLS_LIGHT_GREEN_		2
-#define _CTLS_LIGHT_YELLOW_		4
-#define _CTLS_LIGHT_BLUE_		8
-
-
-
+#define _CTLS_LIGHT_NONE_ 0
+#define _CTLS_LIGHT_RED_ 1
+#define _CTLS_LIGHT_GREEN_ 2
+#define _CTLS_LIGHT_YELLOW_ 4
+#define _CTLS_LIGHT_BLUE_ 8
 
 typedef struct
 {
-	unsigned long	lnSaleRespCode;
-        unsigned char   uszSchemeID[2 + 1];
+        unsigned long lnSaleRespCode;
+        unsigned char uszSchemeID[2 + 1];
 } CTLS_OBJECT;
-
-
 
 int inCTLS_InitReader_Flow(void);
 int inCTLS_InitReader_Internal(void);

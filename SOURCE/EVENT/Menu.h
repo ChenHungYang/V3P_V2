@@ -1,82 +1,79 @@
 
-typedef struct  EventMenuItem
+typedef struct EventMenuItem
 {
-    int     inEventCode;				/* 儲存按鍵 */
-    int     inPasswordLevel;			/* 輸入密碼的層級 */
-    int     inCode;					/* 交易的類型 */
-    int     inRunOperationID;			/* 執行 OPT.txt */
-    int     inRunTRTID;				/* 執行 xxxxTRT.txt */
-    long    lnHGTransactionType;		/* 聯合_HAPPY GO_交易類別 */
-    unsigned char   uszCUPTransBit;	/* 標示是否做銀聯交易 */
-    unsigned char   uszInstallmentBit;	/* 標示是否為分期交易 */
-    unsigned char   uszRedeemBit;		/* 標示是否為紅利交易 */
-    unsigned char   uszECRBit;		/* 標示是否為收銀機交易 */
-    unsigned char   uszAutoSettleBit;	/* 標示是否為連動結帳 */
-    unsigned char   uszFISCTransBit;	/* 標示是否為SmartPay交易 */
-    unsigned char   uszMailOrderBit;	/* 標示是否為郵購交易 */
-    unsigned char   uszMultiFuncSlaveBit;	/* 標示是被外接設備 */
-    unsigned char   uszESVCTransBit;		/* 標示是否是電票交易 */
+    int inEventCode;                    /* 儲存按鍵 */
+    int inPasswordLevel;                /* 輸入密碼的層級 */
+    int inCode;                         /* 交易的類型 */
+    int inRunOperationID;               /* 執行 OPT.txt */
+    int inRunTRTID;                     /* 執行 xxxxTRT.txt */
+    long lnHGTransactionType;           /* 聯合_HAPPY GO_交易類別 */
+    unsigned char uszCUPTransBit;       /* 標示是否做銀聯交易 */
+    unsigned char uszInstallmentBit;    /* 標示是否為分期交易 */
+    unsigned char uszRedeemBit;         /* 標示是否為紅利交易 */
+    unsigned char uszECRBit;            /* 標示是否為收銀機交易 */
+    unsigned char uszAutoSettleBit;     /* 標示是否為連動結帳 */
+    unsigned char uszFISCTransBit;      /* 標示是否為SmartPay交易 */
+    unsigned char uszMailOrderBit;      /* 標示是否為郵購交易 */
+    unsigned char uszMultiFuncSlaveBit; /* 標示是被外接設備 */
+    unsigned char uszESVCTransBit;      /* 標示是否是電票交易 */
 } EventMenuItem;
 
 /* 用以確認功能是否有開 */
-typedef	struct	MENU_CHECK_TABLE
+typedef struct MENU_CHECK_TABLE
 {
-    int     inButtonPositionID;	/* 按鈕位置 */
-    int     inCode;			/* 交易別 */
-    int     (*inCheckFunc)(int)	/* 用來檢查的function */;
-    char    szFileName[100 + 1];	/* 要反白的圖 */
+    int inButtonPositionID; /* 按鈕位置 */
+    int inCode;             /* 交易別 */
+    int (*inCheckFunc)(int) /* 用來檢查的function */;
+    char szFileName[100 + 1]; /* 要反白的圖 */
 } MENU_CHECK_TABLE;
-
 
 typedef int (*IN_EVENT_UI_P)(EventMenuItem *srEventMenuItem);
 
+#define _ACCESS_FREELY_ 0
+#define _ACCESS_WITH_MANAGER_PASSWORD_ 1
+#define _ACCESS_WITH_SUPER_PASSWORD_ 2
+#define _ACCESS_WITH_CLERK_PASSWORD_ 3
+#define _ACCESS_WITH_CUSTOM_ 4
+#define _ACCESS_WITH_USER_PASSWORD_ 5
+#define _ACCESS_WITH_MERCHANT_PASSWORD_ 6
+#define _ACCESS_WITH_FUNC_PASSWORD_ 7
+#define _ACCESS_WITH_CUSTOM_RESERVED1_ 8
+#define _ACCESS_WITH_CUSTOM_RESERVED2_ 9
 
-
-#define _ACCESS_FREELY_                  0
-#define _ACCESS_WITH_MANAGER_PASSWORD_   1
-#define _ACCESS_WITH_SUPER_PASSWORD_     2
-#define _ACCESS_WITH_CLERK_PASSWORD_     3
-#define _ACCESS_WITH_CUSTOM_             4
-#define _ACCESS_WITH_USER_PASSWORD_      5
-#define _ACCESS_WITH_MERCHANT_PASSWORD_  6
-#define _ACCESS_WITH_FUNC_PASSWORD_      7
-#define _ACCESS_WITH_CUSTOM_RESERVED1_   8
-#define _ACCESS_WITH_CUSTOM_RESERVED2_   9
-
-#define _PAGE_1_		1
-#define _PAGE_2_		2
-#define _PAGE_3_		3
-#define _PAGE_4_		4
-#define _PAGE_5_		5
-#define _PAGE_6_		6
-#define _PAGE_7_		7
-#define _PAGE_8_		8
-#define _PAGE_9_		9
-#define _PAGE_10_		10
+#define _PAGE_1_ 1
+#define _PAGE_2_ 2
+#define _PAGE_3_ 3
+#define _PAGE_4_ 4
+#define _PAGE_5_ 5
+#define _PAGE_6_ 6
+#define _PAGE_7_ 7
+#define _PAGE_8_ 8
+#define _PAGE_9_ 9
+#define _PAGE_10_ 10
 
 /*for Touch*/
-#define _TOUCH_PAGE_1_		1
-#define _TOUCH_PAGE_2_		2
-#define _TOUCH_PAGE_3_		3
-#define _TOUCH_PAGE_4_		4
-#define _TOUCH_PAGE_5_		5
-#define _TOUCH_PAGE_6_		6
-#define _TOUCH_PAGE_7_		7
-#define _TOUCH_PAGE_8_		8
-#define _TOUCH_PAGE_9_		9
-#define _TOUCH_PAGE_10_		10
-#define _TOUCH_PAGE_11_		11
-#define _TOUCH_PAGE_12_		12
-#define _TOUCH_PAGE_13_		13
+#define _TOUCH_PAGE_1_ 1
+#define _TOUCH_PAGE_2_ 2
+#define _TOUCH_PAGE_3_ 3
+#define _TOUCH_PAGE_4_ 4
+#define _TOUCH_PAGE_5_ 5
+#define _TOUCH_PAGE_6_ 6
+#define _TOUCH_PAGE_7_ 7
+#define _TOUCH_PAGE_8_ 8
+#define _TOUCH_PAGE_9_ 9
+#define _TOUCH_PAGE_10_ 10
+#define _TOUCH_PAGE_11_ 11
+#define _TOUCH_PAGE_12_ 12
+#define _TOUCH_PAGE_13_ 13
 
 #define _MENU_000_NORMAL_ 0
 
 /* 在第幾層迴圈 */
-#define _PAGE_LOOP_0_		0	/* 選定就設成0 */
-#define _PAGE_LOOP_1_		1
-#define _PAGE_LOOP_2_		2
-#define _PAGE_LOOP_3_		3
-#define _PAGE_LOOP_4_		4
+#define _PAGE_LOOP_0_ 0 /* 選定就設成0 */
+#define _PAGE_LOOP_1_ 1
+#define _PAGE_LOOP_2_ 2
+#define _PAGE_LOOP_3_ 3
+#define _PAGE_LOOP_4_ 4
 
 /* Idle UI*/
 int inMENU_Decide_Idle_Menu(void);
@@ -96,9 +93,7 @@ int inMENU_SELECT_KEY_FUNC(EventMenuItem *srEventMenuItem);
 
 int inMENU_Engineer_Fuction(EventMenuItem *srEventMenuItem);
 
-
 int inMENU_ECR_OPERATION_LOAD_KEY_FROM_520(EventMenuItem *srEventMenuItem);
-
 
 int inMENU_Check_SETTLE_Enable(int inCode);
 int inMENU_Check_Adjust(int inCode);
@@ -108,7 +103,7 @@ int inMENU_Check_SMARTPAY_Enable(int inCode);
 int inMENU_Check_ETICKET_Enable(int inCode);
 int inMENU_Check_AWARD_Enable(int inCode);
 int inMENU_Check_HG_Enable(int inCode);
-int inMENU_Display_ICON(char* szFileName, int inButtonPostionID);
+int inMENU_Display_ICON(char *szFileName, int inButtonPostionID);
 int inMENU_CHECK_FUNCTION_ENABLE_DISPLAY(MENU_CHECK_TABLE *srMENU_CHECK_TABLE);
 int inMENU_Check_REVIEW_SETTLE_Enable(int inCode);
 
@@ -183,8 +178,6 @@ int inMENU_REBOOT(EventMenuItem *srEventMenuItem);
 int inMENU_DOWNLOAD_CUP_TEST_KEY(EventMenuItem *srEventMenuItem);
 int inMENU_EXIT_AP(EventMenuItem *srEventMenuItem);
 int inMENU_CHECK_FILE(EventMenuItem *srEventMenuItem);
-
-
 
 int inMENU_NEWUI_ETICKET_MENU(EventMenuItem *srEventMenuItem);
 int inMENU_NEWUI_AWARD_MENU(EventMenuItem *srEventMenuItem);
