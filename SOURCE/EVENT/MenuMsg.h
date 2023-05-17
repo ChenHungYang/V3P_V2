@@ -809,3 +809,5 @@
 #define _MENU_SVC_ACTIVE_AUTOLOAD_TITLE_ "./fs_data/TITLE/SVC_OPEN_AUTOLOAD.bmp" /* 開卡自動儲值 */
 // Menu
 #define _TOUCH_SVC_FUNCTION_PAGE_ "./fs_data/NEWUI/SVC_MENU_PAGE.bmp"
+
+#define _TOUCH_FUBONUI_IDLE_CUP_ "./fs_data/LOGO/FUBON_IDEL.bmp"   /* 待機畫面 */
