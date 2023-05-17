@@ -1,0 +1,26 @@
+20190702 
+版本更新需新增 \NEWUI\NEWUI CHECK_EC_SIGN_RIGHT  CHECK_EC_SIGN_LEFT
+
+
+2022/02/23
+整理dist的目錄
+
+2022/06/23
+整理各家圖片，整合到程式目錄中，以便合版統一使用。
+
+C:\V3source\nexsysv3_01\dist\fs_data\File\AppData\PICTURE
+新增電票圖片
+#define _CHECK_TICKET_RESULT_05_ "./fs_data/CHECKTICKET05.bmp" /* 退貨完成  退貨金額 票卡餘額*/
+#define _CHECK_TICKET_RESULT_06_ "./fs_data/CHECKTICKET06.bmp" /* 溢扣返還完成 溢扣返還金額 票卡餘額*/
+#define _CHECK_TICKET_RESULT_07_ "./fs_data/CHECKTICKET07.bmp" /* 取消購貨完成 取消購貨金額 票卡餘額*/
+#define _CHECK_TICKET_RESULT_08_ "./fs_data/CHECKTICKET08.bmp" /* 購貨完成 購貨金額 票卡餘額*/
+#define _CHECK_TICKET_RESULT_09_ "./fs_data/CHECKTICKET09.bmp" /* 購貨完成 自動加值 購貨金額 票卡餘額*/
+#define _CHECK_TICKET_RESULT_10_ "./fs_data/CHECKTICKET10.bmp" /* 交易完成 自動加值 購貨金額 票卡餘額*/
+
+比對富邦圖片後，補上的圖片
+#define _ESC_REPRINT_PAPER_BILL_	"./fs_data/ConfRePrintEsc.bmp"	/* 用在最後一筆交易有儲存檔案後失敗，在重開機重印顯示  */
+
+比對國泰世華UPT圖片，因為自助UPT不下TMS，所以要先預LOAD圖片。
+CUPLEGAL.bmp //銀聯提示字樣
+NCCCLOGO.bmp //國泰世華銀行LOG圖示
+FUBONLOGO.bmp //富邦銀行LOG圖示

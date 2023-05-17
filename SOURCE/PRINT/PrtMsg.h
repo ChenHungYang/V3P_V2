@@ -1,0 +1,29 @@
+/* 定義列印的圖片或訊息 */
+
+/* 簽單用圖片路徑 */
+#define _BANK_LOGO_			_FUBON_LOGO_
+
+#define _CUB_LOGO_			"./fs_data/CUBLOGO.bmp"		/* 銀行LOGO */
+#define _FUBON_LOGO_		"./fs_data/FUBONLOGO.bmp"	/* 銀行LOGO,不由TMS下載。需預先載圖 */
+#define _MERCHANT_LOGO_		"./fs_data/BMPLOGO.bmp"		/* 商店LOGO,由TMS下載, 無基本顯示圖 */
+#define _NAME_LOGO_			"./fs_data/BMPNAME.bmp"		/* 表頭文字檔(商店名稱),由TMS下載, 無基本顯示圖 */
+#define _SLOGAN_LOGO_		"./fs_data/BMPSLOGAN.bmp"	/* 企業標語 */
+#define _CUP_LEGAL_LOGO_		"./fs_data/CUPLEGAL.bmp"		/* CUP交易警語,可由TMS下載，但有基本顯示圖 */
+#define _LEGAL_LOGO_			"./fs_data/BMPLEGAL.bmp"		/* 分期交易警語 */
+#define _NOTICE_LOGO_		"./fs_data/BMPNOTICE.bmp"		/* 商店提示,由TMS下載, 無基本顯示圖 */
+#define _END_LOGO_			"./fs_data/END.bmp"			/* ***列印完成*** */
+#define _NCCC_DEMO_			"./fs_data/NCCCTrain.bmp"		/* 教育訓練模式 */
+
+/* TMS列印用圖片路徑 */
+#define _TMS_DOWNLOAD_STATUS_		"./fs_data/TMS_STATUS.bmp"      /* TMS下載狀態 */
+#define _TMS_DOWNLOAD_SUCCESS_		"./fs_data/TMS_SUCCESS.bmp"     /* ***TMS下載成功*** */
+#define _TMS_DOWNLOAD_FAILURE_		"./fs_data/TMS_FAILURE.bmp"     /* ***TMS下載失敗*** */
+#define _TMS_TASK_TITLE_				"./fs_data/TASK.bmp"            /* 至現回報 */
+
+/* DCC參數下載用 */
+#define _DCC_DOWNLOAD_STATUS_		"./fs_data/DCC_STATUS.bmp"      /* DCC下載狀態 */
+#define _DCC_DOWNLOAD_SUCCESS_		"./fs_data/DCC_SUCCESS.bmp"     /* ***DCC下載成功*** */
+#define _DCC_DOWNLOAD_FAILURE_		"./fs_data/DCC_FAILURE.bmp"     /* ***DCC下載失敗*** */
+
+/* TMS排程下載用 */
+#define _TMS_SCHEDULE_IMPORTANT_	"./fs_data/IMPORTANT.bmp"	/* 重要訊息通知 */

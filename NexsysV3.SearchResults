@@ -1,0 +1,7 @@
+---- _EDC_BOOTING_CUP_LOGON_ Matches (6 in 4 files) ----
+Flow.c (source\event):686:	_EDC_BOOTING_CUP_LOGON_,		/* 安全認證 CUP LOGON */
+Flow.c (source\event):816:	_EDC_BOOTING_CUP_LOGON_,
+FUBONfunc.c (fubon):229:	_EDC_BOOTING_CUP_LOGON_,
+FUBONfunc.c (fubon):1517:	_EDC_BOOTING_CUP_LOGON_,
+FuncTable.c (source\function):351:		{_EDC_BOOTING_CUP_LOGON_,			inFunc_Booting_Flow_CUP_LOGON},
+FuncTable.h (source\function):291:	_EDC_BOOTING_CUP_LOGON_,

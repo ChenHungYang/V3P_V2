@@ -1,0 +1,11 @@
+ASMC.dat 預設一行 格式符合 OK
+CDT.dat  檔案砍掉 szPrint_Tx_No_Check_No 欄位，公司TMS沒有此欄位，移除最後一欄。 OK
+CFGT.dat 使用原有富邦檔案，無變動。 OK
+CPT.dat  使用原有富邦檔案，無變動。 OK
+EDC.dat  加入了電票使用的欄位，如下:
+	char szCMASFuncEnable[2 + 1];	/* [新增電票悠遊卡功能] 是否開啟悠遊卡功能，該參數值為(Y/N)，預設為N  [SAM] 2022/6/14 下午 2:28 */
+	char szCMASLinkMode[2 + 1];	/* [新增電票悠遊卡功能] 悠遊卡連線模式 1 = 間連  0 = 直連 [SAM] 2022/6/14 下午 2:28  */
+	char szCMASAddTcpipMode[2 + 1];	/* [新增電票悠遊卡功能] 悠遊卡AddtionalTcpipData，0 = 不帶、 1 = NCCC、2 = CTCB、 3 = FISC [SAM] 2022/6/14 下午 2:37 */
+					
+					
+					

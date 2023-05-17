@@ -1,0 +1,516 @@
+/*
+ * File:   Display.h
+ * Author: user
+ *
+ * Created on 2015年6月7日, 下午 4:59
+ */
+
+/* 這是用來伸縮座標用的，
+ * 如果不變，
+ * 則_DISTOUCH_MULTIPLIER_ 和 _DISTOUCH_DIVISOR_ 都填1
+ *
+ * 若要1/2倍
+ * 則_DISTOUCH_MULTIPLIER_ 填 1
+ *   _DISTOUCH_DIVISOR_    填 2
+ */
+/* 注意
+ * 如果要用_CASTLE_TYPE_做開關，
+ *  一定要先include define_1.h，再include display.h，
+ * 不然會有的座標有伸縮，有的沒伸縮 */
+#if defined	_HALF_LCD_
+	#define	_LCD_MULTIPLIER_X_	1
+	#define	_LCD_DIVISOR_X_	1
+
+	#define	_LCD_MULTIPLIER_Y_	1
+	#define	_LCD_DIVISOR_Y_	2
+#else
+	#define	_LCD_MULTIPLIER_X_	1
+	#define	_LCD_DIVISOR_X_	1
+
+	#define	_LCD_MULTIPLIER_Y_	1
+	#define	_LCD_DIVISOR_Y_	1
+#endif
+
+/* 顯示畫面的結構 */
+#define _DISP_MSG_SIZE_         48
+
+/* for ingenico
+#if _IWL250_
+#define _MONITOR_MAX_SIZE_              230454
+#define _MONITOR_QUARTER_3_SIZE_        172854
+#define _MONITOR_HALF_SIZE_             115254
+#define _MONITOR_QUARTER_SIZE_          57654
+#elif _IWL280_
+#define _MONITOR_MAX_SIZE_              172854
+#define _MONITOR_QUARTER_3_SIZE_        129654
+#define _MONITOR_HALF_SIZE_             86454
+#define _MONITOR_QUARTER_SIZE_          43254
+#else
+#define _MONITOR_MAX_SIZE_              230454
+#define _MONITOR_QUARTER_3_SIZE_        172854
+#define _MONITOR_HALF_SIZE_             115254
+#define _MONITOR_QUARTER_SIZE_          57654
+#endif
+ for ingenico end */
+
+typedef struct
+{
+	int		inX;					/* 顯示畫面第幾列 */
+	int		inY;					/* 顯示畫面第幾行 */
+	int		inR_L;				/* 顯示靠左或靠右 */
+	int		inMask;				/* 是否要遮掩 */
+	int		inTimeout;				/* Timeout */
+	int		inOutputLen;			/* 輸出字的總長度 */
+	int		inMaxLen;				/* 限制最長長度 */
+	int		inFoneSize;			/* 設定螢幕字型大小 */
+	int		inMsgType;			/* ERROR顯示型態 */
+	int		inMenuKeyIn;			/* MenuKeyIn第一位數 */
+	int		inCanNotZero;			/* 設為VS_TRUE時，不接收0 */
+	int		inCanNotBypass;			/* 設為VS_TRUE時，不可Bypass */
+	int		inColor;				/* 輸入顯示的字串顏色 */
+	int		inTouchSensorFunc;		/* 接受的觸控模式 */
+
+	int		inDispPic1XPosition;		/* */
+	int		inDispPic1YPosition;		/* */
+	int		inErrMsg1Line;			/* 第一行錯誤訊息的顯示位置 */
+	int		inErrMsg2Line;			/* 第二行錯誤訊息的顯示位置 */
+	int		inErrMsg3Line;			/* 第三行錯誤訊息的顯示位置 */
+	int		inErrMsg1FontSize;
+	int		inErrMsg2FontSize;
+	int		inErrMsg3FontSize;
+	int		inBeepTimes;			/* 嗶聲次數 */
+	int		inBeepInterval;			/* 嗶聲間隔時間(以毫秒紀錄) */
+
+	char		szPromptMsg[_DISP_MSG_SIZE_ + 1];	/* 提示字串 */
+	char		szOutput[_DISP_MSG_SIZE_ + 1];		/* 輸出的字 */
+	char		szMaskOutput[_DISP_MSG_SIZE_ + 1];	/* Mask輸出的字 */
+	char		szErrMsg1[_DISP_MSG_SIZE_ + 1];	/* */
+	char		szErrMsg2[_DISP_MSG_SIZE_ + 1];	/* */
+	char		szErrMsg3[_DISP_MSG_SIZE_ + 1];	/* */
+	char		szMinorUnit[2 + 1];				/* DCC使用，小數點幾位 */
+	char		szCurrencyCode[3 + 1];			/* DCC使用，貨幣英文 */
+	char		szDispPic1Name[50 + 1];			/* 要顯示的圖檔名字 */
+	unsigned char	uszNotClearScreen;			/* 不清畫面 */
+} DISPLAY_OBJECT;
+/* [新增電票悠遊卡功能] 有新增欄位 [SAM] 2022/6/8 下午 5:35 */
+
+
+#define DISPLAY_OBJECT_SIZE		sizeof(DISPLAY_OBJECT)
+
+
+/* 定義顯示用中英文的字型 */
+#if defined _LOAD_KEY_AP_
+	#define _CHINESE_FONE_1_                "ca_default.ttf" /* 微軟正黑體 */
+#else
+	#define _CHINESE_FONE_1_                "tsuyuan.ttf" /* 華康粗圓體 */
+#endif
+
+#if defined _LOAD_KEY_AP_
+	#define _ENGLISH_FONE_1_                "ca_default.ttf"
+#else
+	#define _ENGLISH_FONE_1_                "consola.ttf"
+#endif
+
+/* 定義選擇中英文 */
+#define _DISP_CHINESE_			1
+#define _DISP_ENGLISH_			2
+
+/* 定義字型Style */
+/*
+ Index of font style. Default value is 0.
+ Some TTF fonts include several styles per each .ttf file and
+ organize them by different index. If so, bIndex parameter can
+ be used for selecting the TTF style..
+  For example, Times New Roman font has font style of:
+  0 – Regular
+  1 – Italic
+  2 – Bold
+  3 – Bold italic
+ */
+#define _FONT_REGULAR_			0
+#define _FONT_ITALIC_			1
+#define _FONT_BOLD_				2
+#define _FONT_BOLD_ITALIC_		3
+
+#ifdef	_HALF_LCD_
+	/* 定義中英文FONE顯示的大小 */
+	#define _CHINESE_FONT_8X16_		0x0A1E	/* 8 X 8 */
+	#define _CHINESE_FONT_8X22_		0x0E1E	/* 8 X 22 */
+	#define _CHINESE_FONT_8X44_		0x083C	/* 8 X 44 */
+	#define _CHINESE_FONT_12X19_		0x1014	/* 12 X 19 */
+	#define _CHINESE_FONT_16X16_		0x0D0F	/* 16 X 16 */
+	#define _CHINESE_FONT_16X22_		0x0E0F	/* 16 X 22 */
+	#define _CHINESE_FONT_16X44_		0x080F	/* 16 X 44 */
+	#define _CHINESE_FONT_32X22_		0x0E08	/* 32 X 44 */
+
+	/* 改display字型的define，只有clean and build 才會生效 要0x133C才能印第八行 會有大小字問題純粹因為字太大 */
+	#define _ENGLISH_FONT_8X16_		0x131E	/* 8 X 16 */	/* 320 X 480 */	/* 這裡的8 * 16指的是一行可以放8列，一列可放16字，而不是pixel */
+	#define _ENGLISH_FONT_8X22_		0x101E	/* 8 X 22 */
+	#define _ENGLISH_FONT_8X44_		0x083C	/* 8 X 44 */
+	#define _ENGLISH_FONT_12X19_		0x1014	/* 12 X 19 */
+	#define _ENGLISH_FONT_16X16_            0x0D1E	/* 16 X 16 */
+	#define _ENGLISH_FONT_16X22_		0x0E0F	/* 16 X 22 */
+	#define _ENGLISH_FONT_16X44_		0x080F	/* 16 X 44 */
+	#define _ENGLISH_FONT_32X22_		0x0E08	/* 32 X 44 */
+#else
+	#define _CHINESE_FONT_8X16_             0x143C	/* 8 X 8 */
+	#define _CHINESE_FONT_8X22_		0x0E3C	/* 8 X 22 */
+	#define _CHINESE_FONT_8X44_		0x083C	/* 8 X 44 */
+	#define _CHINESE_FONT_12X19_            0x1028	/* 12 X 19 */
+	#define _CHINESE_FONT_16X16_            0x0D1E	/* 16 X 16 */
+	#define _CHINESE_FONT_16X22_		0x0E1E	/* 16 X 22 */
+	#define _CHINESE_FONT_16X44_		0x081E	/* 16 X 44 */
+	#define _CHINESE_FONT_32X22_		0x0E0F	/* 32 X 44 */
+
+	/* 改display字型的define，只有clean and build 才會生效 要0x133C才能印第八行 會有大小字問題純粹因為字太大 */
+	#define _ENGLISH_FONT_8X16_             0x133C	/* 8 X 16 */	/* 320 X 480 */	/* 這裡的8 * 16指的是一行可以放8列，一列可放16字，而不是pixel */
+	#define _ENGLISH_FONT_8X22_		0x103C	/* 8 X 22 */
+	#define _ENGLISH_FONT_8X44_		0x083C	/* 8 X 44 */
+	#define _ENGLISH_FONT_12X19_            0x1028	/* 12 X 19 */
+	#define _ENGLISH_FONT_16X16_            0x0D1E	/* 16 X 16 */
+	#define _ENGLISH_FONT_16X22_		0x0E1E	/* 16 X 22 */
+	#define _ENGLISH_FONT_16X44_		0x081E	/* 16 X 44 */
+	#define _ENGLISH_FONT_32X22_		0x0E0F	/* 32 X 44 */
+
+#endif
+
+typedef enum
+{
+	_FONTSIZE_8X16_,		/* 8 X 16 */
+	_FONTSIZE_8X22_,		/* 8 X 22 */
+	_FONTSIZE_8X44_,		/* 8 X 44 */
+	_FONTSIZE_12X19_,
+	_FONTSIZE_16X16_,
+	_FONTSIZE_16X22_,		/* 16 X 22 */
+	_FONTSIZE_16X44_,
+	_FONTSIZE_32X22_,		/* 32 X 22 */
+} FONTSIZE;
+
+/* 定義中英文顯示的行數(Y Line) */
+#define _LINE_8_1_			1
+#define _LINE_8_2_			2
+#define _LINE_8_3_			3
+#define _LINE_8_4_			4
+#define _LINE_8_5_			5
+#define _LINE_8_6_			6
+#define _LINE_8_7_			7
+#define _LINE_8_8_			8
+
+#define _LINE_16_1_			1
+#define _LINE_16_2_			2
+#define _LINE_16_3_			3
+#define _LINE_16_4_			4
+#define _LINE_16_5_			5
+#define _LINE_16_6_			6
+#define _LINE_16_7_			7
+#define _LINE_16_8_			8
+#define _LINE_16_9_			9
+#define _LINE_16_10_			10
+#define _LINE_16_11_			11
+#define _LINE_16_12_			12
+#define _LINE_16_13_			13
+#define _LINE_16_14_			14
+#define _LINE_16_15_			15
+#define _LINE_16_16_			16
+
+#define _LINE_12_1_			1
+#define _LINE_12_2_			2
+#define _LINE_12_3_			3
+#define _LINE_12_4_			4
+#define _LINE_12_5_			5
+#define _LINE_12_6_			6
+#define _LINE_12_7_			7
+#define _LINE_12_8_			8
+#define _LINE_12_9_			9
+#define _LINE_12_10_			10
+#define _LINE_12_11_			11
+#define _LINE_12_12_			12
+
+#define _LINE_32_1_			1
+#define _LINE_32_2_			2
+#define _LINE_32_3_			3
+#define _LINE_32_4_			4
+#define _LINE_32_5_			5
+#define _LINE_32_6_			6
+#define _LINE_32_7_			7
+#define _LINE_32_8_			8
+#define _LINE_32_9_			9
+#define _LINE_32_10_			10
+#define _LINE_32_11_			11
+#define _LINE_32_12_			12
+#define _LINE_32_13_			13
+#define _LINE_32_14_			14
+#define _LINE_32_15_			15
+#define _LINE_32_16_			16
+#define _LINE_32_17_			17
+#define _LINE_32_18_			18
+#define _LINE_32_19_			19
+#define _LINE_32_20_			20
+#define _LINE_32_21_			21
+#define _LINE_32_22_			22
+#define _LINE_32_23_			23
+#define _LINE_32_24_			24
+#define _LINE_32_25_			25
+#define _LINE_32_26_			26
+#define _LINE_32_27_			27
+#define _LINE_32_28_			28
+#define _LINE_32_29_			29
+#define _LINE_32_30_			30
+#define _LINE_32_31_			31
+#define _LINE_32_32_			32
+
+#define _LCD_XSIZE_			((320	* _LCD_MULTIPLIER_X_) / _LCD_DIVISOR_X_)
+#define _LCD_YSIZE_			((480	* _LCD_MULTIPLIER_Y_) / _LCD_DIVISOR_Y_)
+
+/* 定義圖片y座標 */
+#define _COORDINATE_Y_LINE_8_1_	0
+#define _COORDINATE_Y_LINE_8_2_	(_LCD_YSIZE_ / 8) * 1
+#define _COORDINATE_Y_LINE_8_3_	(_LCD_YSIZE_ / 8) * 2
+#define _COORDINATE_Y_LINE_8_4_	(_LCD_YSIZE_ / 8) * 3
+#define _COORDINATE_Y_LINE_8_5_	(_LCD_YSIZE_ / 8) * 4
+#define _COORDINATE_Y_LINE_8_6_	(_LCD_YSIZE_ / 8) * 5
+#define _COORDINATE_Y_LINE_8_7_	(_LCD_YSIZE_ / 8) * 6
+#define _COORDINATE_Y_LINE_8_8_	(_LCD_YSIZE_ / 8) * 7
+
+#define _COORDINATE_Y_LINE_16_1_	0
+#define _COORDINATE_Y_LINE_16_2_	(_LCD_YSIZE_ / 16) * 1
+#define _COORDINATE_Y_LINE_16_3_	(_LCD_YSIZE_ / 16) * 2
+#define _COORDINATE_Y_LINE_16_4_	(_LCD_YSIZE_ / 16) * 3
+#define _COORDINATE_Y_LINE_16_5_	(_LCD_YSIZE_ / 16) * 4
+#define _COORDINATE_Y_LINE_16_6_	(_LCD_YSIZE_ / 16) * 5
+#define _COORDINATE_Y_LINE_16_7_	(_LCD_YSIZE_ / 16) * 6
+#define _COORDINATE_Y_LINE_16_8_	(_LCD_YSIZE_ / 16) * 7
+#define _COORDINATE_Y_LINE_16_9_	(_LCD_YSIZE_ / 16) * 8
+#define _COORDINATE_Y_LINE_16_10_	(_LCD_YSIZE_ / 16) * 9
+#define _COORDINATE_Y_LINE_16_11_	(_LCD_YSIZE_ / 16) * 10
+#define _COORDINATE_Y_LINE_16_12_	(_LCD_YSIZE_ / 16) * 11
+#define _COORDINATE_Y_LINE_16_13_	(_LCD_YSIZE_ / 16) * 12
+#define _COORDINATE_Y_LINE_16_14_	(_LCD_YSIZE_ / 16) * 13
+#define _COORDINATE_Y_LINE_16_15_	(_LCD_YSIZE_ / 16) * 14
+#define _COORDINATE_Y_LINE_16_16_	(_LCD_YSIZE_ / 16) * 15
+
+#if 1//By Ray For FUBON
+
+#define _COORDINATE_Y_CTLS_LOGO_Line_1_	((106	* _LCD_MULTIPLIER_Y_) / _LCD_DIVISOR_Y_)
+#define _COORDINATE_Y_CTLS_LOGO_Line_2_	((164	* _LCD_MULTIPLIER_Y_) / _LCD_DIVISOR_Y_)
+#define _COORDINATE_Y_CTLS_LOGO_Line_3_	((222	* _LCD_MULTIPLIER_Y_) / _LCD_DIVISOR_Y_)
+#define _COORDINATE_Y_CTLS_LOGO_Line_4_	((268	* _LCD_MULTIPLIER_Y_) / _LCD_DIVISOR_Y_)
+
+
+#define _COORDINATE_X_CTLS_LOGO_3_1_	((27	* _LCD_MULTIPLIER_X_) / _LCD_DIVISOR_X_)
+#define _COORDINATE_X_CTLS_LOGO_3_2_	((124	* _LCD_MULTIPLIER_X_) / _LCD_DIVISOR_X_)
+#define _COORDINATE_X_CTLS_LOGO_3_3_	((221	* _LCD_MULTIPLIER_X_) / _LCD_DIVISOR_X_)
+#define _COORDINATE_X_CTLS_LOGO_4_1_	((5	* _LCD_MULTIPLIER_X_) / _LCD_DIVISOR_X_)
+#define _COORDINATE_X_CTLS_LOGO_4_2_	((85	* _LCD_MULTIPLIER_X_) / _LCD_DIVISOR_X_)
+#define _COORDINATE_X_CTLS_LOGO_4_3_	((165	* _LCD_MULTIPLIER_X_) / _LCD_DIVISOR_X_)
+#define _COORDINATE_X_CTLS_LOGO_4_4_	((245	* _LCD_MULTIPLIER_X_) / _LCD_DIVISOR_X_)
+#define _COORDINATE_X_CTLS_LOGO_5_1_	((20	* _LCD_MULTIPLIER_X_) / _LCD_DIVISOR_X_)
+#define _COORDINATE_X_CTLS_LOGO_5_2_	((80	* _LCD_MULTIPLIER_X_) / _LCD_DIVISOR_X_)
+#define _COORDINATE_X_CTLS_LOGO_5_3_	((140	* _LCD_MULTIPLIER_X_) / _LCD_DIVISOR_X_)
+#define _COORDINATE_X_CTLS_LOGO_5_4_	((200	* _LCD_MULTIPLIER_X_) / _LCD_DIVISOR_X_)
+#define _COORDINATE_X_CTLS_LOGO_5_5_	((260	* _LCD_MULTIPLIER_X_) / _LCD_DIVISOR_X_)
+#else
+
+#define _COORDINATE_Y_CTLS_LOGO_Line_1_	((100	* _LCD_MULTIPLIER_Y_) / _LCD_DIVISOR_Y_)
+#define _COORDINATE_Y_CTLS_LOGO_Line_2_	((145	* _LCD_MULTIPLIER_Y_) / _LCD_DIVISOR_Y_)
+#define _COORDINATE_Y_CTLS_LOGO_Line_3_	((190	* _LCD_MULTIPLIER_Y_) / _LCD_DIVISOR_Y_)
+#define _COORDINATE_Y_CTLS_LOGO_Line_4_	((235	* _LCD_MULTIPLIER_Y_) / _LCD_DIVISOR_Y_)
+
+#define _COORDINATE_X_CTLS_LOGO_3_1_	((35	* _LCD_MULTIPLIER_X_) / _LCD_DIVISOR_X_)
+#define _COORDINATE_X_CTLS_LOGO_3_2_	((130	* _LCD_MULTIPLIER_X_) / _LCD_DIVISOR_X_)
+#define _COORDINATE_X_CTLS_LOGO_3_3_	((225	* _LCD_MULTIPLIER_X_) / _LCD_DIVISOR_X_)
+#define _COORDINATE_X_CTLS_LOGO_4_1_	((16	* _LCD_MULTIPLIER_X_) / _LCD_DIVISOR_X_)
+#define _COORDINATE_X_CTLS_LOGO_4_2_	((92	* _LCD_MULTIPLIER_X_) / _LCD_DIVISOR_X_)
+#define _COORDINATE_X_CTLS_LOGO_4_3_	((168	* _LCD_MULTIPLIER_X_) / _LCD_DIVISOR_X_)
+#define _COORDINATE_X_CTLS_LOGO_4_4_	((244	* _LCD_MULTIPLIER_X_) / _LCD_DIVISOR_X_)
+#define _COORDINATE_X_CTLS_LOGO_5_1_	((20	* _LCD_MULTIPLIER_X_) / _LCD_DIVISOR_X_)
+#define _COORDINATE_X_CTLS_LOGO_5_2_	((80	* _LCD_MULTIPLIER_X_) / _LCD_DIVISOR_X_)
+#define _COORDINATE_X_CTLS_LOGO_5_3_	((140	* _LCD_MULTIPLIER_X_) / _LCD_DIVISOR_X_)
+#define _COORDINATE_X_CTLS_LOGO_5_4_	((200	* _LCD_MULTIPLIER_X_) / _LCD_DIVISOR_X_)
+#define _COORDINATE_X_CTLS_LOGO_5_5_	((260	* _LCD_MULTIPLIER_X_) / _LCD_DIVISOR_X_)
+#endif
+
+/* CTLS LOGO 大圖示 */
+#define _COORDINATE_Y_CTLS_LOGO_BIG_Line_1_	((160	* _LCD_MULTIPLIER_Y_) / _LCD_DIVISOR_Y_)
+#define _COORDINATE_Y_CTLS_LOGO_BIG_Line_2_	((205	* _LCD_MULTIPLIER_Y_) / _LCD_DIVISOR_Y_)
+#define _COORDINATE_Y_CTLS_LOGO_BIG_Line_3_	((250	* _LCD_MULTIPLIER_Y_) / _LCD_DIVISOR_Y_)
+#define _COORDINATE_Y_CTLS_LOGO_BIG_Line_4_	((285	* _LCD_MULTIPLIER_Y_) / _LCD_DIVISOR_Y_)
+
+#define _COORDINATE_X_CHOOSE_HOST_1_	((14	* _LCD_MULTIPLIER_X_) / _LCD_DIVISOR_X_)
+#define _COORDINATE_X_CHOOSE_HOST_2_	((112	* _LCD_MULTIPLIER_X_) / _LCD_DIVISOR_X_)
+#define _COORDINATE_X_CHOOSE_HOST_3_	((210	* _LCD_MULTIPLIER_X_) / _LCD_DIVISOR_X_)
+
+/* Enter Start */
+/* KeyBoard輸入型態宣告 */
+#define KBD_DEC			0x0800				/* 0-9 acceptted */
+#define KBD_UPPER			0x0400				/* A-Z and space */
+#define KBD_LOWER			0x0200				/* a-z and space */
+#define KBD_SYM			0x0100				/* !@#$...~ */
+#define KBD_ALL				(KBD_DEC|KBD_UPPER|KBD_LOWER|KBD_SYM) /* convert all */
+#define KBD_HIDE			(KBD_ALL | 0x0010)  		/* display '*' instead of real keystrokes */
+
+#define _DISP_LEFT_			d_LCD_ALIGNLEFT		/* 原廠Display靠左 */
+#define _DISP_RIGHT_			d_LCD_ALIGNRIGHT		/* 原廠Display靠右 */
+#define _DISP_CENTER_		d_LCD_ALIGNCENTER		/* 原廠Display置中 */
+/* Enter End */
+
+/* ERROR Msg START */
+#define _NO_KEY_MSG_			0		/* 不按鍵 */
+#define _CLEAR_KEY_MSG_			1		/* 顯示請按清除鍵 */
+#define _BEEP_1TIMES_MSG_		2		/* 訊息Beep1聲 */
+#define _BEEP_3TIMES_MSG_		3		/* 訊息Beep3聲 */
+#define _ENTER_KEY_MSG_			4		/* 請按確認鍵 */
+#define _0_KEY_MSG_				5		/* 請按0確認 */
+#define _REMOVE_CARD_MSG_		6		/* 拔卡觸發下一步 */
+
+#define _ANY_KEY_MSG_			7		/* [新增電票悠遊卡功能]  請按任意鍵 [SAM] 2022/6/8 下午 5:36 */
+
+/* ERROR Msg END */
+
+/* for ingenico
+#define _TIMER_ID_       0x0000
+#define _LABEL_0_ID_     0x0100
+#define _BUTTON_VAL_ID_  0x0200
+#define _BUTTON_CAN_ID_  0x0300
+#define _BUTTON_DOWN_ID_ 0x0400
+#define _BUTTON_UP_ID_   0x0500
+#define _LAYOUT2_ID_     0x0600
+#define _DRAWING_ID_     0x0700
+#define _PICTURE_ID_     0x0800
+#define _LAYOUT3_ID_     0x0900
+*/
+// Result returns from the call back function
+//==========================================
+//#define RES_VALID_STATUS  0  // Valid key pressed or touched (Green key)
+//#define RES_CANCEL_STATUS 1  // Red key pressed or touched (Red key)
+//#define RES_DOWN_STATUS   2  // Down key pressed or touched
+//#define RES_UP_STATUS     3  // Up key pressed or touched
+//#define RES_TIMER_STATUS  4  // Timeout expiration
+//#define RES_PRESS_STATUS  5  // Key pressed
+
+/* for ingenico end */
+
+/* 字體顏色 START */
+/*
+Color value. Encoding 00 BB GG RR, where
+-  RR is red color value,
+-  GG is green color value,
+-  BB is blue color value.
+*/
+#define _COLOR_RED_				0x000000FF
+#define _COLOR_GREEN_				0x0000FF00
+#define _COLOR_BLUE_				0x00FF0000
+#define _COLOR_YELLOW_				0x0000FFFF
+#define _COLOR_LIGHTBLUE_			0x00F0B000
+#define _COLOR_LIGHTYELLOW_			0x0066D9FF
+#define _COLOR_WHITE_				0x00FFFFFF
+#define _COLOR_BLACK_				0x00000000
+
+/* 自定義 */
+#define _COLOR_BUTTON_				0x006F2400
+/* 字體顏色 END */
+
+/* 計時器的 Hnadle */
+#define _TIMER_NEXSYS_1_	TIMER_ID_1
+#define _TIMER_NEXSYS_2_	TIMER_ID_2
+#define _TIMER_NEXSYS_3_	TIMER_ID_3
+#define _TIMER_NEXSYS_4_	TIMER_ID_4
+
+#define _EDC_TIMEOUT_		-1	/* 由EDC.dat控制 */
+
+#define _BACK_LIGHT_LCD_	d_BKLIT_LCD
+
+
+#define _LIGHT_ON_	99
+#define _LIGHT_OFF_	98
+
+/* Debug 定位用 */
+/* 新增電票 log使用方法 2022/6/7  [SAM] */
+#define STRINGIFY(x) #x
+#define TOSTRING(x) STRINGIFY(x)
+#define AT "F:"__FILE__ "|L:" TOSTRING(__LINE__) "|"
+
+
+int inGetStopEcrReceive(void);
+int inSetStopEcrReceive(int inStopReceive);
+
+int inDISP_Initial(void);
+int inDISP_TTF_SetFont(int inLanguage, int inFont_Style);
+int inDISP_ClearAll(void);
+int inDISP_Clear_Area(int inXL,int inYL,int inXR,int inYR, int inFoneSize);
+int inDISP_Clear_Box(int inXL,int inYL,int inXSize,int inYSize);
+int inDISP_Clear_Line(int inLineT, int inLineB);
+int inDISP_Decide_FontSize(int inFontSize, int inLanguage, unsigned short* usFontsize);
+int inDISP_Select_FontSize(int inFontSize, int inLanguage);
+int inDISP_ChineseFont(char *szMessage, int inFontSize, int inLINE, int inAligned);
+int inDISP_ChineseFont_Color(char *szMessage, int inFontSize, int inLINE, int inColor, int inAlign);
+int inDISP_ChineseFont_Point_Color(char *szMessage, int inFontSize,int inLINE, int inForeColor, int inBackColor, int inX);
+int inDISP_ChineseFont_Point_Color_By_Graphic_Mode(char *szMessage, int inFontSize, int inForeColor, int inBackColor, int inX, int inY, unsigned char uszReverse);
+int inDISP_EnglishFont(char *szMessage, int inFontSize, int in_LINE_, int inAlign);
+int inDISP_EnglishFont_Color(char *szMessage, int inFontSize, int inLINE, int inColor, int inAlign);
+int inDISP_EnglishFont_Point_Color(char *szMessage, int inFontSize,int inLINE, int inForeColor, int inBackColor, int inX);
+int inDISP_PutGraphic(char *szFileName, int inX, int inY);
+
+int inDISP_Enter8x16(DISPLAY_OBJECT  *srDispObj);
+int inDISP_Enter8x16_NumDot(DISPLAY_OBJECT  *srDispObj);
+int inDISP_Enter8x16_Character (DISPLAY_OBJECT  *srDispObj);
+int inDISP_Enter8x16_Character_Mask (DISPLAY_OBJECT  *srDispObj);
+int inDISP_Enter8x16_Character_Mask_And_DisTouch (DISPLAY_OBJECT  *srDispObj);
+int inDISP_Enter8x16_GetAmount(DISPLAY_OBJECT  *srDispObj);
+int inDISP_Enter8x16_GetDCCAmount(DISPLAY_OBJECT  *srDispObj);
+int inDISP_Enter16X22_Character_Mask (DISPLAY_OBJECT  *srDispObj);
+int inDISP_DisplayIdleMessage(void);
+int inDISP_DisplayIdleMessage_NewUI(void);
+int inDISP_ErrorMsg(DISPLAY_OBJECT  *srDispObj);
+int inDISP_Msg_BMP(char* szFileName, int inYPosition, int inMsgType, int inTimeOut, char* szAdditonalMsg, int inAdditonalMsgLine);
+int inDISP_Msg_NewBMP(DISPLAY_OBJECT* srDispMsgObj); /* [新增電票悠遊卡功能] 新的顯示功能 [SAM] 2022/6/8 下午 5:36 */
+int inDISP_Enter8x16_MenuKeyIn(DISPLAY_OBJECT  *srDispObj);
+
+unsigned char uszSWIPE_Open(void);
+unsigned char uszSWIPE_Close(void);
+unsigned char uszFlushSWIPEBuffer(void);
+unsigned char uszKBD_Close(void);
+unsigned char uszKBD_Open(unsigned char uszLs);
+int inFlushKBDBuffer(void);
+
+unsigned char uszKBD_GetKey(int timeout);
+unsigned char uszKBD_Key(void);
+unsigned char uszKBD_Key_Hit(void);
+unsigned char uszKBD_Key_In(void);
+int inKBD_Key_IsPressed(void);
+
+int inTimerStart(int inTimerNbr, long lnDelay);
+int inTimerStart_MicroSecond(int inTimerNbr, long lnDelay);
+int inTimerGet(int inTimerNbr);
+int inDISP_Timer_Start(int inTimerNumber, long lnDelay);
+int inDISP_Timer_Start_MicroSecond(int inTimerNumber, long lnDelay);
+int inDISP_LOGDisplay(char *szString, int inFontSize, int inLine, unsigned char uszStop);
+
+/* Debug Printf 用 */
+int inDISP_LogPrintf(char *szStr, ...);
+void inDISP_LogPrintfArea(char fDebugFlag,char *chMsg,int inMsgLen,BYTE *chData,int inDataLen);
+int inDISP_LogPrintf_Format(char* szPrintBuffer, char* szPadData, int inOneLineLen);
+
+int inDISP_Wait(int inmSecond);
+int inDISP_BEEP(int inCount, int inmSecond);
+int inDISP_Sound(unsigned short usFreq, unsigned short usDuration);
+int inDISP_TimeoutStart(int inTimeout);
+int inDISP_TimeoutCheck(int inFontSize, int inLine, int inPlace);
+
+int inDISP_BackLight_Set(unsigned char uszLED, unsigned char uszOnOff);
+int inDISP_LogPrintfWithFlag(char *szStr, ...);
+int inDISP_LogPrintfWithFlagForTimeTest(char *szStr, ...);
+int inDISP_DispLogAndWriteFlie(char *szStr, ...);
+int inDISP_LockEdcDispLogAndWriteFlie(char *szStr, ...);
+
+int inDISP_TrunOnOffLightOnPanel(unsigned char *srLightName, int inOpation);
+
+int inDISP_DispLogAndWriteFlie(char *szStr, ...);
+int inLogPrintf(char* szlocation, char *szStr, ...);
+
+int inDISP_LogPrintfAt(char* szlocation, char *szStr, ...);
+
+int inDISP_RTC_Tick_Correction(void);
+
+int inDISP_SetMultiReceiveTimeout(void);
+char * pszDisp_GetResponseV3Message(int inRespCode);
